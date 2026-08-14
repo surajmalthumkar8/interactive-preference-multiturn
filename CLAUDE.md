@@ -2,6 +2,17 @@
 
 Project instructions for Claude Code working in this repository. Read this first, every session.
 
+> ## ⛔ The one rule that is never waived
+>
+> **Every user-side word that will go into Feather passes through the `mt-humanizer` agent,
+> which runs the `humanizer` skill, before it is shown to Suraj.** The opening prompt, every
+> follow-up, and the reason field. Every turn, every task, no exceptions — including turns he
+> edited himself and pasted back. Nothing ships without `HUMANIZATION: PASS`.
+>
+> This is the condition attached to the permission to use AI on this project at all
+> (`system/rules/AUTHENTICITY_RULES.md` §0). Skipping it once turns an allowed workflow into a
+> removal offence.
+
 ---
 
 ## What this project is

@@ -83,26 +83,69 @@ facts. The memory files just make them recallable without a read.
 
 ## 5. First-run prompt
 
-Paste this into Claude Code once, in the repo root:
+Paste this into Claude Code once, in the repo root. It is the whole setup handshake — read it
+back, verify it, and lock in the standing rules.
 
 ```
-Read CLAUDE.md, then PROJECT_KNOWLEDGE.md, then every file in system/rules/, then
-system/workflows/RUN_TASK.md and system/knowledge/HUMAN_VOICE_CORPUS.md.
+This repo is my working setup for the MAI "Interactive Preference | Multi-Turn" project.
+Set yourself up before we do anything else.
 
-Then confirm back to me, in under fifteen lines:
-1. the turn range you will enforce, and which lines of the guidelines file are stale
-2. what the model under test cannot do, including its knowledge cutoff
-3. the exact claim sequence including the two steps that only appear in a flowchart image
-4. the seven mt-* agents you can see, and that the humanizer skill resolves
-5. any OPEN session in sessions/ that I might be resuming
-6. one line confirming you will run the humanizer on every turn and never pad to reach ten
+READ, in this order, in full, from disk — not from memory of them:
+  1. CLAUDE.md
+  2. PROJECT_KNOWLEDGE.md
+  3. system/rules/TURN_RULES.md, CAPABILITY_RULES.md, AUTHENTICITY_RULES.md,
+     PREFERENCE_RULES.md, WORKFLOW_RULES.md
+  4. system/workflows/RUN_TASK.md and system/workflows/CLAIM_TASK.md
+  5. system/knowledge/HUMAN_VOICE_CORPUS.md and TOPIC_PLAYBOOK.md
+  6. system/checklists/PRE_SUBMIT_CHECKLIST.md
+  7. system/learning/PROMPT_LOG.md and LESSONS.md
+  8. sessions/ — list any OPEN state file I may be resuming from my other laptop
 
-Then wait. From my next message on I paste task content and you run
-system/workflows/RUN_TASK.md on it, with no preamble.
+VERIFY and report:
+  - the seven mt-* agents in .claude/agents/ are available to you, by name
+  - the `humanizer` skill resolves via the Skill tool. Prove it now: run it on
+    "This comprehensive solution delivers robust value across the entire landscape."
+    and show me the rewritten line. If it does not resolve, say so loudly and stop.
+
+STANDING RULES — confirm each one back to me in your own words, one line each:
+  1. HUMANIZER, EVERY TIME. Every user-side word that will go into Feather — the
+     opening prompt, every follow-up, and the optional reason field — goes through
+     the mt-humanizer agent, which runs the `humanizer` skill, before you show it to
+     me. No exceptions, no "this one is already casual", no batching it for later.
+     Nothing ships without HUMANIZATION: PASS on it. If I ever paste a turn back to
+     you after editing it, re-humanize it — my edits are not exempt either.
+  2. Before humanizing, check the draft against the guidelines' own style rules:
+     Golden Rule (~GL:180), Quick Tips (~GL:209), and the example prompt table
+     (~GL:194-205), plus system/knowledge/HUMAN_VOICE_CORPUS.md. Read the corpus each
+     time; do not work from memory of it.
+  3. Vary rhythm, opener shape, and imperfection pattern turn to turn AND task to
+     task. GL:180 detects shared writing patterns across contributors and across
+     unrelated topics — a consistent AI voice is itself the risk.
+  4. 10 turns minimum, 15 maximum. The "one turn is fine" text at GL:134/162/172/229
+     is stale 07-28 leftovers. Below turn 10 you may return BACKTRACK, never END and
+     never a filler turn — padding to reach 10 is a removal offence.
+  5. The model under test has no web search, no real-time data, no file uploads, no
+     images, and a July 2025 knowledge cutoff. Paste content, never point at it.
+  6. Every turn must engage the specifics of the previous response, with the anchor
+     quoted back to me.
+  7. Every turn needs a recorded preference, verified by the arrow on the chosen side.
+  8. I TYPE every turn into Feather. Never tell me to paste one.
+
+Then wait. From my next message on, I paste task content and you run
+system/workflows/RUN_TASK.md on it — no preamble, no summary of what you are about to
+do, just the deliverable.
 ```
 
-If any of the six answers comes back wrong, stop and fix the setup before working a task — a
-wrong turn range or a missed claim step costs a whole task.
+If any answer comes back wrong — especially the turn range, the humanizer proof, or the claim
+sequence — stop and fix the setup before working a task. A wrong turn range or a missed claim
+step costs the whole task.
+
+### Make it permanent (optional, 10 seconds)
+
+The first-run prompt sets up one session. `CLAUDE.md` already carries the same standing rules
+into every future session automatically, so you do not need to repeat the paste. If you ever
+want the humanizer rule stated even louder, add one line to the top of `CLAUDE.md` under
+**Standing instructions** — it loads before anything you type.
 
 ---
 
