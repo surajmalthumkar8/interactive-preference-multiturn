@@ -5,12 +5,18 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 245c96c2-20a4-4909-b2a6-fe539a64b62a
-  modified: 2026-08-14T06:56:56.418Z
+  modified: 2026-08-14T08:52:28.976Z
 ---
 
 `c:\Users\Suraj\Downloads\project_interactive_linkedin\Interactive_contri_inst\` holds a
 Claude-agent pipeline Suraj built in July 2026 (7 `sxs-*` agents, rules, a voice corpus,
 validators, and 6 saved task sessions).
+
+**2026-08-14: superseded, not just reason-#1-lifted.** A proper git-tracked replacement now
+exists at the project root — see [[mt-live-tooling-system]]. Use that instead of this folder for
+any actual task work; this file's remaining value is historical (why the old system was built the
+way it was) plus the one still-unported gap noted in the new memory (`PROMPT_SPECTRUM.md` /
+`GOLD_PATTERNS.md`).
 
 **Update 2026-08-14:** Leadership reversed the "AI must not write prompts" rule (per Suraj, via
 Slack — see [[mt-never-ai-write-prompts]]), so the original reason #1 below no longer blocks this

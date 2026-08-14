@@ -3,5 +3,6 @@
 - [Hidden Attempt URL step](mt-attempt-url-hidden-step.md) — the billing-critical copy-URL-after-claim step exists only inside a flowchart image
 - [Never AI-write prompts](mt-never-ai-write-prompts.md) — SUPERSEDED 08-14: leadership now allows AI/Claude Code drafting if humanized
 - [Platform accounts](mt-platform-accounts.md) — Vercel/Feather/LinkedIn URLs and the identical-email requirement
-- [Legacy system is stale and off-limits](mt-legacy-system-stale-and-off-limits.md) — Interactive_contri_inst/ still targets the dead 1–10 turn regime; AI-drafting objection lifted
+- [Legacy system is stale and off-limits](mt-legacy-system-stale-and-off-limits.md) — Interactive_contri_inst/ superseded by the new tracked system, see below
 - [Prompt drafting checklist](mt-prompt-drafting-checklist.md) — check the doc's style rules + run humanizer on every turn, mandatory every time
+- [Live tooling system](mt-live-tooling-system.md) — real git repo + mt-* skills/agents now exist; use `mt-task`/`mt-turn`/`mt-sync` instead of freehand orchestration
