@@ -185,6 +185,52 @@ counteroffer vs a broken lease). Logged so that if a reviewer ever flags Conv 55
 written history. GL:56 duplicates are removal offence #1; this deserved an explicit verdict and
 did not get one.
 
+## 2026-08-15 — A delivered, closed task left its state file reading OPEN for a full day
+**Task:** Feather SxS Conv 101 (cron retry policy), sxs-101
+**What happened:** the task ran to turn 12 of a planned 12, the close-out message went to Suraj on
+2026-08-14 (final pick, "send nothing further", Feather Mark as Complete → Vercel Submit Task, and
+the 12-turn checklist). `sessions/cron-retry-bug_state.md` was still `Status: OPEN` /
+`Current turn: 12` on 2026-08-15. Turn 12 had no Turn log row, the Pick record table was empty for
+all twelve turns, the Rotation guard still read "(none yet)" and "no picks yet", and no
+`PROMPT_LOG.md` row existed. A fresh session reading the file would have concluded the task was
+mid-flight and resumed writing turn 13 — into a conversation already submitted, past the 15
+ceiling's only safe margin and straight into the padding removal trigger.
+**Root cause:** the close-out bookkeeping is a *single* dispatch (`MODE END` E3
+`mt-session-scribe`) that runs after the deliverable is already in Suraj's hands. Once the useful
+output has shipped, nothing downstream depends on E3, so when the dispatch was skipped or lost
+across a context compaction there was no consumer to notice its absence. The same failure shape as
+2026-08-14's compliance-auditor BLOCK: state-file work deferred until after the thing that would
+have caught it. Per-turn updates have a natural checker (the next turn reads the file); the final
+update has none.
+**Owning step:** `../workflows/RUN_TASK.md` `MODE END` E3 (`mt-session-scribe`).
+**Rule edit:** `RUN_TASK.md` `MODE END` — E3 moves **before** the close-out message to Suraj, not
+after, and the close-out message is not sent until the scribe returns. Add to E3's exit criteria
+that the state file must read `Status: CLOSED` and carry a Turn log row for the final turn, and
+that the `PROMPT_LOG.md` row is appended in the same dispatch. Add to `RUN_TASK.md` step 0
+(session sync): scan `sessions/*_state.md` for any file whose `Current turn` equals its
+`Planned turn count` while `Status` is still OPEN, and resolve it before starting new work.
+**Recurrence check:** step 0 of every session surfaces a stale-OPEN state file, so the gap is
+caught at the next session start at the latest instead of by chance. A task cannot be reported
+closed to Suraj before its state file says CLOSED.
+
+## 2026-08-15 — The "archive the opener text" fix was written down and then not done, twice
+**Task:** Feather SxS Conv 101 (repeat of the same miss at Conv 55)
+**What happened:** `PROMPT_LOG.md`'s rotation state after task 1 said "archive the exact opener
+text in the state file at turn 1 from now on". Conv 101 recorded the opener's *shape* ("bare noun
+phrase → symptom → ask → paste") and word count, but not its words. Both log rows now carry an
+unusable Opener column.
+**Root cause:** the instruction was parked in the rotation-state prose of a *different* file from
+the one being written at turn 1, and the state template's Turn log has a column for opener shape
+but none for opener text — so following the template correctly still loses the text. A fix written
+somewhere other than the artefact it governs is not a fix.
+**Owning step:** `../workflows/RUN_TASK.md` step 1 / turn 1 (`mt-session-scribe` per-turn update).
+**Rule edit:** `../templates/STATE_TEMPLATE.md` — add a required "Opener (verbatim, as typed into
+Feather)" field to the Topic block, so the text is captured by the template rather than by memory
+of an instruction filed elsewhere. `PROMPT_LOG.md`'s duplicate-check procedure step 1 already
+assumes this text exists; it cannot run without it.
+**Recurrence check:** the duplicate check at S1 fails loudly on any log row whose Opener column
+reads `unknown`, instead of quietly degrading to "is the wording different".
+
 ## 2026-08-14 — AI-drafting reversal: live rules already reconciled (addendum, verification only)
 **Task:** Feather SxS Conv 55 close
 **What happened:** swept the live rule set for language predating the 2026-08-14 Slack reversal.
