@@ -1,0 +1,7 @@
+- [Interactive Preference Multi-Turn](interactive-preference-multiturn.md) — what the MAI project is; reconciled manual lives in PROJECT_KNOWLEDGE.md
+- [Turn count conflict](mt-turn-count-conflict.md) — stale single-turn text in the guidelines; 10 is a hard floor, 15 the ceiling, padding = removal
+- [Hidden Attempt URL step](mt-attempt-url-hidden-step.md) — the billing-critical copy-URL-after-claim step exists only inside a flowchart image
+- [Never AI-write prompts](mt-never-ai-write-prompts.md) — SUPERSEDED 08-14: leadership now allows AI/Claude Code drafting if humanized
+- [Platform accounts](mt-platform-accounts.md) — Vercel/Feather/LinkedIn URLs and the identical-email requirement
+- [Legacy system is stale and off-limits](mt-legacy-system-stale-and-off-limits.md) — Interactive_contri_inst/ still targets the dead 1–10 turn regime; AI-drafting objection lifted
+- [Prompt drafting checklist](mt-prompt-drafting-checklist.md) — check the doc's style rules + run humanizer on every turn, mandatory every time

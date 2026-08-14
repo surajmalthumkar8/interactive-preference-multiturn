@@ -1,0 +1,43 @@
+# --- Claude Code local state (never commit) ---
+# Convention per https://code.claude.com/docs/en/claude-directory :
+# everything under .claude/ is committed EXCEPT these.
+**/.claude/settings.local.json
+CLAUDE.local.md
+.claude/agent-memory-local/
+.claude/.credentials.json
+.claude/history.jsonl
+.claude/todos/
+.claude/shell-snapshots/
+.claude/statsig/
+.claude/projects/
+.claude/plugins/
+.claude/logs/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# --- OS / editor ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# --- Scratch ---
+scratch/
+tmp/
+*.tmp
+*.log
+
+# --- Task material that may carry unscrubbed PII ---
+# Session state files ARE tracked on purpose (they sync between laptops),
+# but anything dropped in these folders is raw and unreviewed.
+inbox_raw/
+exports_raw/
