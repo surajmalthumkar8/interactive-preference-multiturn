@@ -75,3 +75,127 @@ a wrong answer, and it is unknown whether the screening doc was updated.
 preference order unchanged.
 **Recurrence check:** if quality or removal issues ever surface, this mismatch is the first
 place to look.
+
+---
+
+# Production tasks
+
+## 2026-08-14 — A response's stated total contradicted its own line items
+**Task:** Feather SxS Conv 55 (rent renewal), user turn 10
+**What happened:** response A listed six moving-cost line items summing to ~$4,280–$6,550, then
+stated the total as "$2,300–$5,000" — a ~$2,000 gap against its own numbers. Its break-even claim
+of 9–20 months is 17–26 months on its own inputs. B's total tracked its line items and was hedged
+"in most cases". This decided the pick.
+**Root cause:** the derived-number check was being run against *external* facts (is +$340 on
+$2,450 really 13.88%). A response can be internally self-contradictory with no external fact to
+check it against — stated total vs listed parts is a second, separate check, and everything
+computed *from* the total inherits the error.
+**Owning step:** `RUN_TASK.md` C1 `mt-response-auditor` (missed on the blind pass), caught at C3.
+**Rule edit:** PENDING — `../rules/PREFERENCE_RULES.md` §2 step 1: add "re-sum every stated total
+against the response's own line items, then re-derive anything computed from that total
+(break-even, payback, monthly equivalent)". This extends legacy `GOLD_PATTERNS.md` §8b, which
+covers only numbers the user never supplied.
+**Recurrence check:** any response carrying a list of numbers plus a total gets both checks — the
+total against its parts, then the figures derived from the total.
+
+## 2026-08-14 — A two-questions-in-one-sentence bundle is a checkable defect, not a style preference
+**Task:** Feather SxS Conv 55, user turn 8 (Feather index 14)
+**What happened:** the turn needed two answers back from the landlord — the counteroffer and the
+notice deadline. B fused both into one sentence with "and also"; A gave each its own sentence and
+paragraph. That was the entire differential; A was picked.
+**Root cause:** it was nearly filed under clarity/organization (decision order step 6) and
+therefore nearly discounted as taste. It belongs at step 3, goal advancement: a recipient who
+answers the first half of a compound question and drops the second is a real downstream failure —
+here, a missed deadline with an auto-renew behind it.
+**Owning step:** `RUN_TASK.md` C2 `mt-preference-judge`.
+**Rule edit:** PENDING — `../rules/PREFERENCE_RULES.md` §2 step 3: when a turn requires two things
+of a third party, check that each gets its own sentence or paragraph. A bundled ask scores as
+goal advancement, not clarity.
+**Recurrence check:** count the asks the user's turn implies, then count the sentences carrying
+them in each response. Fewer sentences than asks is a flag.
+
+## 2026-08-14 — Rule-of-three filler clusters on the closing turn
+**Task:** Feather SxS Conv 55, user turn 11 (final)
+**What happened:** at the close one response produced three bullets whose third ("stick to your
+max") restated a point already made three-plus times earlier in the same conversation. The other
+gave one still-open item (the lease deadline) plus a concrete offer. Picked the latter.
+**Root cause:** by the closing turn the substantive advice is exhausted, so a model reaching for a
+third bullet can only restate. The filler is predictable by **position in the arc**, not by topic
+— and redundancy against turn 4 is invisible if the bullet is only checked against turn 11.
+**Owning step:** `RUN_TASK.md` C1 `mt-response-auditor`; `MODE END` E1–E2.
+**Rule edit:** PENDING — `../knowledge/REVIEWER_MODEL.md`: on any wrap-up pair (turn ≥10), trace
+each bullet to its first appearance in the thread. Restating settled advice is redundancy, not
+reinforcement.
+**Recurrence check:** closing-pair audits check bullets against the whole conversation, not just
+the current turn.
+
+## 2026-08-14 — The compliance auditor blocked on a missing state file while the turn text was clean
+**Task:** Feather SxS Conv 55, at user turn 8
+**What happened:** `mt-compliance-auditor` returned BLOCK mid-task because
+`sessions/rent-negotiation_state.md` did not exist. The turn itself had zero findings. Creating
+the file retroactively cost a full extra round trip under a running claim clock.
+**Root cause:** the state file was treated as write-up to be done later. The rule already exists
+and is already marked BLOCKING (`RUN_TASK.md` step 1, "load or create … at intake") — it was not
+followed, and nothing between step 1 and C7 notices the file is absent, so the cost lands as late
+as possible.
+**Owning step:** `RUN_TASK.md` step 1 (intake).
+**Rule edit:** PENDING — `RUN_TASK.md` S1 and C6: state the auditor's precondition inline, "no
+state file ⇒ C7 BLOCKs regardless of turn quality", so the cost is visible at the step that skips
+it rather than eight turns downstream.
+**Recurrence check:** the state file is created at turn 1, before `mt-topic-scout` is dispatched.
+
+## 2026-08-14 — Feather's message index is not the user-turn number
+**Task:** Feather SxS Conv 55
+**What happened:** Feather numbers every message, user and model alike. User turn *n* appears at
+index **2n − 2** — turn 1 at index 0, turn 8 at index 14. Cross-checking "how many turns so far"
+against the visible indices reads as roughly double the real count.
+**Root cause:** turn counting is documented only in user-turn terms; the UI's own numbering is
+undocumented, so the two get compared directly and the count comes out wrong in the direction that
+looks safe (over the minimum when it is not).
+**Owning step:** `RUN_TASK.md` C6; `../checklists/PRE_SUBMIT_CHECKLIST.md` count verification.
+**Rule edit:** PENDING — `../rules/TURN_RULES.md` §1: add the mapping beside the 10/15 table —
+`user turn n = Feather index 2n − 2`, and `(highest index ÷ 2) + 1 = user-turn count`.
+**Recurrence check:** the count comes from the state file's turn log, never from the visible index.
+
+## 2026-08-14 — Topic brushed two of the client's five banned example scenarios, with no collision verdict on record
+**Task:** Feather SxS Conv 55
+**What happened:** the topic was assistant-picked — Suraj had no real history to hand that
+session, a disclosed exception to `../rules/AUTHENTICITY_RULES.md` §1, not an accident. The
+scenario (email a landlord about a lease renewal, firm but "must not sound whiny", draft supplied
+and refined) sits close to the client slide's Writing/Professional example: *"I need to tell my
+landlord our lease broke down but I want to sound firm without being rude. Here's the draft."*
+`PROMPT_SPECTRUM.md` names that scenario off-limits twice, explicitly. The arc — negotiate $340
+down to $150, "what's a good approach" — also mirrors the Personal/Situational example's shape.
+Neither collision has an S1 verdict recorded in the state file.
+**Root cause:** the two documents that make this checkable — `PROMPT_SPECTRUM.md` (five
+categories, five banned scenarios, category rotation ledger) and `GOLD_PATTERNS.md` — exist only
+inside `Interactive_contri_inst/`, the legacy tree flagged stale and off-limits. The live system
+has no copy, so the duplicate check at S1 had no in-system source for the banned list and the
+check silently reduced to "is the wording different".
+**Owning step:** `RUN_TASK.md` S1 `mt-topic-scout` (duplicate check).
+**Rule edit:** PENDING — port the binding parts of
+`Interactive_contri_inst/system/knowledge/PROMPT_SPECTRUM.md` into `../knowledge/` and cite it
+from `TOPIC_PLAYBOOK.md` §5. Until that port lands, S1 must read the legacy file explicitly
+despite the tree being otherwise off-limits.
+**Recurrence check:** S1 returns a named verdict against each of the five client example scenarios
+(contractor quote, landlord lease, cortisol, product naming, Node.js race condition) and the
+verdict is written into the state file before turn 1.
+**Severity:** not a confirmed duplicate — the specific need genuinely differs (a rent-increase
+counteroffer vs a broken lease). Logged so that if a reviewer ever flags Conv 55 there is a
+written history. GL:56 duplicates are removal offence #1; this deserved an explicit verdict and
+did not get one.
+
+## 2026-08-14 — AI-drafting reversal: live rules already reconciled (addendum, verification only)
+**Task:** Feather SxS Conv 55 close
+**What happened:** swept the live rule set for language predating the 2026-08-14 Slack reversal.
+None found. `../rules/AUTHENTICITY_RULES.md` §0 carries the new policy; §1's banned-sourcing table
+already reads "AI may *help draft*, but pasting raw model output is still wrong — it must be
+humanized and grounded in a real need"; `Interactive_contri_inst/LEGACY_README.md:23` records the
+lift for the legacy tree. No contradictory guidance is sitting in place.
+**Root cause:** n/a — verification, not a miss.
+**Owning step:** `RUN_TASK.md` step 0 session sync.
+**Rule edit:** none required. Two things did **not** move and are the live constraints: sourcing
+order (reuse > adapt > invent) and GL:180 stylometry. Conv 55 ran fully under the new policy —
+every turn drafted with assistance, humanizer gate on each, Suraj picking and approving.
+**Recurrence check:** if a quality or removal flag ever cites AI-written prompts, the unverified
+surface is the screening doc's Quality Standards Q2, not this repo.
