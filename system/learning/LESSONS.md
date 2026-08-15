@@ -231,6 +231,52 @@ assumes this text exists; it cannot run without it.
 **Recurrence check:** the duplicate check at S1 fails loudly on any log row whose Opener column
 reads `unknown`, instead of quietly degrading to "is the wording different".
 
+## 2026-08-15 — Per-turn scribe dispatches stopped at a compaction; eleven turns of state were lost and a live task read as turn-2 work
+**Task:** Feather SxS Conv 462 (self-review writeup), sxs-462-self-review
+**What happened:** the conversation ran its full planned 13 turns. `sessions/self-review-writeup_state.md`
+was last updated at **turn 2** and still read `Status: OPEN` / `Current turn: 2 (drafted, not yet
+typed)`. The per-turn `mt-session-scribe` dispatches stopped partway through the task, coinciding
+with a context-window compaction. Turns 3–12 lost their anchor quotes, imperfection patterns,
+opener shapes, decisive differentials, near-tie flags and reason texts, plus every constraint-ledger
+addition after T2 — including the three the planned arc expected (T4 no-invented-numbers, T7
+banned-verbs, T9 areas-to-improve). None of it is reconstructable; only the pick letters survived,
+via Suraj's recollection. The state file was rebuilt on 2026-08-15 with those fields left as
+explicit `unknown — lost to compaction` gaps. **The near-miss:** a new task was being started while
+this file still described a live, complete, possibly-unsubmitted conversation as mid-flight turn-2
+work. One step further and turn 3 gets written into a finished 13-turn conversation — past the
+planned end, into the padding removal trigger, in a task whose `↳` markers were never verified.
+Two further consequences the loss made unfixable: the file's own rotation guard ("flag if B reaches
+3 consecutive and re-examine whether the differentials are genuinely independent") was tripped at
+**nine** consecutive B picks with no re-examination possible, and the final turn's pick is
+**disputed** (narrative said B, the ordered sequence said A) with no contemporaneous record to
+break the tie.
+**Root cause:** the per-turn update was assumed to have a natural checker — 2026-08-15's own
+stale-OPEN lesson reasoned that "per-turn updates have a natural checker (the next turn reads the
+file); the final update has none." **That assumption is now falsified.** The checker only works
+while the orchestrating context survives. A compaction discards the working context *without
+discarding the task*, so the next turn is written from the post-compaction summary rather than from
+the file, and the file stops being read at exactly the moment it stops being written. The two
+failures are the same event, which is why nothing noticed: the reader and the writer were the same
+lost context. Compaction is therefore not a background event — it is the single highest-risk moment
+in a 13-turn task, and it is precisely when state must be on disk instead of in context.
+**Owning step:** `../workflows/RUN_TASK.md` C6 (`mt-session-scribe`, per-turn update) — the dispatch
+that stopped. Secondary: `RUN_TASK.md` step 0 (session sync), which caught this one only because a
+human said the turn count looked wrong.
+**Rule edit:** `RUN_TASK.md` C6 — **dispatch the scribe after every turn without exception**, and
+state inline that a turn is not complete until the scribe returns, so the dispatch is a gate rather
+than a trailing chore. Add a compaction clause: **immediately before an anticipated compaction and
+immediately after any context reset, re-dispatch the scribe and re-read the state file from disk
+before writing the next turn** — never continue a task from a post-compaction summary alone. Extend
+`RUN_TASK.md` step 0's stale-OPEN scan (added 2026-08-15) so it also flags any `sessions/*_state.md`
+whose `Current turn` has not advanced while the task is not CLOSED — a file frozen mid-arc is the
+same defect as one frozen at the end, and this task would have been caught by that check and was
+not caught by the existing one.
+**Recurrence check:** the state file's `Current turn` matches the live Feather turn count at every
+turn, not just at close. Any gap between them is treated as lost state and written up as gaps rather
+than reconstructed by inference — a plausible reconstruction in a ledger is worse than an admitted
+hole, because the next session trusts it. If a task's turn log jumps more than one turn between
+consecutive scribe writes, that jump is itself the flag.
+
 ## 2026-08-14 — AI-drafting reversal: live rules already reconciled (addendum, verification only)
 **Task:** Feather SxS Conv 55 close
 **What happened:** swept the live rule set for language predating the 2026-08-14 Slack reversal.

@@ -18,12 +18,16 @@ Append one row per submitted task. Never edit a past row.
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | 2026-08-14 | Feather SxS Conv 55 · `general-multi-turn / 2026-08-12 13:13:39` | personal/situational — money & negotiation (rent renewal) | decision → document (counteroffer email) → refinement | personal decision, unresolved — lowercase starts, run-ons | unknown | 11 | "my landlord just told me rent's going up" | assistant-picked topic, not history-sourced; scenario adjacency — see flags |
 | 2 | 2026-08-14 | Feather SxS Conv 101 · `side_by_side_conversation / 2026-08-12 13:13:39` | Technical/Coding — cron job retry policy | debugging → classification/policy decision → build → test | work task in a known domain — blunt/jargon-dense (T1–T2), plainer-casual from T3 | default framing (~30 words) + untrimmed paste | 12 | **unknown — opener text never archived** (state file records only its shape: bare noun phrase → symptom → ask → paste) | assistant-constructed topic per the disclosed exception; **second consecutive invented topic that session** — next task must prefer real history or close the gap. Delivered/closed 2026-08-14; state file finalized 2026-08-15 |
+| 3 | 2026-08-15 | Feather SxS Conv 462 · `side_by_side_conversation / 2026-08-12 13:13:39` | **Writing/Professional** — self-review writeup against a hard word cap (closes the last unused client category) | document worked over — extract → challenge → compress to 450 words | rushed / handing-over-content — lowercase throughout, dropped apostrophes, comma chains, no terminal punctuation | default framing (18 words) + untrimmed paste (~330 words) ≈ 348 total | 13 | "need to turn this into my actual self" | ⚠️ **PROVISIONAL ROW — see flags on task 3.** Third consecutive assistant-constructed topic. **Submit click unconfirmed** and **turn-13 pick disputed** at time of writing; a superseding row is owed once both resolve. **First row whose opener text is archived verbatim** (in the state file), so the duplicate check below is finally runnable against it. State file went stale at turn 2 — turns 3–12 detail lost to a context compaction |
 
 *(The pre-production placeholder row was replaced, not edited — it recorded no task. Rows 1+ are
 append-only from here.)*
 
-State file: [`sessions/rent-negotiation_state.md`](../../sessions/rent-negotiation_state.md) —
-full pick table, constraint ledger, and per-turn differentials live there, not here.
+State files — full pick tables, constraint ledgers and per-turn differentials live there, not here:
+[`sessions/rent-negotiation_state.md`](../../sessions/rent-negotiation_state.md) (task 1) ·
+[`sessions/cron-retry-bug_state.md`](../../sessions/cron-retry-bug_state.md) (task 2) ·
+[`sessions/self-review-writeup_state.md`](../../sessions/self-review-writeup_state.md) (task 3 —
+per-turn detail exists for turns 1–2 and 13 only; turns 3–12 were lost to a context compaction).
 
 ### Flags on task 1 (raise before the next task)
 
@@ -61,11 +65,72 @@ full pick table, constraint ledger, and per-turn differentials live there, not h
    (A). Recorded in `sessions/cron-retry-bug_state.md` Open issues, unresolved. Affects the ledger
    only, not the submitted data.
 
+### Flags on task 3 (raise before the next task)
+
+1. **This row is provisional on two unresolved facts.** (a) The **submit sequence is unconfirmed** —
+   Feather "Mark as Complete" → Vercel "Submit Task" was given to Suraj but there is no confirmation
+   he clicked through, so the task may be complete-but-unsubmitted. The log's own rule is one row
+   per *submitted* task; this row was appended anyway because withholding it would leave the
+   duplicate check blind to the topic, which is the higher risk. (b) The **turn-13 pick is
+   disputed** (narrative said B, the ordered sequence said A). A superseding row follows once both
+   resolve — rows are never edited.
+2. **`↳` verification is open across all 13 turns**, and this is the third consecutive task in that
+   position (Conv 55, Conv 101, Conv 462). A turn without a recorded selection invalidates the whole
+   conversation. The verification step itself is not landing; treat it as a process defect, not
+   three coincidences.
+3. **Opener text archived at last — the task-1/task-2 fix finally landed.** Conv 462's full ~348-word
+   opener is stored verbatim in its state file under `Opener (verbatim, as typed into Feather)`,
+   per the `STATE_TEMPLATE.md` field added after Conv 101. Rows 1 and 2 remain unreadable for
+   duplicate-check purposes; row 3 is the first that works. Keep doing this.
+4. **Provenance — third consecutive assistant-constructed topic.** Suraj was asked directly via
+   AskUserQuestion whether real AI history was available before the topic was chosen and confirmed
+   it was not, so this is again the disclosed `AUTHENTICITY_RULES.md` §1 last-resort tier used
+   deliberately. Three in a row is well past "exception". **Next task: source from real history, or
+   say plainly in the state file that the gap could not be closed again.**
+5. **Category rotation is now complete — all five client categories are spent.** Writing/Professional
+   was the last gap and this task closed it. From the next task on, rotation has to come from the
+   `TOPIC_PLAYBOOK.md` §5 axes (shape, complexity, register, length band) rather than from an unused
+   category, because there are none left. Note this task **repeated** Conv 101's register (rushed)
+   and length band (default+paste) — accepted at the time as the register the topic called for, but
+   that repeat is now the thing to break.
+6. **State file went stale mid-task.** Turns 3–12 carry no anchors, differentials or constraint
+   history — lost to a context compaction. The pick sequence survived; nothing else did. See
+   `LESSONS.md` 2026-08-15 (per-turn scribe dispatch + compaction boundary).
+
 ---
 
 ## Rotation state (update after every task)
 
-*(Superseding update after task 2 — Conv 101. Task 1's block is preserved below for history.)*
+*(Superseding update after task 3 — Conv 462. Task 2's and task 1's blocks are preserved below for
+history.)*
+
+- **Last domain:** Writing/Professional — self-review writeup against a 450-word cap
+- **Last shape:** document worked over — extract → challenge → compress to a hard cap
+- **Last register:** rushed / handing-over-content — lowercase throughout, dropped apostrophes,
+  comma chains, no terminal punctuation. **Repeats Conv 101's register band — break this next.**
+- **Last length band:** default framing (18 words) + untrimmed paste (~330 words). **Also repeats
+  Conv 101.** Opener text **archived verbatim** in `sessions/self-review-writeup_state.md` — the
+  first row for which this is true.
+- **Last turn count:** 13
+- **Domains not yet used:** study/learning · planning · health/admin · hobby
+  *(code spent at task 2; writing/document work spent at task 3)*
+- **Shapes not yet used:** refinement · practitioner · planning
+  *(decision spent at task 1; debugging and build/test at task 2; document at task 3)*
+- **Client categories:** **all five now spent** — Technical ✓✓ (legacy 33, Conv 101) ·
+  Personal/Situational ✓✓ (3154, Conv 55) · Creative ✓ · Explaining ✓ ·
+  **Writing/Professional ✓ (Conv 462)**. There is no "unused category" lever left; rotate on
+  shape, complexity, register and length band instead.
+- **A/B streak:** task 3 picks were **B B A B B B B B B B B B A** (A×2, B×11), **longest run nine
+  consecutive B, turns 4–12** — the state file's own guard was to re-examine at three, and that
+  re-examination never ran and can no longer run, since turns 3–12's differentials were lost.
+  Turn 13 is disputed; if it resolves to B the run is ten and the task is A×1/B×12. **Cumulative
+  across three tasks** (36 picks): A×9, B×27 on this reading. Slots are randomized per comparison
+  so a run carries no signal by itself — but two consecutive B-heavy tasks (Conv 101 B×9, Conv 462
+  B×11) is worth one deliberate look at judge position-bias on a task whose differentials still
+  exist.
+
+<details>
+<summary>Rotation state as of task 2 (superseded, kept for history)</summary>
 
 - **Last domain:** Technical/Coding — cron job retry policy
 - **Last shape:** debugging → classification/policy decision → build → test
@@ -89,6 +154,8 @@ full pick table, constraint ledger, and per-turn differentials live there, not h
   it A×4/B×8 with a longest run of three; see flag 4. **Cumulative across both tasks** (23 picks):
   B A A A B B B A B B B · B B B B A B A B B A B B — A×7, B×16 on the close-out reading. Slots are
   randomized per comparison, so a streak carries no signal — noticed, not acted on.
+
+</details>
 
 <details>
 <summary>Rotation state as of task 1 (superseded, kept for history)</summary>

@@ -23,7 +23,8 @@ Copy to `sessions/<task-id>_state.md` at intake. Update **every turn**, never at
 - **Conversation shape:** refinement / decision / debugging / practitioner / document / planning
 - **Register:** tidy / rushed
 - **Opener length band:** micro / default / rambling / pasted-context
-- **Source:** real history / real current need / adapted
+- **Opener (verbatim, as typed into Feather):**
+- **Source:** real history / real current need / adapted / invented (disclosed exception only)
 - **Depth test:** unresolved ☐ · next question generated ☐ · artifact or decision at the end ☐ ·
   capability-clean across all 15 turns ☐
 - **Planned arc (turns 2–4 sketched, end point named):**
