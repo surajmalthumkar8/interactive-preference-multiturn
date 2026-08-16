@@ -41,3 +41,8 @@ tmp/
 # but anything dropped in these folders is raw and unreviewed.
 inbox_raw/
 exports_raw/
+
+# Browser automation artifacts. Page snapshots capture the logged-in Feather UI,
+# which includes the account email and person UUIDs. New runs write to
+# ~/.claude/playwright-output instead; this covers anything already on disk.
+.playwright-mcp/

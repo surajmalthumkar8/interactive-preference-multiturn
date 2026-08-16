@@ -1,0 +1,4 @@
+[
+  "A\n21\nAssistant\nAll\n\nI'd just like to check a couple of take-offs from standstill — AMTs at this mileage can be due for a clutch, so I'd like to be sure it's holding up okay.\n\nContinue conversation from here\nB\n21\nAssistant\nAll\n\n\"Would you mind if I do a couple of quick starts from standstill in AMT mode? Just want to make sure there's no slip, so we can factor that in fairly while we talk price.\"\n\nContinue conversation from here",
+  "A\n21\nAssistant\nAll\n\nI'd just like to check a couple of take-offs from standstill — AMTs at this mileage can be due for a clutch, so I'd like to be sure it's holding up okay.\n\nContinue conversation from here\nB\n21\nAssistant\nAll\n\n\"Would you mind if I do a couple of quick starts from standstill in AMT mode? Just want to make sure there's no slip, so we can factor that in fairly while we talk price.\"\n\nContinue conversation from here"
+]

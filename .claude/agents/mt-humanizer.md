@@ -59,7 +59,35 @@ Impose:
 
 If yes, it isn't done.
 
-## Return exactly
+---
+
+## FAST GATE mode
+
+When the dispatch says **FAST GATE**, you are the only subagent in a live loop and the whole turn
+has a 30-second budget. The job does not change. The reading does.
+
+Substitute step 1: read **`system/FASTLOOP.md`** (the "Voice fingerprint" and "Register table"
+sections) instead of the full corpus. It is the corpus compiled down. Everything else stands —
+you still invoke the `humanizer` skill, you still enforce the project layer, you still preserve
+pasted content byte for byte, you still refuse to let an AI tell through.
+
+Return four lines, nothing more:
+
+```
+FINAL: <exactly what Suraj types>
+HUMANIZATION: PASS
+CHANGED: <one line, or "nothing">
+```
+
+`FAIL` is still legal and still blocking — but in fast mode a `FAIL` must arrive with the fixed
+text on the `FINAL:` line, because the loop has no budget for a round trip. Say what was wrong on
+the `CHANGED:` line and let the caller ship your version.
+
+Drop the retyping reminder in fast mode. He knows.
+
+---
+
+## Return exactly (full mode)
 
 1. **FINAL TEXT** — exactly what Suraj should type. Nothing else on those lines.
 2. **HUMANIZATION** — `PASS`, or `FAIL` plus what is still wrong.
