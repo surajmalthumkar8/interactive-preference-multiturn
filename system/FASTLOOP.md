@@ -106,7 +106,15 @@ Pasting content into the message is encouraged. A URL quoted as text inside a pa
 
 ### Voice fingerprint — write inside this and the gate rubber-stamps
 
-- **Follow-ups: 8–45 words.** Composed paragraphs are wrong.
+- **Follow-ups: 16–66 words, median 35.** Corrected 2026-08-17 — the old "8–45, composed
+  paragraphs are wrong" rule would have rejected **36% of signed-off work** (p75 = 54, p90 = 66).
+  Multi-sentence follow-ups are normal (38%). Floor 8, ceiling ~100 unless it carries a paste.
+- **Vary length by position.** Open ~230 chars, peak at t2, **thin the middle to ~150** (t4–t8),
+  grow back at t10–t11. Ten same-sized turns is a fingerprint. Full arc: `rules/TURN_STRATEGY.md` §1.
+- **Top-K: draft 3 candidates using 3 different moves, score, ship the best.** Never ship draft 1.
+  Rubric (Anchor · Discrimination · Length · Variety · Register): `rules/TURN_STRATEGY.md` §2.
+- **Anchor implicitly.** Only 8% of signed-off turns say "you mentioned". Engage the specific;
+  don't announce that you read it.
 - **Openers acknowledge, never thank.** "This is close." / "I like the short one better." /
   "This looks good, but" / "Perfect. One last thing," / "Yes this is mostly for walmart but".
   Zero thanks, zero greetings, zero praise of the assistant. Anywhere.
@@ -129,7 +137,7 @@ Pasting content into the message is encouraged. A URL quoted as text inside a pa
 | Handing over content | short framing + untrimmed paste |
 | Work task in a known domain | jargon with no gloss, blunt, "list them" |
 | Considered ask with a real hurdle | 30–60 words, tidy, one concrete constraint |
-| Follow-up inside a conversation | 8–45 words, reacts to a specific thing said |
+| Follow-up inside a conversation | 16–66 words (median 35), reacts to a specific thing said |
 
 ### Rotation guard — vs the previous turn
 

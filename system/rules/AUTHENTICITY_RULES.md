@@ -96,7 +96,7 @@ time. The distilled fingerprint:
 | Handing over content | short framing + untrimmed paste |
 | Work task in a known domain | jargon with no gloss, typos, "list them" |
 | Considered ask with tone constraints | 30–50 words, tidy, one concrete constraint |
-| Follow-up inside a conversation | 8–45 words, reacts to a specific thing said |
+| Follow-up inside a conversation | 16–66 words (median 35), reacts to a specific thing said |
 
 **Mixing careless and careful inside one message is the tell.**
 

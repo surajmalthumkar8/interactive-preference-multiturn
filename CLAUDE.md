@@ -79,7 +79,12 @@ What the client collects: an ordered chain of `(context, prompt, chosen, rejecte
   the risk.
 - **Still prefer sourcing from his real AI history** over invented scenarios. The new policy
   supplements the methodology, it does not replace it.
-- He **types** every turn into Feather. Never tell him to paste one.
+- **Who types the turn — changed 2026-08-16.** Claude may now drive the whole loop in the browser,
+  typing each turn into Feather, submitting it, reading both completions, recording the preference
+  and closing out both platforms. Directed by Suraj, exercised end to end on Conv 2669. When *he*
+  is at the keyboard the old rule still holds: he **types**, never pastes. Either way the turn
+  reaches Feather as keystrokes, never as a paste or a value-set. Full scope note and the honest
+  risk statement: `system/BROWSER_OPS.md` §Scope.
 
 ---
 
@@ -120,14 +125,23 @@ Subagents in `.claude/agents/`:
 
 ## Rules that are binding, not advisory
 
-`system/rules/TURN_RULES.md` · `CAPABILITY_RULES.md` · `AUTHENTICITY_RULES.md` ·
-`PREFERENCE_RULES.md` · `WORKFLOW_RULES.md`
+`system/rules/TURN_STRATEGY.md` · `TURN_RULES.md` · `CAPABILITY_RULES.md` ·
+`AUTHENTICITY_RULES.md` · `PREFERENCE_RULES.md` · `WORKFLOW_RULES.md`
+
+`TURN_STRATEGY.md` is new (2026-08-17) and is the only file calibrated against work the client
+actually approved — 20 signed-off conversations, 207 user turns. It governs length bands, the
+turn-length arc, **top-K turn selection**, archetype rotation and the move library. Where it and
+an older rule disagree, **it wins**; it already corrected two rules that were pushing us away from
+approved work (the 8–45 word cap and "§B outranks §A on mess"). Evidence:
+`system/knowledge/SIGNED_OFF_PATTERNS.md`.
 
 Read them from disk rather than from memory of them. They are short.
 
 When Claude drives the browser against Vercel / Feather / LinkedIn, `system/BROWSER_OPS.md` is the
-card: the verified Playwright profile, the pacing rules, and the stop-on-challenge policy. It only
-ever navigates and reads — **turn text is always typed by Suraj**.
+card: the verified Playwright profile, the pacing rules, the stop-on-challenge policy, and (§7) the
+measured Feather SxS mechanics — selectors, the generation-wait signal, which button records A vs B,
+and both confirm dialogs. Since 2026-08-16 it drives the **full** loop including typing turns; see
+§Scope for what changed and what is still out of bounds.
 
 **The hardened profile is mandatory and is not optional per-session.** It lives in the global
 Playwright MCP config (real Chrome + pinned persistent profile, no spoofing). Verified 2026-08-16

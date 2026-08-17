@@ -8,12 +8,32 @@ Three sections, all binding:
 - **§A** — six signed-off reference transcripts (`Interactive_contri_inst/reference_tasks/`).
   Tidy register. The best model for *follow-up* turns inside a considered conversation.
 - **§B** — the example prompts published in the contributor guide as "drawn from real user
-  conversation history". Rougher and often longer. **This is the client's own statement of what
-  a good prompt looks like, so it outranks §A wherever they disagree** — on length, mess, and
-  pasted context. Seven of these fifteen are reproduced verbatim in the **current 08-12**
+  conversation history". Rougher and often longer. It is the client's own illustration of what a
+  prompt *may* look like. Seven of these fifteen are reproduced verbatim in the **current 08-12**
   guidelines' Example Prompts table (marked ★); the rest come from the 07-28 revision, whose
   *voice* guidance was carried forward unchanged even though its turn counts were not.
 - **§C** — the three worked "why it works" examples added in the 08-12 revision.
+
+> ### ⚠️ CORRECTED 2026-08-17 — §B no longer outranks §A on mess
+>
+> This file previously said §B "**outranks §A wherever they disagree — on length, mess, and pasted
+> context**". Measured against **20 signed-off conversations / 207 user turns**, that is wrong and
+> was pushing us away from what gets approved:
+>
+> | | §B implies | Signed-off reality |
+> |---|---|---|
+> | missing apostrophes | pervasive | **2.1%** of follow-ups |
+> | starts lowercase | typical | 25% of follow-ups |
+> | length | long, run-on | median **193 chars / 35 words** |
+> | em dash / bullets / bold | — | **0.0%** (bans confirmed) |
+> | thanks the assistant | — | **0.0%** (ban confirmed) |
+>
+> **Approved work sits in §A's tidy register, not §B's rough one.** Treat §B as *permission* to be
+> informal when the moment is genuinely informal — never as a target to imitate. Manufacturing
+> messiness to match §B is itself the shared-pattern risk GL:180 hunts for.
+>
+> §B still outranks §A on one thing: **pasted context**. Paste raw and untrimmed, always.
+> Evidence: `SIGNED_OFF_PATTERNS.md`. Length and move rules: `../rules/TURN_STRATEGY.md`.
 
 New signed-off examples get appended verbatim. Never paraphrase into this file.
 
@@ -138,9 +158,11 @@ turns, which is why they are the closest published match to what this project no
 
 ## Voice fingerprint (what the humanizer enforces)
 
-- **Length.** Follow-ups cluster at 8–45 words. Opening prompts span two words to several
-  hundred pasted lines. Composed paragraphs are wrong; a rambling run-on or an untrimmed paste
-  is right.
+- **Length — corrected 2026-08-17.** Follow-ups cluster at **16–66 words, median 35**; the old
+  "8–45, composed paragraphs are wrong" figure would have rejected **36% of signed-off work**.
+  Multi-sentence follow-ups are normal (38% of approved turns). Opening prompts run **30–70 words**
+  plus however many pasted lines the situation carries. An untrimmed paste is still right; a
+  *manufactured* run-on is not. Bands and the per-position arc: `../rules/TURN_STRATEGY.md` §1.
 - **Openers acknowledge, never thank.** "I like the short one better." / "This is close." /
   "Perfect. One last thing," / "This works." / "This looks good, but" / "Yes this is mostly for
   walmart but". Zero thanks, zero greetings, zero praise of the assistant anywhere in the corpus.
@@ -166,4 +188,4 @@ turns, which is why they are the closest published match to what this project no
 | Handing over content | §B #7, #8, #12, #13 | short framing + untrimmed paste |
 | Work task in a known domain | §B #9, #11, #15 | jargon, no gloss, typos, "list them" |
 | Considered ask with a real hurdle | §C prompt 3 · §A task-1 | 30–60 words, tidy, one concrete constraint |
-| Follow-up inside a conversation | §A all | 8–45 words, reacts to a specific thing said |
+| Follow-up inside a conversation | §A all | 16–66 words (median 35), reacts to a specific thing said |
