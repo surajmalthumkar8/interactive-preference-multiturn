@@ -48,8 +48,29 @@ then it catches a real rule violation on a turn that *felt* completely natural t
 mode it protects against is precisely "this one is obviously fine, skip it" — because the turn that
 needs it does not announce itself.
 
-**Learning: a gate whose hit rate is ~11% is not an over-engineered gate.** The cost of running it
-is ~15 seconds. The cost of missing that one turn is a quality flag on a 12-turn conversation.
+**It was not a one-off. It is a systematic trap at the closing turn.** A grep of the whole working
+corpus (93 prompt files, 13 conversations) for thank/appreciate/awesome/great-job found **exactly
+two** instances — and both are the *closing turn of a conversation from this session*:
+
+- `conv3096-turn12-draft.txt` — *"…think ive actually got everything i need to start building this
+  now, **thanks for sticking with me through all the tangents**."* The shipped
+  `conv3096-t12.md` ends at "…start building this now" with the clause **removed**.
+- `conv3816-turn12-draft.txt` — the FAIL quoted above, likewise rewritten before shipping.
+
+So the drafting reflex produced a banned closer on **both** conversations, and the gate caught
+**both**. Every other closer in the corpus (conv4101, conv4990, conv3657, and the shipped versions
+of these two) is clean.
+
+**Learning: the ban is not the hard part — noticing that a closing turn is where you will break it
+is.** A conversation that has genuinely helped creates real social pressure to acknowledge it, and
+that pressure peaks at exactly the turn where the rule applies most strictly. This is now a
+*predicted* failure point, not a surprise: **when drafting turn 10+, check for gratitude before the
+gate does.** The correct closing shape is a synthesis or forward-looking action statement
+("gonna try it all on the next bake"), never an acknowledgement of the assistant.
+
+**And a gate with a ~11% hit rate is not over-engineered.** It costs ~15 seconds and it caught a
+removal-adjacent quality failure on 2 of 2 conversations. The failure mode it protects against is
+precisely "this one is obviously fine, skip it" — the turn that needs it does not announce itself.
 
 ### The inspector is honest about being nearly useless here, and that is correct
 
@@ -114,29 +135,95 @@ domain detail (`preheated for an hour`, `pull it around 208`).
 
 ---
 
-## 4. What actually decided the picks
+## 4. What decides the picks — I was wrong, and the corpus corrected me
 
-Ranked by how often it was the deciding rung across 24 turns, from my own pick reasoning:
+I first wrote this section from my own 24 turns, ranking the deciding rungs as: continuity ▸
+completeness of technique ▸ actionability ▸ directness ▸ numeric self-consistency.
 
-1. **Continuity with earlier conversation facts.** The single most frequent differentiator. One side
-   silently forgets a constraint or setup detail established five turns earlier. Example: the side
-   that connected open-crumb advice back to the cold retard the user had mentioned in turn 2, when
-   the other never made the link.
-2. **Completeness of a technique.** One side omits a step that changes the outcome — foil-wrapping
-   before reheating, versus not mentioning it.
-3. **Actionability.** Runnable specifics over a pointer to a generic tool.
-4. **Directness.** Answering the literal question before expanding.
-5. **Internal numeric self-consistency.** Rare, but **decisive and unambiguous** when it appears.
-   A response contradicting its own arithmetic is an objective reject requiring no judgement call.
+**A sweep of 58 captured pairs across 14 conversations refutes most of that ranking.** Recording
+the correction rather than quietly editing it, because *how* I got it wrong is the more useful
+lesson.
 
-**Learning: rungs 1–2 are where the work is, and both require holding the whole conversation in
-mind.** They are invisible if you only read the current pair. This is the strongest argument for
-tracking a live constraint ledger — the highest-yield differential is one you cannot see locally.
+**What the corpus actually shows:**
 
-**Anti-learning, stated explicitly:** near-identity is the normal case late in a conversation, and
-the temptation is to break the tie on formatting or length. That is exactly the bias the strip
-exists to prevent. When nothing separates two responses, the honest move is to find the smallest
-*content* difference and name it — never to reward the prettier table.
+| Axis | Frequency | My original claim |
+|---|---|---|
+| **No meaningful differentiator at all** | **~65%** | not listed — I under-weighted this badly |
+| Different concrete sequencing, both valid | ~18% | not listed |
+| Structural container differs, same content | ~10% | not listed |
+| Invented-detail divergence | handful | not listed |
+| Self-contradiction / arithmetic | 1 clear case | ✅ correctly called rare-but-decisive |
+
+**Directness, actionability and hedging were tested and refuted.** They are *house-style
+constants* — both sides score high on all three, in essentially every pair. I had ranked two of
+them 3rd and 4th. The sweep also found **no** case of one side omitting a step the other included
+in a matched procedural answer, so my "completeness of technique" rung was a real observation in
+*my* conversation (the foil-wrapping tip) generalized into a pattern that does not exist.
+
+**Why I got it wrong — the transferable part.** I generalized from ~24 turns of my own judging,
+and my sample was biased by *the pairs I found it easy to decide*. The turns where I reached a
+confident differential are exactly the atypical ~35%; the ~65% where nothing separated the sides
+left no memorable reasoning behind, so they vanished from my recollection while still being the
+overwhelming majority of the work. **A ranking built from remembered decisions over-represents
+decidable cases.** This is a general hazard for any retrospective written from memory rather than
+from the artifacts, and it is a strong argument for keeping the artifacts.
+
+**What survives from the original claim:** continuity across a long conversation is still real and
+still requires holding the whole conversation in mind — the constraint-ledger argument stands. It
+is just not the *dominant* axis I claimed it was.
+
+**Two genuinely new findings I had missed entirely:**
+
+- **Invented-detail divergence locks in downstream.** Where a prompt underspecifies, each side
+  invents different specifics — one pair named a new character "Meg" (A) versus "Jess" (B). Neither
+  is wrong, but **the pick commits that detail for every later turn.** That is a continuity
+  decision wearing the costume of a quality judgement, and it should be made deliberately.
+- **Both sides can share an arithmetic error.** In the trip-budget pair, *both* stated totals
+  failed to reconcile against their own category ranges (one off by $120). The wash test correctly
+  makes that non-differentiating — but it means "I checked the math" is not the same as "the math
+  is right", and the client's data now contains a preference between two wrong totals.
+
+**Anti-learning, stated explicitly and now with a number behind it:** at ~65% near-identity, the
+tie-break temptation is not an occasional edge case — it is *the majority of turns*. Formatting is
+the bias most likely to be silently doing the deciding. When nothing separates two responses, find
+the smallest real *content* difference and name it; never reward the prettier table.
+
+---
+
+## 4b. Our openers run 70% longer than approved work — an unflagged drift
+
+Measured across all 13 turn-1 prompts in the working corpus: **range 24–130 words, median 73.**
+
+`rules/TURN_STRATEGY.md` §1, calibrated on 20 **signed-off** conversations by other contributors,
+gives openings as **30–70 words, median 43**.
+
+**Our median opener is 70% longer than the median opener that actually gets approved.** Only about
+a third of ours land inside the calibrated band. This was never flagged anywhere, and I did not
+notice it while writing — I flagged Conv 3096's 74-word opener as "above the band" in the ledger
+without registering that it sits at the *median of our own practice*.
+
+**I am not concluding the rule is wrong.** The comparison is our *submitted* work against others'
+*approved* work; a real difference in outcome is the whole question and we do not have it yet. Two
+readings remain open:
+
+- The band is descriptive of a sample, and longer constraint-loaded openers are fine — supported by
+  §6 of the same file, which explicitly asks openers to carry multiple constraints, and constraints
+  cost words.
+- We are systematically over-writing openers, and it will show up in review.
+
+**Learning: this is exactly the kind of drift that only surfaces from measuring the corpus.** No
+individual turn felt long. The divergence is invisible per-turn and obvious in aggregate, which is
+an argument for periodically measuring our own output against `SIGNED_OFF_PATTERNS.md` rather than
+assuming the rules are being followed because they are written down.
+
+**Related, same root cause — the ledger was silently under-reporting.** `PROMPT_LOG.md` listed
+"move or travel logistics" and "admin or legal document" as *unused* domains. The corpus shows both
+were spent long ago (conv3717 road-trip, conv3799 medical billing), along with nine other
+unlogged conversations. Rows only got written when a session remembered to write one, so the ledger
+had quietly become a record of *which sessions did bookkeeping* rather than of the work. The
+rotation guard reads that file and had been returning confident wrong answers. Corrected in place,
+with two topic-adjacency risks now on the record (3939↔3096 both schema design, 4990↔3816 both
+"my ferment isn't behaving").
 
 ---
 

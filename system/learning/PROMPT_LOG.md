@@ -271,7 +271,37 @@ answers forces the models onto genuinely different ground, which is exactly crit
 - **Domains used so far:** money/negotiation · technical/coding · writing/professional ·
   education/learning-plan · health/training · consumer decision · **data model/schema** ·
   **hobby skill at a hurdle**
-- **Domains still unused:** conceptual or philosophical problem · move or travel logistics ·
-  admin or legal document
-- **Both remaining gaps from the Conv 2669 list were closed this session.** The next task should
-  take one of the three above.
+
+⚠️ **CORRECTED 2026-08-19, same day.** The line above is the *ledgered* history and it badly
+understates reality. A read of the working corpus (93 prompt files, **13 distinct conversations**)
+found a much wider spread that was never logged here, including **two domains this ledger listed as
+"still unused"**:
+
+| Conv | Domain | Ledger status before this correction |
+|---|---|---|
+| 3717 | road-trip itinerary under budget/day constraints | listed as **unused** ("move or travel logistics") — wrong, it was spent |
+| 3799 | medical bill / EOB reconciliation | listed as **unused** ("admin or legal document") — wrong, it was spent |
+| 3657 | wedding toast drafting | unlogged |
+| 3837 | networking cert — subnetting / CIDR / VLSM | unlogged |
+| 3883 | home plumbing — drain diagnosis | unlogged |
+| 3939 | SQLite schema for gig-work payment logs | unlogged — **and adjacent to Conv 3096's schema task** |
+| 3966 | dinner-party menu / oven scheduling | unlogged |
+| 3967 | chess opening repertoire | unlogged |
+| 4067 | interpersonal — stepping back from group planning | unlogged |
+| 4101 | creative writing — scene drafting and line edits | unlogged |
+| 4990 | idli/dosa batter fermentation | unlogged — **adjacent to Conv 3816's cooking-hobby task** |
+
+- **Genuinely unused now:** conceptual or philosophical problem. That is the only clean gap left.
+- **Two adjacency risks are already on the record:** 3939↔3096 (both "design my small app's tables")
+  and 4990↔3816 (both "my ferment isn't behaving"). Per the duplicate-check procedure above,
+  duplication is judged on *need*, not wording — these pairs are close enough that a third task in
+  either shape should be refused.
+
+**Root cause of the error:** rows are only written when a session remembers to write one, so the
+ledger drifted from a record of the work into a record of *the sessions that did bookkeeping*. A
+ledger that silently under-reports is worse than no ledger, because the rotation guard reads it and
+returns confident wrong answers — exactly what happened here.
+
+**Fix:** the `.turnlog` append added to `../FASTLOOP.md` Step 5 makes per-task existence automatic.
+Before trusting any "still unused" claim in this file, reconcile it against the actual conversation
+IDs on the platform first.

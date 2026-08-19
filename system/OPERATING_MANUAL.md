@@ -228,20 +228,56 @@ decides nothing — keep walking.
 **Bias strip, silent, every turn:** length off · formatting off · A-vs-B slot off · confident tone
 off. Longer wins only for *correct and requested* extra content.
 
-Differentials that actually carried weight in practice, in rough order of how often they decided a
-turn:
+### What actually differentiates the two sides — measured, 2026-08-19
 
-- **Continuity with facts established earlier in the conversation** — the side that remembers a
-  constraint, a number, or a setup detail from turn 2 while the other silently drops it. This is
-  the most frequent real differentiator in a long conversation.
-- **Completeness of a technique** — one side omits a step that materially changes the outcome.
-- **Actionability** — a runnable command or concrete numbers versus a pointer to a generic tool.
-- **Directness** — answering the literal question asked before expanding.
-- **Internal numeric self-consistency** — rare, but *decisive and unambiguous* when it appears. A
-  response that contradicts its own arithmetic is an objective reject.
+Sampled **58 captured pairs across 14 conversations** (~45 fully populated). The headline is
+uncomfortable and worth stating plainly:
 
-Near-ties are the normal case late in a conversation. Find the smallest real differential and name
-it. **Never flip a near-tie on length or formatting.**
+> **~65% of populated pairs have no meaningful differentiator at all.** A and B are two samples of
+> the same model on the same prompt. They routinely reach the same recommendation, the same schema,
+> the same numbers, and even the same section headers, differing only in wording.
+
+| Axis | Frequency | Decisive? |
+|---|---|---|
+| **No real differentiator** — cosmetic rewording only | **~65%** | — |
+| **Different concrete sequencing / choice, both valid** | ~18% | sometimes |
+| **Structural container differs** (table vs prose, same content) | ~10% | **no — strip it** |
+| **Invented-detail divergence** where the prompt underspecified | handful | matters *downstream* |
+| **Self-contradiction / arithmetic inconsistency** | 1 clear case in sample | **yes, unambiguously** |
+
+⚠️ **Three axes were tested and REFUTED as differentiators**: *directness*, *hedging/padding*, and
+*actionability*. Both sides score consistently high on all three — they are **house-style
+constants, not axes on which one side beats the other.** Do not reach for them. The sweep also
+found **no** case of one side omitting a step the other included in an otherwise-matched procedural
+answer, so "completeness of technique" is a real one-off when it happens but is not a pattern to go
+hunting for.
+
+**The house style both sides share** (so none of it is signal): `Short answer:` openers on direct
+questions · bold lead-in bullets · markdown tables whenever content is comparative · a
+`Bottom line` / `Recommendation` closer · an enthusiastic offer to continue · near-identical
+apology phrasing when corrected. Formatting tracks **content type, not side**.
+
+**The one axis that gives an objective reject: internal self-consistency.** Measured example
+(`p3717t1.txt`, trip budget) — A's day-by-day itinerary places 2 nights Marsh Bay / 1 night Kelso
+Falls, while A's *own budget table three paragraphs later* states `5 nights total (1 MB, 2 ER,
+2 KF)`, transposing its own counts. B's equivalent line is consistent with its own itinerary.
+That is a defect unique to one side, checkable without domain knowledge, requiring no judgement.
+
+**Recompute every total.** In the same pair, *both* sides' stated "TOTAL (All In)" failed to
+reconcile against their own category ranges — A off by $40/$15, B off by $65/**$120**. A shared
+defect decides nothing (wash test), but it shows totals are the reliable place to catch arithmetic.
+Counter-example worth knowing: multi-step arithmetic is usually *correct* on both sides
+(`p3939t9.txt` reconciles a 4-part payout to the cent on both), so a numeric slip is a genuine
+exception rather than the norm — which is exactly what makes it decisive.
+
+⚠️ **Invented-detail divergence locks in downstream.** When the prompt underspecifies, each side
+invents different specifics — in `p4101t5.txt` a new character is named "Meg" by A and "Jess" by B.
+Neither is wrong. But **the pick locks that name for every later turn**, so the choice is a
+continuity commitment, not a quality judgement. Notice it and choose deliberately.
+
+Near-ties are the normal case, not a failure of attention. Find the smallest real *content*
+differential and name it. **Never flip a near-tie on length or formatting** — at ~65% near-identity,
+formatting is the bias most likely to be doing the deciding if you let it.
 
 ---
 
@@ -318,8 +354,36 @@ still streaming (`browser_find` for `/error|[Rr]esample/` — an idle failed pan
 2. Confirm the dialog — **`Yes, resample`**.
 3. Wait ~20–25s, re-extract.
 
-Observed 2026-08-19: **3 empty panels across 24 turns (~12.5%)**, every one recovered on the
-**first** resample.
+**Failure rate — measured across the full capture corpus (177 files, 14 conversations):**
+**41 files (~23%) show a non-standard capture**, and roughly **24 distinct turn-slots needed at
+least one resample.** The single-session figure of 3-in-24 recovering on the first try was
+optimistic; the corpus shows a long tail. `p3717` turn 9 took **five** capture attempts, and one
+turn in the p-series also took five (hollow → hollow → corrupted → half-empty → clean).
+
+⚠️ **There are three distinct failure modes, not one. An empty-string check only catches the first.**
+
+| Mode | Looks like | Caught by `=== ''`? |
+|---|---|---|
+| **Field-level empty** (34 files) | `"a": ""` or `"b": ""` | yes |
+| **Hollow** (6 files) | field is non-empty but holds *only* platform chrome — `"A\n13\nAssistant\nAll\nContinue conversation from here"`, zero body text | **no** |
+| **Corrupted capture** (1 file) | both `a` and `b` contain garbled concatenations of both sides glued together — a capture-tool bug, not a model failure | **no** |
+
+The length threshold in the §7.3 snippet is what actually catches the hollow mode: chrome-only text
+runs ~45–50 characters, so `> 100` rejects it. ⚠️ **This is why dropping the threshold to `> 50` is
+risky** — it sits right on the boundary and can let a hollow panel through as if it were a real
+short answer. If a genuinely short completion forces a lower threshold, verify that panel visually
+before judging it.
+
+⚠️ **The `c` field is not a success signal.** Files carrying `"c":2` were found completely blank on
+both sides. `c` counts buttons, not content. Judge on the text length, never on `c` alone.
+
+**Small does not mean failed.** Deliberately terse answers (a two-line chess-notation reply) can be
+under 700 bytes and be perfectly valid. Verify by reading, not by size.
+
+**At least one turn in the corpus appears never to have been resampled successfully**
+(`p2897t3.txt`, B empty, no successor file). If that pair was judged as-is, a preference was
+recorded against an empty panel — which is exactly the junk-data outcome the escalation rule below
+exists to prevent.
 
 ⚠️ **If a panel stays empty across repeated resamples, stop.** An empty panel is a platform
 failure, not a preference between two model configurations. Recording it as one puts junk in the

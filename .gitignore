@@ -46,3 +46,18 @@ exports_raw/
 # which includes the account email and person UUIDs. New runs write to
 # ~/.claude/playwright-output instead; this covers anything already on disk.
 .playwright-mcp/
+
+# --- Captured client material (NEVER commit; this repo is PUBLIC) ---
+# p*.txt / t*.txt are raw A/B model completions captured out of the Feather SxS UI.
+# They are Microsoft AI's evaluation outputs, not our work product. Publishing them
+# is removal trigger #4 (PII or confidential material) in PROJECT_KNOWLEDGE.md §4.
+/p*.txt
+/t*.txt
+
+# Page snapshots and claim/close check dumps. Same reasoning as .playwright-mcp/ above:
+# they capture the logged-in Feather/Vercel UI including the account email and person UUIDs.
+/snap-*.yml
+/vercel-*.yml
+/vercel-*.md
+/conv*-check.md
+/conv*.png
