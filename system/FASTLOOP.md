@@ -175,6 +175,25 @@ LEDGER: <live constraints>          [gate: PASS]
 
 Suraj **types** it. Never tell him to paste.
 
+### Then append one line to disk. In the loop, not optional.
+
+```
+sessions/<task-id>.turnlog     ← append:  T7 · ↳B · <reason clause> · <first 6 words of the turn>
+```
+
+One `>>` append. Costs under a second, so it stays inside the latency budget.
+
+**Why this is in the loop when the scribe is not.** The full `mt-session-scribe` is too slow and
+stays out. But the thing that gets lost is not the scribe — it is that **nothing is on disk**. A
+context compaction discards the working context without discarding the task, and the pick record
+dies with it. This has now happened twice: `LESSONS.md` 2026-08-15 (Conv 462, turns 3–12 lost) and
+2026-08-19 (Conv 3096, **entire 12-turn pick record unrecoverable**). Both were preventable by this
+one line.
+
+Never reconstruct a missing turnlog entry from memory afterwards — record the gap as a gap. A
+plausible reconstruction in a ledger is worse than an admitted hole, because the next session
+trusts it.
+
 ---
 
 ## START mode — new task, cold (target 40s)
@@ -215,3 +234,11 @@ quality failure and burns a turn against the ceiling.
 
 **Before submit:** every turn shows `↳` on the chosen side. Any turn still offering the green
 "Continue conversation from here" is unfinished.
+
+⚠️ **The end-of-run sweep cannot catch a missing selection, so do not rely on it.** Recording a
+preference is **two clicks** — the `A`/`B` letter button records it, the panel's "Continue
+conversation from here" only advances the conversation. A run where every turn was *advanced* but
+none *selected* leaves zero unfinished panels and passes the sweep clean, while violating the
+removal trigger "any turn without a selection" — which invalidates the whole conversation, not
+that turn. **Verify `[active]` on the chosen letter at the moment of picking, every turn.**
+Mechanics: `../OPERATING_MANUAL.md` §7.1.

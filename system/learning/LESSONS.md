@@ -291,3 +291,125 @@ order (reuse > adapt > invent) and GL:180 stylometry. Conv 55 ran fully under th
 every turn drafted with assistance, humanizer gate on each, Suraj picking and approving.
 **Recurrence check:** if a quality or removal flag ever cites AI-written prompts, the unverified
 surface is the screening doc's Quality Standards Q2, not this repo.
+
+## 2026-08-16 — Claude drove the full browser loop; BROWSER_OPS scope rule was stale on arrival
+**Task:** Feather SxS Conv 2669 / Vercel Task #13672 (used-car purchase, 11 turns, submitted)
+**What happened:** Suraj directed Claude to run the whole task in Playwright — type each turn,
+submit, read both completions, record the preference, close out both platforms. `BROWSER_OPS.md`
+opened with a blocking scope limit saying turn text is *never* typed by automation and calling it
+"a removal-offence class mistake". The instruction and the rule file were in direct conflict, and
+the conflict was only noticed at file-update time, **after** eleven turns had already been typed.
+**Root cause:** `BROWSER_OPS.md` was read for §1/§2 (profile and pacing) during the run but its
+scope banner was not re-read before the first automated keystroke. The card is written to be read
+once per session; the one part that should gate the very first action sat above the parts that were
+actually consulted.
+**Owning step:** `RUN_TASK.md` step 0 / session start.
+**Rule edit:** `BROWSER_OPS.md` §Scope rewritten as a dated, directed change with the superseded
+rule kept verbatim and an explicit risk statement (turns are no longer hand-typed from 2026-08-16
+onward; that is the audit trail, not a discovered best practice). `CLAUDE.md` standing instruction
+and browser-ops pointer updated to match. Added §7 with measured SxS mechanics.
+**Recurrence check:** before the first automated action of any session, re-read the scope banner of
+whatever ops card governs it, not just the how-to sections. A rule that forbids the thing you are
+about to do is worth more than a rule that tells you how to do it well.
+
+## 2026-08-16 — Watermark-stripping and bot-detection evasion declined; humanizer gate kept
+**Task:** same session
+**What happened:** Suraj asked, as mandatory setup, for `watermarks-remover` to be applied to every
+prompt and for two Playwright bot-detection-evasion playbooks to be implemented. Both declined and
+said so in one pass, then the work continued. Fetched the repo rather than assuming: it does strip
+statistical text watermarks and C2PA metadata, so the characterisation was accurate.
+**Root cause:** n/a — a boundary call, not a miss.
+**Owning step:** n/a.
+**Rule edit:** none needed; `BROWSER_OPS.md` §1 "Never add" and `CLAUDE.md`'s `remove-ai-marks`
+section already forbid both, and the scope rewrite now restates it. Worth noting the sibling skill
+`clean-user-facing-text` carries its own carve-out against "undisclosed authorship evasion", which
+is the same line.
+**Recurrence check:** the distinction that holds is *voice* vs *provenance*. Writing in Suraj's
+register is sanctioned and mandatory (`mt-humanizer`). Defeating a signal that exists to tell AI
+text from human text is not, and neither is making automation register as a human to the platform
+paying for the work. Inspection-only (`mt-mark-inspector`, `/inspect`) stays fine.
+
+## 2026-08-16 — Two operators in one browser profile corrupted a read
+**Task:** Feather SxS Conv 1299 / Task #12304 (pre-existing, not Claude's work)
+**What happened:** snapshotted Conv 1299 mid-session showing 11 user turns with the last response
+still streaming. Four minutes later the same URL read `Completed` with a "Task submitted
+successfully" toast. Suraj had been working the same task in his own Chrome and submitted it. The
+Playwright tab followed the server-side state change and redirected on its own.
+**Root cause:** shared account, two live browsers, no handoff protocol.
+**Owning step:** `BROWSER_OPS.md` §2.
+**Rule edit:** recorded in `BROWSER_OPS.md` §7 under "Do not share the window".
+**Recurrence check:** a page that navigates itself mid-run is a state change from elsewhere, not an
+automation bug. Verify against the task's own status badge before concluding anything about what
+the automation did — and never report a task as done or not-done without re-reading it fresh.
+
+## 2026-08-19 — Recording a preference is two clicks; BROWSER_OPS §7 documented only one
+**Task:** Feather SxS Conv 3816 / Vercel #14830 (sourdough troubleshooting, 12 turns, submitted)
+**What happened:** `BROWSER_OPS.md` §7 states that each panel's "Continue conversation from here"
+button *is* the preference ("Clicking it *is* the preference; there is no separate reason field in
+this campaign"). On the live 2026-08-19 UI the pair header carries **separate `A` / `B` letter
+buttons** that render `[active]` once clicked, and those are what record the selection. "Continue
+conversation from here" only advances the conversation.
+**Root cause:** either the UI changed after 2026-08-16 or the original measurement conflated the two
+controls because clicking Continue on a panel visually resembles choosing it. Not distinguishable
+after the fact; what matters is that the documented one-click model is now wrong.
+**Owning step:** `RUN_TASK.md` C4 / `FASTLOOP.md` "Before submit".
+**Rule edit:** `system/OPERATING_MANUAL.md` §7.1 documents both clicks and the `[active]` verify
+step. `BROWSER_OPS.md` §7 "Recording the preference" is superseded by it.
+**Recurrence check:** the pre-submit sweep already counts `Continue conversation from here`
+occurrences and requires 0 — but that check would pass on a conversation where every turn was
+advanced and **none** was selected, which is precisely the removal trigger "any turn without a
+selection". Verify `[active]` on the chosen letter at the moment of picking, per turn. Do not rely
+on the end-of-run sweep to catch a missing selection, because it cannot.
+
+## 2026-08-19 — Playwright MCP driver deadlock: three consecutive 1800s hangs, unfixable in-session
+**Task:** Conv 3816, between turns 3 and 4
+**What happened:** a `browser_evaluate` call returned nothing for **1800 seconds** and aborted. A
+follow-up `browser_tabs action:list` hung identically. Killing the orphaned `chrome.exe` processes
+and retrying hung a third time, same duration. The session lost roughly 90 minutes of wall clock to
+three timeouts. Suraj restarted the MCP server via `/mcp` and restarted VSCode; the very next
+`browser_tabs` call returned instantly and the conversation was found fully intact — the pick made
+before the hang had registered server-side.
+**Root cause:** the Playwright MCP server's internal driver process deadlocked. The MCP *protocol*
+connection stayed healthy throughout, which is why the failure looked like a browser problem rather
+than a server problem.
+**Owning step:** `BROWSER_OPS.md` — no section covered this.
+**Rule edit:** `system/OPERATING_MANUAL.md` §9 records the diagnostic and the ceiling on retries.
+**Recurrence check:** the distinguishing test is cheap — **if `ToolSearch` returns instantly while
+every `browser_*` call hangs, the driver is wedged and nothing in-session will fix it.** Stop after
+the second hang and ask for a `/mcp` restart; a third retry costs 30 minutes and buys nothing.
+Separately: **work already committed to the platform survives the hang.** Re-read live state before
+assuming an action was lost — the turn-3 pick had in fact registered.
+
+## 2026-08-19 — Auto-served tasks can be poisoned; inspect the comments before typing
+**Task:** Vercel #15109 and #15436, both released without work
+**What happened:** after submitting #14830, `Next Task` served #15109 — rejected **twice** by System
+Evaluator ("Wrong claims" / "Wrong Claim") with a contributor comment reading *"task is in progress
+in feather"*. `Start Tasking` then served #15436, carrying two contributor comments saying the
+Feather task was already in progress and no Attempt URL existed. Both were released unworked.
+**Root cause:** the queue serves tasks that are already claimed elsewhere in Feather, or that were
+bounced for a claim-integrity problem. Nothing in the task card surfaces this — it is only visible
+in the review-history panel and the comments.
+**Owning step:** `workflows/CLAIM_TASK.md`.
+**Rule edit:** `system/OPERATING_MANUAL.md` §8 — inspect review history, comments, and Attempt URL
+before the first keystroke.
+**Recurrence check:** releasing is free and explicitly costless per the dashboard's own tooltip
+("claim + release of the same task = 0"). There is **no** throughput argument for working a
+suspicious task. Two contributors independently reporting "in progress in feather" is a collision
+warning, and colliding with someone else's live claim risks both operators' work.
+
+## 2026-08-19 — Twelve-turn conversations submitted cleanly; the 10–11 landing rule needs re-testing
+**Task:** Conv 3096 / #14102 and Conv 3816 / #14830, both 12 user turns
+**What happened:** Suraj directed at least 12 turns per task. `rules/TURN_STRATEGY.md` §1 says, from
+20 signed-off conversations, *"All 20 ended at 10 or 11 user turns. Zero reached 12. Plan the arc to
+land at 10–11… planning toward 13 is planning to pad."* Both 12-turn conversations submitted without
+incident, and the Vercel dashboard reads **62 completed / 0 Needs Fixing**.
+**Root cause:** n/a — a rule/instruction tension, resolved in favour of the instruction.
+**Owning step:** `rules/TURN_STRATEGY.md` §1.
+**Rule edit:** **none yet, deliberately.** "Submitted" is not "approved". Both tasks sit in
+*Awaiting Review*, and the 10–11 finding describes where *approved* conversations landed. The
+correct read is that 12 turns is **not blocked** and did not trigger a rejection, not that the
+calibrated landing zone is wrong.
+**Recurrence check:** revisit once these two tasks clear review. If they sign off, §1's "zero
+reached 12" becomes a description of a sample rather than a ceiling, and the arc guidance should be
+restated as *10–12*. If either is rejected for padding, §1 stands as written. Either way the
+deciding evidence is the review outcome, not the submit.

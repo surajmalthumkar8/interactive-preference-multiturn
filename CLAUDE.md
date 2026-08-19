@@ -35,6 +35,10 @@ What the client collects: an ordered chain of `(context, prompt, chosen, rejecte
 
 ## Source-of-truth order
 
+0. **`system/OPERATING_MANUAL.md`** — the end-to-end map: pipeline, tooling, platform mechanics,
+   failure recovery, cold-start checklist. **Start here to rebuild the workflow from cold or to
+   hand it to someone else.** It is a map, not law — where it and a file in `rules/` disagree, the
+   rule file wins and the map is stale.
 1. **`PROJECT_KNOWLEDGE.md`** — the reconciled manual. Use this. It was derived line by line from
    all four source docs plus the sixteen screenshots embedded as base64 in the guidelines file,
    and cross-checked against the official screening.

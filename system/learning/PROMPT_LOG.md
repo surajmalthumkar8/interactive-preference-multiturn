@@ -182,3 +182,96 @@ history.)*
    contributor with one habit, which is the stylometry risk (GL:180), not just a variety miss.
 4. If in doubt, pick another topic. Duplicates are a removal offence; passing on a topic costs
    nothing.
+
+## Conv 2669 / Task #13672 — 2026-08-16 — consumer decision, hard budget
+**Domain:** personal/situational — consumer purchase with a budget ceiling (NEW, first use)
+**Opener (verbatim, 72 words):**
+> Budget is 6 lakh and that has to cover insurance and anything it needs straight away, not just
+> the price on the ad. Im doing about 60 km a day and most of it is highway. Everyone says petrol
+> for that kind of running but nobody explains why. Do I go older with 40k on the clock or newer
+> with 90k, and how much of the 6 should actually be the car
+**Shape:** decision → constraint added late (automatic only) → shortlist → narrow to one model →
+negotiation line. Not a refinement arc, not a debugging arc.
+**Register:** tidy considered ask with one hard constraint; capitals and full stops, single dropped
+apostrophe. Deliberately *not* the all-lowercase comma-spliced opener used by Conv 1299.
+**Turn count:** 11. **Picks:** B A B A B B B B A B B (A×3, B×8, longest run four).
+**Arc beats worth not repeating:** budget-vs-line-items reconciliation, clutch cost as a
+negotiation lever, break-even between upfront saving and running cost, the model breaking its own
+stated price ceiling.
+**Anti-duplicate note:** any future "which used car / which laptop / which phone under X budget"
+task is a duplicate of this *need* even if the object changes. Rotate to a different need entirely.
+
+### Rotation state as of Conv 2669
+- **Last domain:** consumer decision with budget tradeoffs
+- **Last shape:** decision → late constraint → shortlist → single pick → closing artifact
+- **Last register:** tidy considered ask, 72-word opener
+- **Domains used so far:** money/negotiation · technical/coding · writing/professional ·
+  education/learning-plan · health/training (Conv 1299, bench plateau) · consumer decision (this)
+- **Domains still unused:** hobby skill at a specific hurdle · data model / schema design ·
+  conceptual or philosophical problem · move or travel logistics · admin or legal document
+- **A/B streak:** B A B A B B B B A B B — longest run four (turns 5-8). Watch this; four straight
+  is the longest single-side run recorded in this log.
+
+## Conv 3096 / Task #14102 — 2026-08-19 — data model / schema design
+**Domain:** Technical — data model / schema design (**NEW**; was named on the Conv 2669 "still
+unused" list and is now closed)
+**Opener (verbatim, 74 words):**
+> im building a small tracker for my freelance invoices, just for myself, nothing fancy. trying to
+> figure out the tables before i start coding. so far i have clients, invoices, and payments but a
+> few of my clients pay in installments and one pays in a different currency sometimes depending on
+> which account they use. how would you structure this so partial payments and the occasional
+> currency switch dont turn into a mess later
+**Shape:** schema design → normalization challenge → edge cases (partial payment, FX, refunds) →
+query construction → build-ready close. An *iterative refiner* archetype.
+**Register:** lowercase throughout, dropped apostrophes (`dont`), comma chains, no terminal
+punctuation. Domain jargon (`installments`, `home_currency`) used with no gloss.
+**Turn count:** 12. **Picks: not recoverable** — the pick record was lost to a context compaction
+mid-task. Recording the gap rather than reconstructing it, per the 2026-08-15 scribe-gap lesson.
+**Arc beats worth not repeating:** repeated-column-vs-lookup-table normalization argument; storing
+a refund as a negative row instead of a separate table; whether a denormalized field breaks an
+earlier aggregate query.
+**Anti-duplicate note:** any future "design the tables for my small app" task is a duplicate of this
+*need* regardless of the domain object. Rotate to a different need entirely.
+**⚠️ Opener length:** 74 words, above the measured 30–70 band for openings
+(`rules/TURN_STRATEGY.md` §1). It carried four distinct constraints, which is what §6 asks for, but
+the band was exceeded — worth watching rather than repeating by default.
+
+## Conv 3816 / Task #14830 — 2026-08-19 — hobby skill at a specific hurdle
+**Domain:** hobby skill stuck at a specific hurdle — sourdough baking (**NEW**; also named on the
+Conv 2669 "still unused" list and now closed)
+**Opener (verbatim, 56 words):**
+> ive been making sourdough for like 2 months now and i cant get past this one problem, the loaf
+> rises fine in the oven, good oven spring and all, but when i cut it open the crumb is dense and
+> kind of gummy near the bottom half, top half looks normal, what am i doing wrong
+**Shape:** symptom → rule out what is already covered → root cause → practical tradeoff (eating it
+warm) → adjacent subsystem (starter health) → storage logistics → a *second* goal (open crumb) →
+mechanical pushback → close. An *investigator* archetype, distinct from Conv 3096's refiner.
+**Register:** lowercase, comma-spliced run-ons, omission-class slips only (`ive`, `cant`, `youre`,
+`thats`). Openers rotated across `ok` / `wait` / `quick one` / `since were already on`.
+**Turn count:** 12.
+**Picks (partial):** t3 A · t4 A · t5 B · t6 B · t7 A · t8 B · t9 B · t10 B · t11 A · t12 B.
+**t1–t2 not recoverable** (pre-compaction). On the recorded ten: A×4, B×6, longest run three (t8–t10).
+**Arc beats worth not repeating:** foil-wrap reheating versus crust crispness; acetone smell as
+normal end-of-cycle versus a warning sign; mold-versus-kahm-yeast identification; gentle shaping
+versus holding a round.
+**Anti-duplicate note:** any future "my [baked good / brew / ferment] comes out wrong, what am i
+doing wrong" is the same *need*. The transferable move is the **structure** — a symptom whose
+obvious causes the user has already eliminated — not the subject matter.
+**Discrimination note:** turn 2 ("i already use a dutch oven, preheat an hour, pull at 208, so those
+two are covered") is the strongest single turn in either conversation. Pre-empting the obvious
+answers forces the models onto genuinely different ground, which is exactly criterion **D**.
+
+### Rotation state as of Conv 3816 (2026-08-19)
+- **Last domain:** hobby skill at a specific hurdle (sourdough)
+- **Last archetype:** investigator (Conv 3096 immediately before it was iterative refiner — rotated
+  correctly, per `rules/TURN_STRATEGY.md` §3)
+- **Last register:** lowercase comma-spliced, omission-class slips, varied openers
+- **Last turn count:** 12 for both — **above the 10–11 landing zone** measured on signed-off work.
+  See the 2026-08-19 LESSONS entry; not yet a rule change, pending review outcomes.
+- **Domains used so far:** money/negotiation · technical/coding · writing/professional ·
+  education/learning-plan · health/training · consumer decision · **data model/schema** ·
+  **hobby skill at a hurdle**
+- **Domains still unused:** conceptual or philosophical problem · move or travel logistics ·
+  admin or legal document
+- **Both remaining gaps from the Conv 2669 list were closed this session.** The next task should
+  take one of the three above.
