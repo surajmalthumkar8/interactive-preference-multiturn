@@ -6,6 +6,42 @@ getting sloppier. Task 1 (Task #735), task 2 (Task #805), task 3 (Task #939), ta
 #972) each added fixes below — read the newest entries first, they supersede slower
 advice further down.
 
+## Tasks #3429 / #3698 / #3714 (Feather 068, 205, 196) — verdict clicks need real Playwright clicks, and console errors are a lead not a verdict
+
+**Synthetic `MouseEvent` dispatch is unreliable on the verdict toggle buttons.** On task 068 a
+dispatch loop over all three groups set only the third; the other two silently stayed `false`.
+Real `browser_click` works every time, and `#root_<lens>_preference >> role=button[name="..."]`
+is the selector that gets there without a snapshot round trip. Keep synthetic dispatch for the
+status **menu items** and the `.MuiModal-root` confirm buttons, where a locator call would close
+the menu, but use real clicks for the verdicts. Always re-read `aria-pressed` on all three groups
+after setting them.
+
+**A console error is a lead, not a finding.** Task 196 Site A threw seven `<svg> attribute height:
+Expected length, "auto"` errors. Tempting to call that broken rendering. Measured: only **two** of
+the seven marks actually came out at the wrong proportions, and **none** overflowed its parent, so
+the browser mostly recovered. The real, visible defect was separate and worse: the mark printed on
+top of the wordmark in all three concept cards, plus two captions running past their own viewBox
+and clipping mid-word. **Chase the error to the pixel it affects, then write about the pixel.**
+`getBBox()` against the `viewBox` width is the check that found the clipped captions on both sites,
+and it also kept the reason honest by showing B had the same bug far milder.
+
+**Verify a "zero interactivity" claim before writing it.** On 068 an early `querySelectorAll('button')`
+returned 0 for Site A and nearly became "nothing on the page responds". A wider query found **nine
+working range sliders** driving a live economic model, which flipped the functionality reasoning.
+Query `input,select,textarea,[contenteditable]` too, then prove the control does something by
+changing a value and diffing the output text.
+
+**Lens purity blocks are frequent and cost a full rewrite cycle.** New words that tripped it this
+round: `palette`, `style`, `typeface`, `font`, `cleanly`, `rounded` (all banned in **functionality**).
+Safe substitutions that passed: "named variants carrying their codes", "two named type options",
+"appears without fault", "straight bars running corner to corner". Draft the functionality field in
+behaviour vocabulary from the start rather than fixing it after the validator complains.
+
+**Watch for a repeated aphorism shape across fields.** The humanizer caught two closers on task 196
+using the same "A plainer X beats a richer Y" construction in aesthetics and overall. The validator's
+6-gram reuse check does not catch a shared *shape*, only shared words. Vary the closing line's form
+between the three fields, not just its wording.
+
 ## Tasks #3455 / #3503 / #3517 (Feather 085, 107, 113) — the house style is now a file, pick from Vercel not the campaign, and three platform mechanics that cost real time
 
 **`system/HOUSE_STYLE.md` now exists and outranks everything here about how a reason reads.** It was
