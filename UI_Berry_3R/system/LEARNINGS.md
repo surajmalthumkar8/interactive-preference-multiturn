@@ -6,6 +6,44 @@ getting sloppier. Task 1 (Task #735), task 2 (Task #805), task 3 (Task #939), ta
 #972) each added fixes below — read the newest entries first, they supersede slower
 advice further down.
 
+## Tasks #3902 / #3924 / #3939 / #3954 / #3971 (Feather 263, 272, 279, 282, 288) — the 20/20 daily cap, dead links come in runs, and stop trusting one selector
+
+**The daily submit cap is 20 and it is the real stopping point**, not the 25 claims. Batch three
+ended at exactly 20/20 submits with 19/25 claims still spare. Plan the day around submits.
+
+**Dead links arrive in runs.** Three in this batch (#2780/Feather 234, #2581/Feather 161,
+#3905/Feather 264), all identical: the Feather page title stays `Feather`, the body reads
+`Task not found for the provided ID`, and the console throws around thirteen entries. Detect with
+`/not found/i.test(document.body.innerText)` before anything else. The protocol works: type
+`task not found` in the Vercel Notes box, Save, Release, confirm the release in the `.swal2-popup`.
+**After releasing, the dashboard button may still read `Continue Task #NNNN` — that label is stale.
+Hard-reload the dashboard and it returns to `Start Tasking`.** The task itself correctly shows
+`Pending` with a `Claim Task` button, which is the right end state.
+
+**One selector is not a measurement. This bit three times in one batch:**
+
+- Task 282: a `circle:last-of-type` read said Website B's ring stayed red in every mode. The
+  screenshot showed it turning green. The selector was reading a stale node before the DOM updated.
+- Task 282 again: a computed-colour scan reported `#4CAF50` absent from Website A. It was present
+  and exact; the scan simply ran before the mode switch applied.
+- Task 279: measurement said card four sat well inside the phone frame, contradicting a screenshot
+  that appeared to show it cut off. The measurement was right, the screenshot was just the viewport
+  ending. **When a measurement and a screenshot disagree, take a second screenshot in the changed
+  state before writing either one down.**
+
+**New validator block: both websites must be named in every field.** The functionality field on
+task 282 described only the winner and blocked with `one of them is never named`. Every field needs
+`Website A` and `Website B` in it, not just the one being picked.
+
+**More lens-purity casualties this batch:** `anchor`/`anchoring` (blocked twice, tasks 263 and 288),
+`work` and `works` in aesthetics, `colour` and `composition` in functionality, and `measure` is fine
+in aesthetics but reads oddly in functionality. Safe swaps that passed: "holding down the top left",
+"sits in the corner opposite", "the fields beside it".
+
+**Split verdicts are normal and worth writing honestly.** Two of five this batch (272 was B/A/A,
+288 was A/B/B). The overall lens does not have to follow either of the other two, and the corpus
+supports saying so plainly.
+
 ## Tasks #3779 / #3802 / #3821 / #3846 / #3860 (Feather 219, 228, 242, 241, 248) — the throughput gate, and three new validator blocks
 
 **The "Waiting for reviews: N/3 approved" counter is a real hold, not a fault.** Start Tasking
