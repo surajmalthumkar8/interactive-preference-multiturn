@@ -6,6 +6,41 @@ getting sloppier. Task 1 (Task #735), task 2 (Task #805), task 3 (Task #939), ta
 #972) each added fixes below — read the newest entries first, they supersede slower
 advice further down.
 
+## Tasks #3779 / #3802 / #3821 / #3846 / #3860 (Feather 219, 228, 242, 241, 248) — the throughput gate, and three new validator blocks
+
+**The "Waiting for reviews: N/3 approved" counter is a real hold, not a fault.** Start Tasking
+returns nothing at all while it sits below 3/3: no task, no error, no toast. It is not a daily
+limit (claims and submits both had headroom). It climbed 1/3 → 2/3 → **"Quality verified"** over
+about twenty minutes and then handed out tasks normally. When it appears: wait and retry, do not
+go looking for another route in, and do not touch the Feather campaign list.
+
+**A site can answer a completely different brief.** Task 241 asked for a comment card with a two
+line comment, a question, like and comment counts and an open control. Site A shipped an "AI
+Adoption Intelligence" dashboard with regional heatmaps. The fastest honest check is a text scan
+for the brief's own nouns (`/comment|like|question/i` over `document.body.innerText`) before
+writing anything about quality. Do not assume both sites attempted the same task.
+
+**Three new validator blocks hit this round. Draft around them from the start:**
+
+- **Cross-field 6-gram reuse.** Task 241 blocked on both fields opening `website b is better
+  because it`. The literal opener is required, so the word **after** "because" must differ between
+  the aesthetics and functionality fields. Task 248 blocked on `more height than a compact
+  component` shared between aesthetics and overall.
+- **`form` and `works` are banned in the aesthetics lens**, alongside the known list. Say "the
+  fields beside it" and "sits in a dark treatment".
+- **`option a` is caught as an abbreviated candidate name.** The phrase "the option a visitor sees"
+  tripped it. Any `option` followed by an article `a` reads as `Option A` to the checker; use
+  "the choice a visitor sees" instead.
+
+**The humanizer can push a field over the 160 ceiling.** Task 228 came back at 165 and had to be
+trimmed by hand. Tell it explicitly to aim near 110-145 and leave margin, then re-run the validator
+every time. It also flips British to American spelling on occasion; harmless, but keep it
+consistent within a field.
+
+**Cyrillic and other non-Latin content survives the whole pipeline.** Task 228's functionality
+field quoted `ХИТ ПРОДАЖ`; it passed the humanizer, the validator, `/inspect` and the Feather
+round-trip byte-intact. The mark inspector correctly did not flag visible script as a hidden mark.
+
 ## Tasks #3429 / #3698 / #3714 (Feather 068, 205, 196) — verdict clicks need real Playwright clicks, and console errors are a lead not a verdict
 
 **Synthetic `MouseEvent` dispatch is unreliable on the verdict toggle buttons.** On task 068 a
