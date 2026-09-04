@@ -6,6 +6,58 @@ getting sloppier. Task 1 (Task #735), task 2 (Task #805), task 3 (Task #939), ta
 #972) each added fixes below — read the newest entries first, they supersede slower
 advice further down.
 
+## Tasks #3455 / #3503 / #3517 (Feather 085, 107, 113) — the house style is now a file, pick from Vercel not the campaign, and three platform mechanics that cost real time
+
+**`system/HOUSE_STYLE.md` now exists and outranks everything here about how a reason reads.** It was
+derived from five signed-off tasks in campaign `5b853679` (015, 048, 079, 054, 018), fifteen approved
+fields. The single most important rule: **no instrument measurements in a reason field.** Not one
+approved field contains a pixel count or a sampled value. Measure privately to be sure the claim is
+right, then describe what a person would see. Suraj flagged exactly this mid-task ("Dont be so
+techincal and fix this") on a draft full of pixel sums, and the signed-off corpus backed him up.
+Also note the approved opener is the plain `Website X is better because ...`, not "better visually
+because".
+
+**Pick tasks from Vercel, never from the Feather campaign list.** Standing instruction as of
+2026-09-04: use the UI Berry 3R card's `Start Tasking` on the Vercel dashboard. It hands back a
+Vercel task whose `link` variable is the Feather task; open that, confirm it is not "Task not found",
+claim it there, then paste the **post-claim** URL (the ID changes on claim) into the Vercel Attempt
+URL field and Save. This supersedes the earlier note about claiming off the campaign Unclaimed list.
+
+**Feather platform mechanics that actually bite:**
+
+- **A textarea filled by the native-setter trick can silently fail to persist.** On task 085 the
+  overall field read 618 chars in the DOM, but a hard reload showed **0**. The submit was rejected
+  with no error message and the status stayed "In progress" through four attempts before the empty
+  field was spotted. **Always hard-reload and re-read all three lengths plus all three verdicts
+  before clicking submit.** Fix when a field will not stick: refill it, then delete the last
+  character and retype it with a real `browser_press_key` so a genuine keystroke fires the debounced
+  autosave.
+- **Toggle buttons are toggles.** Clicking `A is better` when it is already selected turns it OFF.
+  After a reload the previous selections are still there, so a blind re-click clears all three.
+  Read `aria-pressed` first; `Mui-selected` is not always present.
+- **The status menu closes if a Playwright locator call intervenes.** Open the menu and click the
+  `<li>` in the same step. Synthetic `MouseEvent` dispatch does open the confirm dialog, but that
+  dialog has **no `role="dialog"`** — it is a bare `.MuiModal-root`, so a check for `[role="dialog"]`
+  reports NO-DIALOG while the dialog is in fact open and its backdrop is swallowing every later
+  click. Match on `.MuiModal-root` and click its buttons **by index** (`nth=1` is Submit Task, `nth=0`
+  is Cancel), because `:has-text("Submit Task")` also matches Cancel's container.
+- **Success signal for submit is the auto-redirect** to the campaign list, then `Completed` and all
+  three textareas `readOnly` on reload.
+
+**A throughput cap exists beyond the daily submit limit.** The Vercel card showed `Window: 3/5
+submitted`, then `4/5`, and after the third submit flipped to **`Waiting for reviews: 0/3 approved`**,
+at which point `Start Tasking` stops dispatching and simply leaves you on the dashboard. The button
+stays enabled and no toast fires, so the only tell is the card text. This is a hold, not a fault:
+work resumes when reviewers approve some of what was submitted.
+
+**Two judging notes.** First, **check the browser console before writing anything** — on task 113 a
+`TypeError: rankingByType.join is not a function` thrown inside `updateDashboard` was the whole story,
+since it aborted the update and left the ranking grid at 0 children and all three chart SVGs at 0
+children, and it re-fired on every filter change so the country filter appeared to do nothing.
+Second, **verify a "table is empty" claim before believing it**: a `filledRows` count that walks
+`td.innerText` returns 0 when the cells are `contenteditable` divs. A screenshot showed the table was
+fully populated and the finding was wrong.
+
 ## Tasks #3137 / #3358 (Feather 355 and 324) — Playwright MCP replaces the hand-rolled CDP driver, Vercel dispatch can serve a campaign you were told not to work, and two validator traps worth memorising
 
 **The scratchpad is not durable.** A new session wiped `cdp.py` and the CDP debug port was
