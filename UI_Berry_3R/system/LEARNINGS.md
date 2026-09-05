@@ -964,3 +964,69 @@ means:
 13. Status pill → "Mark as complete" → confirm "Submit Task" in the dialog.
 14. Vercel task page → "Submit Task" → confirm in the dialog. No notes needed.
 15. Confirm the dashboard counter moved before starting the next task.
+
+## Tasks #2986 / #2995 / #3003 / #3008 / #3012 (Feather 230, 233, 236, 237, 239) — new UI-Berry batch, and the viewport-clipping trap
+
+**New campaign, same workflow.** The batch moved from `UI-Berry 3R` to **`UI-Berry`** on the Vercel
+dashboard (campaign `0ad32bac`). Everything else is unchanged: pick on Vercel, claim on Feather,
+same three lenses, same selectors, same two confirm dialogs. The daily submit cap reset overnight.
+
+**The Vercel "Next Task" button hands you the next task directly** — no going back to the dashboard,
+no `Start Tasking`. It lands on a fresh task page with the Feather `link` already populated and the
+Attempt URL box empty. Fastest loop available; use it.
+
+**Claiming from a `link` field gives an UNCLAIMED task.** The Vercel `link` points at the task
+template, not an attempt. Opening it shows status `Unclaimed`; the status pill → `Claim task`
+converts it and **the URL changes to the attempt id**. That new URL is what goes in Attempt URL.
+Four of five tasks this batch arrived unclaimed this way.
+
+**Feather task pages need ~2s before the brief is readable.** A `User request` read immediately
+after navigation returned the status as `...` and no request text. One `setTimeout(2500)` inside the
+evaluate fixed it every time. Read the brief *after* the wait, not before.
+
+**THE BIG ONE — a short viewport fakes a clipping bug.** On task 236 the first full-page screenshot
+showed `CONQUEST` sliced in half and no `SEASON 1` plate at all. Everything pointed to a broken
+render. It was not: the SVG's own bbox fit inside its viewBox, all three text nodes existed, and
+resizing the window to 1400x1300 showed the logo complete and correct. The page had
+`overflow:hidden` on html/body with content taller than the capped body, so the bottom simply was
+not reachable at the default size. **Before writing any clipping or truncation finding, resize the
+viewport taller and re-screenshot.** Writing that finding would have failed the task on a defect
+that did not exist.
+
+**Corollary that cut the other way (task 233):** a caption's `getBBox()` overran the viewBox by
+~2 user units, which looked like a clipped word. In screen pixels it ended 1.2px *inside* the SVG's
+right edge — `preserveAspectRatio` letterboxing absorbed it. **User units are not screen pixels.
+Convert with `getBoundingClientRect()` before believing an overflow.**
+
+**Gradients lie about their endpoints.** Task 237's mark looked blue-to-pink and the brief said blue
+and red. The computed value was `rgb(42,139,255)` → `rgb(255,77,95)` — genuinely blue to red. The
+midpoint of any blue→red gradient is magenta. **Do not report a wrong colour from the middle of a
+gradient; read the stops.**
+
+**A blur filter is not a glow.** Task 239's Website B applied `feGaussianBlur` + `feMerge` with no
+flood or colour matrix to dark navy strokes. Blurring dark ink makes a grey shadow, and on a cream
+page it reads as a smudge. Worth naming plainly when a brief asked for an aura.
+
+**Default fonts are a real finding.** Task 239's Website B rendered the brand name in
+`"Times New Roman"`, flat black — the fallback a browser reaches for when nothing was chosen, against
+a brief that asked for a refined serif. Check `getComputedStyle(el).fontFamily` on any wordmark; a
+bare `Times New Roman` with no stack in front of it means nothing was specified.
+
+**Lens purity casualties this batch:** `colour` (functionality, task 230), `unbroken` — the filter
+catches `broken` inside it (aesthetics, 236), `laid out` (functionality, 237), `italic` and `serif`
+(functionality, 239), and `MY CHANNEL` read as **first person** because of the `my` (aesthetics, 237).
+That last one is worth remembering: **a site's own placeholder text can trip the first-person check.**
+Refer to it as "the channel name in the preview" instead.
+
+**Briefs whose requirements are all visual make the functionality lens hard.** Task 239 asked for
+fonts, colours and glow — every requirement a visual one. The functionality field still has to
+describe *prompt-following* without visual vocabulary, so it was rewritten around "four specific
+tones", "a considered treatment rather than left plain", "a gentle sense of breath". Paraphrase the
+requirement, never name the visual property.
+
+**The humanizer over-corrects on the aesthetics lens.** It swapped `gold italic` → `gold slanted
+lettering` in an *aesthetics* field, where `italic` is perfectly legal — it only ever blocked in the
+functionality lens. Restored the accurate wording and the validator passed. **Check which lens a
+banned word actually applies to before accepting a substitution that loses precision.**
+
+**Verdict spread:** B/A/B, A/B/B, A/A/A, A/A/A, A/A/A. Two splits in five.
