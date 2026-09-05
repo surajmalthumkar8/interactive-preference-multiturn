@@ -1030,3 +1030,31 @@ functionality lens. Restored the accurate wording and the validator passed. **Ch
 banned word actually applies to before accepting a substitution that loses precision.**
 
 **Verdict spread:** B/A/B, A/B/B, A/A/A, A/A/A, A/A/A. Two splits in five.
+
+## Task #3093 (Feather 1ac5ff9e) — a dead link that survives release AND re-claim, plus an empty Vercel queue
+
+**A released dead link can come back with the same dead Feather id.** Previous dead links were
+one-and-done: note, save, release, move on. This one was not. After the full release protocol
+(note `task not found` → Save → Release → confirm), re-claiming #3093 through the platform's own
+`Claim Task` button returned **the identical dead id** `1ac5ff9e-2f69-5cc3-931d-3a57babcaedc`.
+Confirmed dead twice, ~1 minute apart, with a 3s settle each time. **Re-claiming does not reroll
+the Feather attempt.** Do not loop on it.
+
+**Vercel's queue can be empty while Feather has hundreds of unclaimed tasks.** The campaign's
+unclaimed list showed tasks 355, 357, 358, 359 and more, all live, while the Vercel UI-Berry card
+read `0 queued` / `Queue is empty` and offered no `Start Tasking` button at all, only the stale
+`Continue Task #3093`. **These two views disagree, and Vercel is the binding one** under the
+pick-from-Vercel rule. A full Feather campaign is not permission to claim from Feather.
+
+**The stale-label artifact is worse than recorded.** Previously a hard reload cleared it. Here the
+dashboard kept printing `Continue Task #3093` across a full navigation reload *and* after the task
+had genuinely returned to `Pending` — verified by opening the task and seeing a `Claim Task` button.
+**Trust the task page's own status, never the dashboard card's button label.**
+
+**Do not enumerate task URLs to find work.** Probing `/api/tasks/<id±n>` returns a mix of 200s and
+403s and will happily surface tasks assigned to other people. It is not the platform's assignment
+path. Stopped this immediately; the sanctioned routes are `Start Tasking`, `Next Task` after a
+submit, and the queue.
+
+**When the queue is dry, wait and retry rather than reaching around it.** No amount of clicking
+produces work that the dashboard does not have.
