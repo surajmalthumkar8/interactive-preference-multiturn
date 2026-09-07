@@ -6,6 +6,41 @@ getting sloppier. Task 1 (Task #735), task 2 (Task #805), task 3 (Task #939), ta
 #972) each added fixes below — read the newest entries first, they supersede slower
 advice further down.
 
+## Repo hygiene, 2026-09-07 — a gitignore rule does not clean what is already committed
+
+Pushing the UI Berry kit turned up thirteen files sitting public on GitHub that the repo's own
+rules already forbade. Worth recording because the failure mode is not obvious.
+
+**A gitignore rule only stops new files.** Every leak here was committed *before* the rule that
+covers it was written, and stayed tracked afterwards. `/t*.txt` has forbidden captured
+completions for weeks while eleven `turn*-pair.txt` files sat in the public tree matching it.
+**After adding an ignore rule, run `git ls-tree -r origin/main` against it** and untrack what it
+would have caught. The rule and the tree are separate facts.
+
+**Audit the remote, not the working copy.** `git status` was clean the whole time, because
+tracked files do not show up as changes. The leaks were only visible by listing what origin
+actually holds.
+
+**Grepping for PII finds the files that carry PII, not the files that carry the same content.**
+`turn1-pair.txt` surfaced in an email grep because it kept the Feather header line. Turns 2
+through 11 hold identical captured A/B completions without that header, so the grep missed all
+ten. **Search by file shape as well as by content.**
+
+**A warning that quotes the secret publishes the secret.** `BROWSER_OPS.md` spelled out the
+account email in full in order to warn that `.playwright-mcp/` leaks it. On a public repo that
+note was itself the last tracked copy of the address.
+
+**Screenshots of the working UI are client material.** `feather-completed.png` showed the
+account email, the full MAI task instructions and a complete model completion in one image. A
+PII grep cannot see inside a PNG. **Open every committed image and look at it.**
+
+**What stays:** `system/evidence/sannysoft-verified-20260816.png`, the fingerprint result behind
+the 31/31 claim. No PII in it, and deleting it would cost a verifiable citation. Removing
+material is not automatically the safe choice; check what a deletion costs before making it.
+
+**Still outstanding:** these blobs remain in git history. Rewriting it needs a force push and is
+Suraj's call.
+
 ## Task #3149 (Feather 287) — unrounded annual prices, and three findings that measurement killed
 
 **The submit cap on the UI-Berry batch is 15, not 20.** The counters read `0/25 claims,
