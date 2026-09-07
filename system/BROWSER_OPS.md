@@ -322,7 +322,11 @@ was not.
 
 ## 5. Repo hygiene
 
-`.playwright-mcp/` in this repo contains `surajmalthumkar8@gmail.com#linkedin` and person UUIDs
-from the 2026-08-16 session. It is gitignored now, and new artifacts go to
+`.playwright-mcp/` in this repo contains the account email and person UUIDs from the
+2026-08-16 session. It is gitignored now, and new artifacts go to
 `~/.claude/playwright-output` instead. The existing folder is untracked but **not deleted** —
 clear it manually when done with it.
+
+**This repository is public.** Do not write the account email into a tracked file, not even
+in a note explaining that it leaks somewhere. A warning that quotes the address publishes it.
+Say "the account email" and leave it at that.
