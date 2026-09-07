@@ -77,3 +77,10 @@ exports_raw/
 
 # Scanned client PDF, same reasoning as the Learning Hub pages above.
 /english_annotation/
+
+# Captured A/B completions, any prefix. The /t*.txt and /p*.txt rules above miss
+# anything named differently, and eleven turn*-pair.txt files sat tracked in a
+# PUBLIC repo for weeks because of it. Match the shape, not the first letter.
+*-pair.txt
+*_pair.txt
+/turn*.txt
