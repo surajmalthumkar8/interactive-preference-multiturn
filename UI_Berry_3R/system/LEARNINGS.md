@@ -6,6 +6,48 @@ getting sloppier. Task 1 (Task #735), task 2 (Task #805), task 3 (Task #939), ta
 #972) each added fixes below — read the newest entries first, they supersede slower
 advice further down.
 
+## Task #3149 (Feather 287) — unrounded annual prices, and three findings that measurement killed
+
+**The submit cap on the UI-Berry batch is 15, not 20.** The counters read `0/25 claims,
+0/15 submits`. Batch three on 3R capped at 20. Do not carry the old number over; read the
+dashboard.
+
+**Raw floating-point in a price is a real functionality defect and an easy one to miss.**
+Website B's annual mode showed `$115.2 / $230.4 / $460.8 / $921.6`. The arithmetic is correct
+(12 × 0.8 × $12 = $115.20) so a spot-check of the maths passes, and the defect is purely that
+the result was never formatted to two decimals. Website A's annual mode gave whole monthly
+figures with the yearly total spelled out beneath. **On a pricing table, check the money
+formatting separately from the money arithmetic.** They fail independently.
+
+**Three findings died on measurement this task. All three would have been fabrications:**
+
+- *Website A's cards look unequal.* All four measured exactly 642px tall with every Buy Now
+  button at 1077px. The staggered look came from descriptions wrapping to different line
+  counts. Withdrawn.
+- *Website B's toggle is broken, prices do not change.* The selector was wrong. The real
+  control is an `<input type="checkbox">` inside `label.switch`; a real `browser_click` on it
+  updated the notes to "billed yearly • save 20%". **"The control does nothing" is the single
+  most damaging false claim available on this project.** Never write it off one selector that
+  returned nothing. Find the actual control first.
+- *Website B's Pro card is misaligned.* It sits 12px above its neighbours, but all four cards
+  are the same height. That is deliberate emphasis on the featured tier, not a layout bug.
+  Described what a viewer sees rather than calling it a defect.
+
+**A lifted card still costs something, and the honest way to say it is what it looks like.**
+The row ends on a ragged bottom edge. That is a real visual observation and it belongs in the
+aesthetics reason as a concession, without being upgraded into a bug.
+
+**The badge overlap was the one that held.** Website B's `Popular` badge spans x 871 to 972
+and the Pro icon square x 922 to 968, so they genuinely share area. Confirmed by geometry
+before writing, same as the three above. The measurement discipline is not there to find
+defects, it is there to decide which apparent defects survive.
+
+**The humanizer introduced two register breaks on this task.** It swapped "arithmetic" for
+"math", an Americanism the approved corpus does not use, and converted full forms to `isn't`
+and `doesn't`. Reverted both by hand, then re-ran the validator. **Read the humanized output
+against the corpus register, not just against the validator.** The validator has no opinion
+about "math".
+
 ## Tasks #3902 / #3924 / #3939 / #3954 / #3971 (Feather 263, 272, 279, 282, 288) — the 20/20 daily cap, dead links come in runs, and stop trusting one selector
 
 **The daily submit cap is 20 and it is the real stopping point**, not the 25 claims. Batch three

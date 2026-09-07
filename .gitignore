@@ -61,3 +61,19 @@ exports_raw/
 /vercel-*.md
 /conv*-check.md
 /conv*.png
+
+# --- UI Berry client training docs (NEVER commit; this repo is PUBLIC) ---
+# The eleven Learning Hub pages under UI_Berry_3R/ are Microsoft AI's own
+# contributor training material, scraped out of the Learning Hub UI. They are
+# the client's documents, not our work product, and each one carries the
+# account holder's name in the page chrome. Publishing them is removal
+# trigger #4 (PII or confidential material). The derived kit in
+# UI_Berry_3R/system/ IS tracked: that is ours.
+/UI_Berry_3R/*.md
+
+# Loose screenshots dropped in the repo root by earlier runs. Same reasoning as
+# .playwright-mcp/: they capture the logged-in Feather/Vercel UI.
+/*.png
+
+# Scanned client PDF, same reasoning as the Learning Hub pages above.
+/english_annotation/
