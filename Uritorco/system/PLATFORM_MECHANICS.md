@@ -106,10 +106,24 @@ directory when it opens. Structure is `left/` and `right/`.
 
 The task page shows `Taxonomy`, `Task Variables` (id, link, title), `Attempt URL`, `Notes`.
 
-**The `link` in Task Variables can be dead.** On #2935 it pointed at `1eeab42d...` which
-returned "Task not found", while the live claimed task was `955b913c...`. That stored link is
-the pre-claim id. Trust the task that is actually In progress and assigned to the account, and
-put that URL in Attempt URL.
+**The `link` in Task Variables is the TEMPLATE id, not your attempt.** Corrected on #2987,
+which showed what is really happening. Opening that link lands on a task whose status reads
+**Unclaimed**, and an unclaimed task renders **no preview iframes at all**, only two empty
+panels. Claiming it (status menu, `Claim task`) redirects to a **brand new task id**, which is
+your attempt, and the previews mount there.
+
+So the sequence on every task is:
+
+```
+Vercel Start Tasking  ->  open the Task Variables link  ->  status reads Unclaimed
+  ->  status menu  ->  Claim task  ->  REDIRECTS to a new id, status In progress
+  ->  previews mount  ->  that new URL is what goes in Attempt URL
+```
+
+On #2935 the template link returned "Task not found" rather than Unclaimed, which is the same
+story with an expired template. **Do not diagnose empty previews as a broken task.** Check the
+status chip in the header first. If it says Unclaimed, claim it; the refresh advice in the
+platform's own instructions does not help, because nothing is loading yet.
 
 Dashboard counters for this project read `0/20 submits` with no claims cap shown.
 

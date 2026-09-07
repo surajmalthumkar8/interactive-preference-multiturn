@@ -2,6 +2,51 @@
 
 Newest first. These are things a previous task got wrong or nearly got wrong.
 
+## Task #2987 (Feather 8f3e87fa): the claim flow, and two sites that fail opposite ways
+
+Verdict: Left 4/2/3 (total 9), Right 4/5/2 (total 11), Slightly prefer Right, Medium.
+
+**THE BIG ONE, and it corrects what #2935 recorded.** The Vercel Task Variables `link` is the
+**template** id, not your attempt. Opening it lands on a task whose status chip reads
+**Unclaimed**, and an unclaimed task renders **no preview iframes at all**, just two empty
+panels. Claiming it from the status menu redirects to a **brand new task id**, and the previews
+mount there. #2935's link returned "Task not found" instead of Unclaimed, which is the same
+thing with an expired template, and the "dead link" reading was wrong.
+
+**So: empty previews are almost never a broken task. Check the status chip first.** The
+platform's own advice (refresh the task page once) does not help here, because nothing is
+loading yet. Read `PLATFORM_MECHANICS.md` for the corrected sequence.
+
+**Both sites failed the Gallery, in opposite ways, and the worse-looking one is not the worse
+site.** The left candidate's gallery is nine empty grey tiles with captions: quiet, tidy, and
+empty. The right candidate references an `assets/` folder that was never delivered, so all 17
+images 404 and the broken-image icon appears in the header and hero before any scrolling.
+The right candidate looks far worse, and still won, because everything on it works.
+
+**A CSS class the JS toggles is worth nothing if no rule listens for it.** The left candidate's
+hamburger adds `.active` to `.nav-menu` on click. The stylesheet has `.nav-menu {display:none}`
+in the mobile breakpoint and **no `.nav-menu.active` rule**, so computed display stays `none`
+and zero links appear. Verified by clicking, then reading `classList.contains('active')` (true)
+against `getComputedStyle().display` (none). **Check the computed style after the click, not
+just that the class landed.**
+
+**A form with no action leaks its contents into the URL.** The left candidate's contact form
+has no `action`, no `method` and no submit handler, so the browser default GET writes every
+field into the query string. Submitting put the visitor's name, email and message into the
+address bar, cleared the form, and showed no confirmation. Reproduced end to end before writing.
+
+**Two more findings died on measurement:**
+- *The right candidate's logo is clipped at mobile.* Measured left 0, right 44,
+  `clippedLeft: false`. The cut-off look is the broken-image ALT TEXT rendering, not clipping.
+- *Its mobile dropdown overlaps the hero.* Real overlap of 112x104, but the panel is
+  `position: absolute` with an opaque white background. That is what a dropdown does.
+
+**The humanizer caught sentence-SHAPE repetition again, a different shape from last time.**
+Three of six fields opened with a flat verdict sentence then unpacked it ("The mobile menu never
+opens.", "Every picture the site tries to show is missing.", "The first thing on screen is
+broken."). The validator cannot see this. **Ask the humanizer explicitly to check for repeated
+sentence shape across fields, not just vocabulary.**
+
 ## Task #2935 (Feather 955b913c): the first task on this project
 
 Verdict: Left 3/5/3 (total 11), Right 4/4/2 (total 10), Slightly prefer Left, Medium.
