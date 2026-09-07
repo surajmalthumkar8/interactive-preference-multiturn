@@ -385,3 +385,80 @@ Caps measured on recent batches: 25 claims and 15 submits per day on the UI-Berr
 | Humanizer swapped a legal word out | it over-corrects across lenses, e.g. `italic` is fine in aesthetics | revert that edit, re-run the validator |
 | A screenshot shows clipping the DOM denies | short viewport with `overflow:hidden`, not a real bug | `browser_resize` taller and re-shoot before writing any clipping finding |
 | Feather page reads `Task not found` | dead link, and re-claiming returns the same dead id | type `task not found` in Vercel Notes, Save, Release, confirm; do not loop on re-claiming |
+
+---
+
+# Uritorco, the third project in this repo
+
+`Uritorco/` is a WebDev side-by-side rating job. One task shows two candidate web apps built
+from the same prompt, Left and Right, and you rate each one independently on three rubrics
+(Completeness, Functionality, Visual and responsive quality) from 1 to 5, each with a written
+evidence field. Then an overall preference on a seven point scale, a confidence level, and a
+rationale. Eight fields in total.
+
+**To start a session, paste `Uritorco/START_PROMPT.md` as your first message.** It loads the
+rules, the measured platform mechanics and the fast path in one go, so the session does not
+spend its first ten minutes rediscovering the form. After that each task is two URLs.
+
+## Read these, in this order
+
+1. `system/BATCH_RULES.md`, the client's own six corrections for this batch. They outrank
+   any habit carried over from UI Berry, and three of them invert it.
+2. `system/PLATFORM_MECHANICS.md`, measured selectors, the duplicate-id trap, how to submit.
+3. `system/FASTPATH.md`, the order of operations that keeps a task quick.
+4. `system/LEARNINGS.md`, what previous tasks got wrong.
+
+## The three rules that catch people out
+
+**Rubric fields are negatives only.** No praise about a candidate in any of the six evidence
+fields. This is the opposite of UI Berry's house style, which requires conceding the winner's
+flaw and reads as balanced. Positives belong in the preference rationale, which wants pros and
+cons for both candidates.
+
+**Nothing negative to report means 5, not 4.** Withholding a 5 because nothing is ever perfect
+is the exact error the client named. A 5 also uses one mandated phrase verbatim,
+"Excellent with no meaningful issues.", and nothing else. That raises the bar on inspection
+rather than lowering it: a 5 is a claim that you looked and found nothing.
+
+**The rationale opens with the selection restated.** Select "Slightly prefer Left" and the
+first words are "The left candidate is slightly preferred because". Completeness carries the
+most weight when choosing the winner.
+
+## Running it
+
+```bash
+cd Uritorco
+python system/validate_rubrics.py task.json     # before AND after the humanizer
+```
+
+The validator enforces the exact-5 phrase, negatives-only, the matching opener, first and
+second person, em dashes, and whether the totals point the same way as the selection. It cannot
+tell whether a claim is true.
+
+`system/probe.js` is the layout audit. Paste it as a single `browser_evaluate` per app per
+width, desktop 1440 then mobile 390, instead of round-tripping for one number at a time.
+
+## What makes it fast
+
+Extract the zip that auto-downloads with the task page and read both sources first. It takes
+about ninety seconds and turns the live inspection into targeted confirmation rather than an
+open-ended hunt. Findings from source are hypotheses; the live app decides.
+
+Dispatch `mt-humanizer` and `mt-mark-inspector` in the same message. The inspector never
+rewrites, so it does not wait on the humanizer, and running them in sequence wastes about
+fifty seconds per task.
+
+Fill the form as six rating clicks (real clicks, they are MUI toggles), one `browser_evaluate`
+for all seven textareas, and one real keystroke to fire the autosave.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Both texts land in the Left panel | Left and Right share every element id | disambiguate by x position (Left < 760 < Right) or Playwright `nth=0`/`nth=1` |
+| Preview returns HTTP 502 | sandbox origin expired | refresh the Feather task page; both apps re-provision on new hostnames. Never rate this against a candidate |
+| The Vercel link says `Task not found` | task variables hold the pre-claim id | use the task that is actually In progress; put that URL in Attempt URL |
+| A screenshot shows no overflow but columns are missing | full-page capture widens the canvas and hides it | measure `scrollWidth` vs `innerWidth`, then take a **viewport** screenshot |
+| Next call fails after clicking Delete or Save | the app used `confirm()` or `alert()` | `browser_handle_dialog` |
+| Validator blocks on a 5 | a 5 must read exactly `Excellent with no meaningful issues.` | use the phrase, or lower the rating and write the negative |
+| favicon 404 in console | sandbox noise | not a finding |
