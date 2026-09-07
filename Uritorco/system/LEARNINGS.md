@@ -2,6 +2,70 @@
 
 Newest first. These are things a previous task got wrong or nearly got wrong.
 
+## The queue is gated on review, and the platform does not say so on the task page
+
+After the fifth submit, Vercel's Next Task returned "No more tasks available for this project
+right now." The batch had not run out. The dashboard card carries the reason:
+**"Waiting for reviews: 0/3 approved"**, next to `5/20 submits`. Three of the submitted
+tasks have to be reviewed and approved before the queue opens again, and nothing an attempter
+does locally moves that.
+
+Do not treat an empty queue as a bug and do not go hunting for tasks in the Feather campaign
+lists to work around it. Read the dashboard card first.
+
+The `/api/projects/<id>/next-task` response is worth capturing when this happens, because it
+names the cause outright. Hook `window.fetch` before clicking, then read the body:
+
+```json
+{"found": false, "reason": "pool_exhausted",
+ "detail": {"gateBlocked": false, "allSkippedByUser": true,
+            "replicaBlocked": true, "wallBlocked": false, "totalAtStage": 3}}
+```
+
+`replicaBlocked` and `allSkippedByUser` are different reasons from `gateBlocked` and
+`wallBlocked`, and only the response distinguishes them. The card text does not.
+
+## Task #3032 (Feather a26faee6): one missing brace, seventeen blank charts
+
+Verdict: Left 2/1/2 (total 5), Right 4/5/4 (total 13), Strongly prefer Right, High.
+
+**A syntax error anywhere in an inline script kills every chart on the page.** The
+left candidate configured 17 Chart.js charts and rendered none of them. Chart.js itself loaded
+from the CDN, `window.Chart` was defined, and yet zero chart instances were registered and all
+17 canvases sat at the default 300x150 with nothing painted. The cause was a single unclosed
+options object in the `cashFlowChart` definition. The script never parsed and nothing in it ran.
+
+**Extract the inline script and run `node --check` on it.** That is what pinned the exact
+construct, `SyntaxError: Unexpected token ')'`, in a couple of seconds. Reading the console
+message alone tells you the page is broken but not which of 17 definitions did it, and
+guessing from a 25KB file is slow. Pull the script text out of the HTML, write it to a temp
+file, check it.
+
+**"Configured" and "rendered" are separate questions and completeness is scored on rendered.**
+The left candidate was the more ambitious build on paper: 17 charts against the right
+candidate's 6, across bar, line and doughnut, plus a richer top KPI row. None of it reaches a
+board member. Rate the page on what it renders.
+
+**Test the library and the drawing separately.** `window.Chart !== undefined` says the CDN
+worked. Counting registered instances and sampling canvas pixels says whether anything drew.
+Conflating those two would have produced the wrong diagnosis here, because the CDN was fine.
+
+**A self-contained build beat a dependency-heavy one.** The right candidate hand-draws six
+canvases with no external library and every one renders at both widths. Not a rule that fewer
+dependencies is better, but here the candidate with no external dependency had no load failure
+to hit.
+
+**Feather's autosave can fail without saying so.** Five `ERR_NAME_NOT_RESOLVED` failures hit
+`/api/graphql` mid-fill during a local DNS drop. Nothing in the UI indicated the fields had not
+persisted. Confirmed DNS had recovered, hard-reloaded the task, and verified all eight fields
+survived before submitting. **Always hard-reload and re-read every field after filling.** That
+step already existed for correctness reasons; it also catches this.
+
+**Self-check the draft before dispatching the humanizer.** The `so`/`which` consequence hinge
+from #3028 reappeared in 5 of 6 fields. Cutting it to 1 before dispatch turned what would have
+been a rewrite cycle into a single finding. Grep the draft for the shapes previous tasks were
+pulled up on; it is faster than waiting for the gate to say the same thing.
+
 ## Task #3028 (Feather 1cb21cf6): judging animation, and an x-threshold that silently lies
 
 Verdict: Left 4/3/4 (total 11), Right 3/2/2 (total 7), Prefer Left, High.
@@ -187,7 +251,9 @@ localStorage, so any persistence test has to be redone there.
 
 **Left and Right share every element id.** `root_rule_0_rationale` exists twice.
 `getElementById` returns the Left one, so both texts land in the Left panel if you are not
-careful. Disambiguate by x position (Left < 760 < Right) or Playwright `nth`.
+careful. Disambiguate by DOM order (first 3 rule textareas Left, next 3 Right) or Playwright
+`nth`. **Corrected on #3028:** this entry originally said to use x position with a `< 760`
+threshold. That is wrong and fails silently on a 1440 window. See the #3028 entry above.
 
 **The validator caught an arithmetic error in my own rationale.** The draft claimed the left
 candidate "totals thirteen" when it totals eleven. Numbers written into a rationale are as

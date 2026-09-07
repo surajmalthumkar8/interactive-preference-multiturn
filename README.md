@@ -8,6 +8,26 @@ project memory.
 
 ---
 
+## Three projects live here
+
+The repo started as the Multi-Turn project and now carries two more. They share the machine
+setup and the humanization gate, and nothing else. Work out which one you are on before reading
+anything below.
+
+| Project | What a task is | Where its docs are |
+|---|---|---|
+| **Interactive Multi-Turn (MAI)** | one 10 to 15 turn conversation, you write every user turn and pick between two model responses | this README, [PROJECT_KNOWLEDGE.md](PROJECT_KNOWLEDGE.md), `system/` |
+| **UI Berry** | rate two candidate websites A/B against a rubric | [SETUP.md](SETUP.md#ui-berry-the-second-project-in-this-repo), `UI_Berry_3R/system/` |
+| **Uritorco** | rate two candidate web apps on 3 rubrics each, then state a preference | [Uritorco/START_PROMPT.md](Uritorco/START_PROMPT.md), `Uritorco/system/` |
+
+If you are picking up **Uritorco**, read `Uritorco/START_PROMPT.md` first, then
+`Uritorco/system/BATCH_RULES.md`. The batch rules invert several habits from the other two
+projects, so reading them second-hand from a teammate is how mistakes get made.
+
+Everything below this line is the Multi-Turn project.
+
+---
+
 ## What the project is
 
 A **Microsoft AI ("MAI")** human-preference data collection project. One task = one **10–15

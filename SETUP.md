@@ -455,7 +455,8 @@ for all seven textareas, and one real keystroke to fire the autosave.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Both texts land in the Left panel | Left and Right share every element id | disambiguate by x position (Left < 760 < Right) or Playwright `nth=0`/`nth=1` |
+| Both texts land in the Left panel | Left and Right share every element id | disambiguate by **DOM order**, first 3 rule textareas are Left and the next 3 are Right, or Playwright `nth=0`/`nth=1`. A hardcoded `x < 760` test is wrong: the Right panel sits at x=768 on a 1536 window but x=720 on a 1440 one, and it fails silently |
+| `No more tasks available for this project right now.` | the queue is gated on review, not empty | read the dashboard card. `Waiting for reviews: 0/3 approved` means three submits must be approved before it reopens. Nothing local fixes it, and do not go looking for tasks in the Feather campaign lists instead |
 | Preview returns HTTP 502 | sandbox origin expired | refresh the Feather task page; both apps re-provision on new hostnames. Never rate this against a candidate |
 | The Vercel link says `Task not found` | task variables hold the pre-claim id | use the task that is actually In progress; put that URL in Attempt URL |
 | A screenshot shows no overflow but columns are missing | full-page capture widens the canvas and hides it | measure `scrollWidth` vs `innerWidth`, then take a **viewport** screenshot |
