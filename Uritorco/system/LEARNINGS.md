@@ -2,6 +2,44 @@
 
 Newest first. These are things a previous task got wrong or nearly got wrong.
 
+## Task #3010 (Feather c2d15f9c): three withdrawals in one task, and a route-specific overflow
+
+Verdict: Left 3/3/3 (total 9), Right 3/2/2 (total 7), Prefer Left, Medium.
+
+**Overflow can be route-specific, so measure on the page the fault lives on.** The right
+candidate's home screen measured clean at 390 (375 < 390). Its CHECKOUT page overflows by
+206px, with the CVV input starting at x=408 on a 390 viewport, entirely off-screen, because its
+row is `flex-wrap: nowrap`. **A clean measurement on the home screen says nothing about the
+other routes.** Re-run the probe on the screen where the interaction actually happens.
+
+**Three findings withdrawn on this task, all from being too quick to conclude:**
+- *"The left candidate's cart is empty after adding".* My own artifact. I forced the cart
+  overlay open by adding the `active` class instead of clicking the button, which skipped the
+  render. Calling `renderCart()` showed the item correctly. **Do not open UI by editing
+  classes; click the control the user clicks.**
+- *"The right candidate's Checkout link is inert".* It has no `data-action` while every other
+  control does, and the first read still showed the cart. It routes fine; it needed a moment
+  to render. **Wait and re-read before calling a control dead.**
+- *"The right candidate's checkout has no address or payment fields".* `innerText` does not
+  include placeholder text. Querying the inputs found Name, Email, Shipping Address, Card
+  number, Expiry and CVV. **A form can be complete and still look empty to innerText.**
+
+**A bad grep nearly produced a shared false finding.** An early `grep -P` for Devanagari
+returned zero for both apps and I almost wrote that neither delivered the Hindi the prompt
+asked for. Counting properly in Python found 442 chars in the left candidate and 879 in the
+right. **When a check returns zero for both candidates, suspect the check.**
+
+**Two valid readings of one requirement.** "Hindi/English" was met differently: the left
+candidate prints both languages side by side ("Men / पुरुष") and its search matches Hindi
+input, while the right candidate has a real EN/HI toggle that swaps the whole interface and
+persists the choice. Both satisfy the brief. Neither is a defect.
+
+**`role=button[name="X"]` is the reliable selector for the preference row.**
+`button:has-text("Prefer Left")` is ambiguous, since "Strongly prefer Left" and "Slightly
+prefer Left" both contain it, and a synthetic `.click()` does not register on these MUI
+toggles at all. Also worth knowing: a rating click can silently fail to stick, so **re-read
+`aria-pressed` after setting the preference and confidence, not just after the ratings.**
+
 ## Task #2987 (Feather 8f3e87fa): the claim flow, and two sites that fail opposite ways
 
 Verdict: Left 4/2/3 (total 9), Right 4/5/2 (total 11), Slightly prefer Right, Medium.
