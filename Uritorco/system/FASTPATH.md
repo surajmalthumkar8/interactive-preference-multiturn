@@ -83,8 +83,13 @@ not an app defect, and it must never be rated against a candidate. A new origin 
 empty localStorage, so redo any persistence test there.
 
 **Left and Right share element ids.** `root_rule_0_rationale` exists twice. `getElementById`
-always returns the Left one. Disambiguate by x-position (Left < 760 < Right) or Playwright
-`nth=0` / `nth=1`.
+always returns the Left one. Disambiguate by **DOM order**: the first three rating groups and
+the first three rule textareas are Left, the next three are Right. For clicking, Playwright
+`nth=0` / `nth=1` on the duplicated id works.
+
+**Do not use a hardcoded x threshold.** The Right panel starts at x=768 on a 1536 window but
+x=720 on a 1440 one, so `x < 760` classifies everything as Left on a 1440 viewport and writes
+both sides' text into the Left panel, silently. This happened on task 3028.
 
 **A `confirm()` or `alert()` blocks the next call.** Both apps use them for delete and save.
 Click, then `browser_handle_dialog`. The click result will say a modal is present.

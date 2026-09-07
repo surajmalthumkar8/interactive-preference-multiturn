@@ -23,12 +23,27 @@ responsive quality.
 `root_rule_0_rationale` exists **twice** in the DOM, once per panel. `getElementById` always
 returns the Left one, so writing both sides through it puts both texts in the Left panel.
 
-Two reliable ways to disambiguate:
+**Use DOM order, not a hardcoded x threshold.** The panels move with the window width: the
+Right panel starts at x=768 on a 1536 window but at x=720 on a 1440 one, so a fixed `< 760`
+test silently classifies both sides as Left and writes both texts into the Left panel. This
+bit on task 3028 and was caught only by printing the actual x values.
+
+DOM order is stable: the first three rating groups and the first three id-bearing textareas
+are Left, the next three are Right.
 
 ```js
-// by x position: Left panel starts at x=16, Right at x=768 on a 1536 wide window
-const el = [...document.querySelectorAll('textarea')]
-  .find(t => t.id === 'root_rule_0_rationale' && (t.getBoundingClientRect().x < 760));
+// by DOM order, width independent
+const areas = [...document.querySelectorAll('textarea')].filter(t => t.id && t.id.includes('rule'));
+const left = areas.slice(0, 3);   // completeness, functionality, visual
+const right = areas.slice(3, 6);
+```
+
+If a positional check is wanted as a cross-check, compare against the midpoint of the actual
+window rather than a constant:
+
+```js
+const mid = window.innerWidth / 2;
+const isLeft = el.getBoundingClientRect().x < mid;
 ```
 
 ```

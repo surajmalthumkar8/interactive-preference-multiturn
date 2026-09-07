@@ -2,6 +2,51 @@
 
 Newest first. These are things a previous task got wrong or nearly got wrong.
 
+## Task #3028 (Feather 1cb21cf6): judging animation, and an x-threshold that silently lies
+
+Verdict: Left 4/3/4 (total 11), Right 3/2/2 (total 7), Prefer Left, High.
+
+**THE MECHANICAL ONE: the `x < 760` side test is wrong and fails silently.** The Right panel
+starts at x=768 on a 1536 window but x=720 on a 1440 one, so on a 1440 viewport every element
+classifies as Left and both sides' text lands in the Left panel. Caught only by printing the
+actual x values while verifying ratings. **Use DOM order instead: the first three rating groups
+and the first three rule textareas are Left, the next three are Right.** `PLATFORM_MECHANICS.md`
+is corrected.
+
+**How to judge an animation brief.** Screenshots are nearly useless here; four techniques did
+the work:
+- `document.getAnimations()` gives running CSS animations with names, durations and playState.
+  The left candidate returned 30 running, with 20s/30s/40s/60s durations matching the brief's
+  "very slow and smooth".
+- **Canvas animation is invisible to `getAnimations()`.** Sample the pixels instead:
+  `ctx.getImageData(...)` at intervals and compare. That is how the right candidate's hero and
+  map were confirmed to be genuinely animating.
+- **Sample several points on a canvas, not one.** A single centre-pixel read said the right
+  candidate's map was static; six points across it showed all six changing. The centre was
+  empty ocean. Nearly a false finding.
+- **For scroll-driven motion, step the scroll and record the transform.** Reading it at four
+  coarse positions suggested the right candidate's product row moved; stepping every 50px
+  showed it holds at 0, snaps to -620 in ONE step, and holds. That single jump is the defect,
+  and only fine granularity exposes it.
+
+**Compare travel against travel needed.** The left candidate's product row moves 109px when the
+track needs 661px, so two of five named products never come into view. `scrollWidth -
+clientWidth` versus the measured transform range makes that concrete.
+
+**Section overlap is measurable.** The brief called it VERY IMPORTANT. Reading each section's
+top minus the previous section's bottom gave -90 on all eight boundaries for the left candidate
+(margin-top: -90px) and exactly 0 for the right candidate. A clean requirement, cleanly checked.
+
+**Another withdrawal from trusting one signal.** The right candidate has
+`scroll-behavior: auto`, which looked like a miss on the brief's first global rule. Clicking a
+nav link and sampling scrollY over time showed 0 -> 95 -> 1739, so it animates the scroll in
+JS. **CSS property absent does not mean behaviour absent.**
+
+**The humanizer found a NEW repeated shape after I fixed the old one.** Varying the openers
+worked (six distinct shapes), but then `so`/`which` consequence hinges appeared in 5 of 7
+fields. Reduced to 3. **Each pass fixes one shape and can expose another, so ask the humanizer
+to look for repeated shape generally, and name the shapes already fixed so it looks past them.**
+
 ## Task #3010 (Feather c2d15f9c): three withdrawals in one task, and a route-specific overflow
 
 Verdict: Left 3/3/3 (total 9), Right 3/2/2 (total 7), Prefer Left, Medium.
