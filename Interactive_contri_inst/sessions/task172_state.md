@@ -7,7 +7,7 @@
 Live working document for this task. Every paste (A/B responses, picks, turns) gets
 appended here so the whole conversation is documented and referenceable.
 
-- Task: **Side-by-Side Conversation 172** · account `surajmalthumkar8@gmail.com#linkedin`
+- Task: **Side-by-Side Conversation 172** · account `<account>`
 - Queue: `[general] side_by_side_conversation` · created 2026-07-22 22:24:24 · status In progress
 - Started (our side): 2026-07-24
 - Category: **summarizing / explaining** (rotation: task 977 was brainstorming)

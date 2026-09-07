@@ -1,7 +1,7 @@
 # Task 3260 — Side-by-Side Conversation (state file)   [CLOSED 2026-07-31]
 
 Opened 2026-07-31. Platform label: `side_by_side_conversation 2026-07-30 17:05:38`,
-queue `[general]`. Account `surajmalthumkar8@gmail.com#linkedin`.
+queue `[general]`. Account `<account>`.
 
 Same brief as tasks 172 / 33 / 3154 / 3252 — the 2026-07-28 revision (10 turns,
 capability limits stated inline, "remove any sensitive or confidential information").

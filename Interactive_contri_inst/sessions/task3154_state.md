@@ -12,7 +12,7 @@ Closed 2026-07-31 — ENDed on resolution, not stretched toward 10. Lessons entr
 > equal the number of message rows) stays.
 
 Opened 2026-07-31. Platform label: `side_by_side_conversation 2026-07-30 17:05:38`,
-account `surajmalthumkar8@gmail.com#linkedin`, queue `[general]`. Status: In progress.
+account `<account>`, queue `[general]`. Status: In progress.
 
 ## Platform brief (verbatim)
 

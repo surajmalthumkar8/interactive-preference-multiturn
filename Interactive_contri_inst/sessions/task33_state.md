@@ -10,7 +10,7 @@
 Live working document. Every paste (A/B responses, picks, turns) is appended here so
 the whole conversation is documented and referenceable.
 
-- Task: **Side-by-Side Conversation 33** · account `surajmalthumkar8@gmail.com#linkedin`
+- Task: **Side-by-Side Conversation 33** · account `<account>`
 - Queue: `[general] side_by_side_conversation` · created 2026-07-22 22:24:24 · status In progress
 - Started (our side): 2026-07-24
 - Category: **coding / practical dev question** (rotation: 977 brainstorming, 172 explaining)
