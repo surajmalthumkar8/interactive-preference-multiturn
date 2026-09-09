@@ -1536,3 +1536,40 @@ brief as a weather card with a clock and a temperature nobody asked for.
 can press" tripped the abbreviated-name check. It is a false positive on the phrase, but the fix
 is to reword rather than argue, because a human reviewer skimming for "Website A" would stumble
 in the same place.
+
+## Task 6318 — where the line sits between judging a page and judging the world
+
+Verdict A / A / A on a broken-English brief, "Make a visual effects American people suffer most
+percentage heart disease". Website A built a scrolling data story with a working percent/ratio
+switcher, real anchor navigation, a sources section and a not-medical-advice line. Website B
+built one handsome screen with nine dead controls and unexplained numbers.
+
+**The hardest call here was what NOT to write.** Website B labels "1 in 5" as the share of
+American adults affected; Website A labels the same familiar ratio as a share of deaths. Both
+cannot be describing the same quantity. It was tempting to say which one is right, because the
+standard framing is well known. That would have been an external-fact claim about US health
+statistics, not an observation about the two tabs, and the reason fields are not the place to
+adjudicate it. The write-up says instead: **Website A defines and sources its figures, Website B
+does neither, and one Website B label disagrees with how Website A labels the same ratio.**
+Every word of that is checkable by opening the two tabs. The humanizer was given the boundary
+explicitly and held it.
+
+**Sourcing is a functionality fact, not an opinion.** Website A names its reporting bodies in a
+sources section and says its numbers are rounded. Website B shows 36 percent, 44, and 47 percent
+on one screen with no definition of what any of them counts and no source anywhere. Noting the
+absence of a source is an observation. Declaring the number wrong is not.
+
+**A page that advertises sections it never built is a functionality defect, not a design one.**
+Website B's header lists four areas. Its document is exactly one viewport tall and all four
+links are href="#". That belongs in the functionality lens, and it also decided the aesthetics
+lens indirectly, because a composition that ends where it starts has less to look at.
+
+**Same clipping trap as task 6124, opposite candidate.** Website B's nav overflows on mobile.
+Walked the ancestor chain before judging: overflow-x is hidden, not auto, so the last section
+name is unreachable rather than scrollable. Second time this exact check has changed a finding
+from "responsive quirk" to "real defect". It is now reflexive.
+
+**A validator advisory is about how a human will read the line.** On the previous task "page a"
+inside ordinary prose tripped the abbreviated-name check. Here the draft was written to avoid
+that construction from the start, and the humanizer was told to avoid it too. Cheaper than
+fixing it afterwards.
