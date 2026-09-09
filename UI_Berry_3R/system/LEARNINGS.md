@@ -1308,3 +1308,48 @@ turns a vague-sounding instruction into a checkable one, and it decided the over
 **Where the Attempt URL is empty, fill it with the CLAIMED id.** This task's Vercel record had
 no Attempt URL, and the Task Variables link was the pre-claim template id that returns
 `ApolloError: Task not found`. The value that belongs there is the id the claim redirected to.
+
+## Task #6007 (Feather 428565c8) - ComplyMate, and five withdrawals on one task
+
+Verdict: Website B on aesthetics, Website A on functionality, Website B overall. A split
+verdict, and the split was the honest reading rather than a hedge.
+
+**The landing page is a STATE, not the whole build.** The first scan of Website B counted 1857
+characters, 3 sections and zero inputs, and read as a marketing page missing most of the brief:
+no risk indicator, no overdue list, no law updates, no mark-as-done, no admin. Every one of
+those was present behind the primary call to action. Website B is a full application with a
+sidebar workspace, a 3-step wizard, a scored dashboard and an admin rules table. **Press the
+main call to action before concluding anything about scope.**
+
+**An icon control hides its name in aria-label.** "Website B has no mark-as-done" was wrong.
+The control is `button.task-check` with `aria-label="Mark File your GST return as done"`. A
+text search over innerText finds nothing. Search attributes as well as text before recording a
+missing feature.
+
+**Two elements can claim to be the same metric.** Website A prints "Compliance Score 86" in a
+features card that never changes, and a separate dashboard ring that moves correctly to 100%
+once the checklist is cleared. My first selector grabbed the static one and produced the
+finding "Website A's score is frozen". The page has a real defect here, but it is the
+duplication, not a broken engine. **When a number looks stuck, check whether the page prints
+that number twice.**
+
+**Five findings withdrawn on this task.** B-is-only-a-landing-page, B-has-no-mark-as-done,
+A's-score-is-frozen, A's-score-never-responds, B-persists-nothing. All five were measurement
+errors, none reached a reason field. The pattern across the last three tasks is consistent:
+the first probe is a hypothesis, and roughly one in three of them is wrong.
+
+**A real missing requirement, found by trying the door.** Website B's header carries "Log in",
+and pressing it opens the sign-up screen headed "Welcome to ComplyMate" with a create-password
+field and no route back to an existing account. There is no login anywhere. The brief named
+"Signup / Login". Website A opens a "Welcome back" panel with email, password and Google. That
+single gap carried the functionality lens, against a build that is otherwise deeper.
+
+**String replacement can silently no-op.** A validator warning survived a patch because the
+replace target did not match the file exactly. The second attempt printed whether the substring
+was present before and after. **Assert the replacement happened; do not infer it from a clean
+re-run of something else.**
+
+**The Vercel record can close itself.** After the Feather submit, the Vercel task had already
+moved to "Awaiting Review" with no Save or Submit button left, only "Claim Review", which is
+the reviewer role. Where the attempt URL was filled before submitting, no second submit is
+needed on the Vercel side.
