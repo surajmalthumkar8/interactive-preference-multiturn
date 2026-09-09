@@ -82,3 +82,33 @@ fails a different part of the request.` Do not force an A/B pick when the eviden
 
 Read the three reasons back. If any sentence could only have been written by something with a
 console open, rewrite that sentence. That is the test.
+
+## Functionality means functionality AND instruction following
+
+Client clarification, 2026-09-09. Both halves count, and they are weighted.
+
+**When both candidates are effectively static there is nothing to exercise, so the whole
+functionality judgement becomes which one follows the prompt better.** Do not pad the field
+with control-by-control notes when there are no controls worth the words.
+
+**Everything present gets tested, requested or not.** If the prompt asked for an image and a
+candidate added a download button nobody asked for, that button gets clicked. Unrequested
+features are still part of the build and still break.
+
+**Explicitly requested beats self-added.** A candidate that answers the prompt well and ships
+a broken extra beats one that answers the prompt poorly and ships a working extra. Worked
+example from the client: the prompt asks for an image, Website A gives a good image plus a
+broken download button, Website B gives a poor image plus a working download button. Website A
+wins, and the reason says so plainly: Website A follows the request better even though its
+extra button is broken, while Website B has the working button but does not answer the request.
+
+Rank the evidence that way before writing. A long list of working controls does not outweigh
+missing the thing that was actually asked for.
+
+## Do not submit in under ten minutes
+
+Client reminder, 2026-09-09. A task submitted in under ten minutes reads as not fully
+reviewed, and submission time is one of the first things the audit looks at. The inspection
+this project asks for does not fit in less than that anyway: two sites, every section, every
+control exercised, then three reasons drafted and gated. If the clock says eight minutes,
+something was skipped.

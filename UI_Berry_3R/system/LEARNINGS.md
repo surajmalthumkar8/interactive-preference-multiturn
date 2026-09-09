@@ -1135,3 +1135,59 @@ submit, and the queue.
 
 **When the queue is dry, wait and retry rather than reaching around it.** No amount of clicking
 produces work that the dashboard does not have.
+
+## Task #5957 / Feather 055718e0 - the Vercel record and the Feather record can diverge
+
+Submitted the annotation on Feather successfully ("Task submitted successfully"), then found
+the Vercel task had reverted from In Progress to **Pending** with a Claim Task button, and
+re-claiming was refused with "You Already Have An Active Task" because a different task, #5979,
+held the single claim slot.
+
+**Read the comment thread in order before deciding a task is a duplicate.** The thread on #5957
+was, oldest last: Samantha "Already did this task!" (2:02), Suraj "Task is not done, fields are
+empty like its brand new." (2:11), Erik "Task not found" (2:45). Taken alone the first comment
+looks like a stop sign. Read with the reply it is a claim that was already checked and
+overruled. The fields were genuinely empty and the work was real.
+
+**The two platforms are not one system.** Feather holds the annotation and Vercel holds the
+attempt record. A Feather submit does not write back to Vercel, so a released or re-pooled
+Vercel task can sit at Pending while the Feather side reads Completed. Check both.
+
+**Only one Vercel claim is open at a time.** "You Already Have An Active Task" means some other
+task holds the slot. Find it on the dashboard (it shows as "Continue Task #NNNN") rather than
+retrying the claim.
+
+## Judging a "3D website" brief without a canvas anywhere
+
+Neither candidate on #5957 used canvas or WebGL. Both did their depth in CSS.
+
+**Probing for canvas and WebGL alone will tell you a site is not 3D when it is.** The first
+pass on Website B found zero canvases and no WebGL and was one step from writing up a flat 2D
+page. The real probe is computed style: `perspective` on the stage element, `matrix3d` in
+`transform`, and `transform-style: preserve-3d`. Website B had perspective 1800px, two tilted
+rings and three preserve-3d panels. Website A had perspective 1200px, orbital planes and a
+rotating core. Both answered the brief.
+
+**When both candidates satisfy the headline request, the call moves to execution.** Both built
+real depth here, so the deciding evidence became a dead CTA, a broken phone layout, and which
+hero composition held together.
+
+## Two near-miss fabrications on one task
+
+**A computed value can be wrong about what a viewer sees. The screenshot is the arbiter.**
+Website A's modal backdrop read `opacity: 0` for 2.4 seconds against a 0.3s transition, with
+the `.open` class applied and the CSS correct. Every number said the modal opened invisible.
+The screenshot showed it fully rendered, dimming and blurring the page behind it. Writing that
+up would have been a fabricated defect, which is the most serious error on this rubric.
+
+**A Playwright timeout is not evidence of a broken control.** `browser_click` timed out on
+"visible, enabled and stable" for Website A's Book a demo button and later for the MUI rating
+toggles. Measuring the element across two intervals showed zero movement and zero running
+animations, and `elementFromPoint` returned the button itself. The stability heuristic was
+failing, not the page. Dispatching a full pointer sequence worked on both.
+
+**Verify the count you are about to write.** The draft said "four of its buttons drop the
+visitor at the same section". The audit found seven anchors pointing at `#platform`, two of
+them the legitimate Platform nav link, so the honest figure was five, and they are links rather
+than buttons. Caught in the final fact pass, after the validator had already returned CLEAN.
+The validator says so itself: mechanical checks only, the factual audit is still on you.
