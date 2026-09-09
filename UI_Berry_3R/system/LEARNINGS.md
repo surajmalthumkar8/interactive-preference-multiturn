@@ -1383,3 +1383,46 @@ included "Dragging does move it." I had only observed the DRAG TO INSPECT hint t
 dragged the model. Cut before submitting. The agent was right to surface it: a claim about a
 control that was not exercised is the most serious defect on this rubric. **Read a rewrite for
 new factual claims, not only for style.**
+
+## Task 6099 — the 3D weather scene, and a candidate that answered a different brief
+
+Verdict A / A / A. Prompt wanted a hyper-realistic 3D interactive weather dashboard: orbiting
+camera, ten floating cards on a curved arc, glowing 3D text, a skybox that changes with the
+weather. Website A built exactly that. Website B built a very tidy flat 2D dashboard with a
+painted sky illustration, zero canvases and no WebGL anywhere.
+
+**A dead control is not the same as a dead page.** Website B had ten CSS animations running, so
+the ambient glow moved and the page looked alive. Every single control was still inert: four
+sidebar sections, three header icons, the map grid tile, and the day cards. Checking
+`document.getAnimations().length` told me nothing useful about interactivity. Only clicking each
+control and diffing a page signature did.
+
+**Handler inspection is worthless off React.** I reached for the `__reactProps` key to check for
+an `onClick` and got `no-react-key` on every element, because this build is not React. That is a
+non-answer, not a finding. The behavioural test is the only portable one: capture a signature
+(outerHTML length + text length + active classes), fire the control, compare.
+
+**Confirm a dead control with a real click before writing it down.** Synthetic pointer sequences
+are the workaround for the MUI stability timeout, but a no-change result from a synthetic
+dispatch has two possible causes: the control is dead, or the dispatch did not reach it. I
+proved Solar Orbit dead with an actual `browser_click` first, then trusted the synthetic sweep
+for the rest. Without that anchor the whole finding would have been unsafe.
+
+**An overlapping layout can be a camera angle, not a defect.** The first orbit screenshot showed
+Website A's cards colliding and unreadable on one side. A later screenshot at a different angle
+showed them evenly spaced. Had I written the collision up from one frame it would have been a
+false finding. Screenshot a moving scene more than once before calling a layout broken.
+
+**overflow:hidden is a clipping bug; overflow:auto is a scroller.** Website B's forecast strip
+overflowed on mobile and that was fine, it scrolls by design. Its topbar also overflowed and
+that was not fine, because the ancestor chain was `hidden`, so the date and icons are cut off
+and unreachable. Same measurement, opposite verdicts. Walk the ancestor chain before judging.
+
+**When both sides fail the same way, that axis stops being evidence.** Both candidates broke at
+phone width. So mobile could not decide anything between them, and it belonged in the writeup
+only as a concession against the winner, not as a reason to prefer either.
+
+The humanizer's catch this time was structural again: all three fields closed on concede-then-
+reassert. It also flagged, unprompted, that it had dropped a real observation (the mobile card
+pile) for length rather than rephrasing it into something unverified. I restored that
+observation by hand. That is the behaviour I want from the gate.
