@@ -1573,3 +1573,46 @@ from "responsive quirk" to "real defect". It is now reflexive.
 inside ordinary prose tripped the abbreviated-name check. Here the draft was written to avoid
 that construction from the start, and the humanizer was told to avoid it too. Cheaper than
 fixing it afterwards.
+
+## Task 6527 — the autosave nearly ate three reason fields
+
+Verdict A / A / A on a healthy-food icon set brief. But the methodology finding here matters more
+than the verdict.
+
+**ONE KEYSTROKE AT THE END IS NOT ENOUGH. THE HARD RELOAD CAUGHT IT.**
+The usual routine has been: set all three textareas with the native setter, then focus the last
+one and fire a single real Backspace-plus-character to trip the debounced autosave. On this task
+the hard reload came back with **all three reason fields empty** and only the ratings saved. The
+text had gone in, the events had fired, the lengths read back correctly in the live DOM, and none
+of it reached the server.
+
+What worked on the retry: **a real keystroke in every field separately, with a three second wait
+after each one**, then five seconds before reloading. All three persisted.
+
+Two things this changes for good:
+- The per-field keystroke is now mandatory, not a nicety. Firing one keystroke in the last field
+  can leave the other two unsaved, and nothing in the live page will tell you.
+- **The hard reload before submitting is the only thing standing between this and a blank
+  submission.** It has felt like ceremony on every previous task. It is not. Without it this task
+  would have submitted three empty reason fields with three ratings attached, which is exactly the
+  shape of an audit failure.
+
+**When both candidates are static the client rule does all the work.** Neither website had a
+single control. Website A had sixteen CSS animations but a pixel diff showed about a hundred
+pixels of gently pulsing dots, which is ambient decoration and not functionality, so it was left
+out of the write-up entirely. With nothing to exercise, the functionality lens became purely which
+one followed the brief.
+
+**Check consistency in the CSS, not by eye.** Website B's badges looked mostly circular. The
+computed styles showed ten at fifty percent radius and three at eighteen percent. The brief asked
+for a "very cohesive set", so that inconsistency is a direct miss, and it would have been easy to
+skim past.
+
+**Count both sides before making a count an argument.** Both websites produced thirteen icons
+against a requested ten to twelve. Since they overshot identically it separates nothing, and the
+write-up says so plainly rather than using it against the loser.
+
+**Zoom before calling artwork unreadable.** First impression of Website B was that none of its
+icons resolved into anything. A zoomed crop showed the fish is perfectly legible. The reason field
+says "most" and names the fish as the exception. Second time this session that zooming has pulled
+back an overstated claim.
