@@ -1267,3 +1267,44 @@ closed on the same move: a final sentence restating the verdict as a scored comp
 validator's 6-gram reuse check passes that cleanly because the words differ. A reader sees it
 at once. Worth reading the three closing sentences as a set before dispatching, the same way
 the openers are already checked.
+
+## Task #5998 (Feather bc8cc15d) - Arab Mix FM, and the first honest tie
+
+Verdict: Website B on aesthetics, BOTH ARE GOOD on functionality, Website B overall.
+Submitted and verified.
+
+**A tie is the right answer when the evidence is genuinely level, and it has to be earned on
+both sides.** Both builds carried all three exact Zeno stream ids, both actually streamed
+(correct URL loaded, readyState 4, currentTime advancing), both moved the active state to the
+key being played and dropped the previous one, both locked pinch zoom, both drove artwork from
+a real analyser, both switched EN and AR. Before writing the tie I went back and exercised
+Website B's remaining two keys, because a "both are good" resting on one tested key and three
+on the other side is not a tie, it is an untested guess.
+
+The validator enforces two things on a tie that are easy to miss. The opener must be
+`Website A and Website B are tied` or `... are both`, and the reason must not smuggle in a
+winner: `more complete`, `clearer`, `less broken`, `better than`, `outperform`, `wins`,
+`beats`, `superior` and `whereas X fails` are all rejected inside a tie field.
+
+**Probing a canvas for one context type destroys readback for another.** After calling
+`getContext('webgl')` on Website A's 2D canvas to identify its type, every subsequent
+`getImageData` returned fully transparent pixels, first at six sample points and then across
+the entire canvas. The conclusion "the visualiser paints nothing while audio plays" was wrong
+and self-inflicted. The screenshot showed the orb, the orbital rings and the particles
+rendering normally. **Identify the context type from the source or the class name, not by
+calling getContext, if pixel sampling is planned.**
+
+**A wrapper at opacity 0 does not mean its contents are invisible.** Website A's
+`.speaker--left` and `.speaker--right` both read opacity 0 during playback, which looked like
+the "speakers appear when sound plays" requirement failing. The visible discs are separate
+child elements and both speakers are plainly rendered in the screenshot. Second withdrawal on
+the same task, both caught by looking rather than measuring.
+
+**Scoring an explicit sizing instruction.** The request asked for a page "with the size of the
+mobile screen". Website B constrains its shell to a narrow centred column on a desktop
+viewport; Website A stretches edge to edge. Measuring the app shell width against the viewport
+turns a vague-sounding instruction into a checkable one, and it decided the overall lens here.
+
+**Where the Attempt URL is empty, fill it with the CLAIMED id.** This task's Vercel record had
+no Attempt URL, and the Task Variables link was the pre-claim template id that returns
+`ApolloError: Task not found`. The value that belongs there is the id the claim redirected to.
