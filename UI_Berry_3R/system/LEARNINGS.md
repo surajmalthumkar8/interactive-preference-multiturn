@@ -1616,3 +1616,37 @@ write-up says so plainly rather than using it against the loser.
 icons resolved into anything. A zoomed crop showed the fish is perfectly legible. The reason field
 says "most" and names the fish as the exception. Second time this session that zooming has pulled
 back an overstated claim.
+
+## Task 6565 — a split verdict, because the better drawing and the better compliance were not the same build
+
+Verdict B / A / B on a geometric luxury logo brief. First split since 6007, and the reasoning is
+worth keeping because the temptation to collapse it was strong.
+
+The brief asked for a faceted leaf emblem, a named pale-to-white gradient, "emblem style mark",
+"no clutter", one to one. Website A produced exactly that and nothing else: one centred roundel,
+wordmark, trade line, empty space. Website B produced a full identity presentation around a leaf
+that is plainly the better drawing, with more facets, a cleaner gradient and better held negative
+space, plus a header, a headline, a side note, a palette strip and a footer.
+
+**Aesthetics went to Website B and functionality went to Website A, and those are the honest
+readings of two different questions.** Judged on the object, B wins. Judged on "did you deliver
+what was ordered", A wins, because "no clutter" is an explicit instruction and B surrounded the
+mark with material nobody asked for. Collapsing that into one winner would have thrown away the
+information the three lenses exist to capture.
+
+**Overall is not a tiebreak between the other two.** It went to B on the reasoning that a logo
+brief is judged on the logo, and B's extra material reads as branding context rather than noise
+on a request that itself said "perfect for signage and branding". The humanizer was told
+explicitly not to harmonise the three fields, and it held. It also improved the concession by
+naming its cost: Website A obeyed, and it gave up the drawing to do it.
+
+**Do not rank two candidates on a colour when both land close.** Both leaves sample within a
+short distance of the named tone. A is marginally nearer, B uses far more of it. Neither fact
+decides anything, so the write-up says nothing about colour accuracy in either direction. An
+argument that could have gone either way is not an argument.
+
+**A missing element is not always missing.** Website B's palette strip and wordmark section did
+not appear in an early DOM query, then did appear in innerText, which looked like a rotating
+carousel. Resizing the viewport taller showed everything present at once. The content was below
+the fold and my selector had failed to match across element boundaries. Two wrong theories before
+the right one, and the fix was to make the whole page visible rather than to keep querying.
