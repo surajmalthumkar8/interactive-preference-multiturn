@@ -1191,3 +1191,79 @@ visitor at the same section". The audit found seven anchors pointing at `#platfo
 them the legitimate Platform nav link, so the honest figure was five, and they are links rather
 than buttons. Caught in the final fact pass, after the validator had already returned CLEAN.
 The validator says so itself: mechanical checks only, the factual audit is still on you.
+
+## Task #5979 - a task can be filled underneath you mid-inspection
+
+Opened #5979 with all six fields empty and no ratings set. Roughly seven minutes later, after
+finishing the inspection and clearing all three gates, the form came back with three complete
+reasons and all three ratings set. The text was not mine. Another contributor had filled it
+while the task sat open in this session.
+
+**Re-read the form immediately before writing to it, not only after.** The fill step assumed
+the state observed at the start of the task still held. Overwriting would have destroyed
+another contributor's finished submission, and the native-setter fill would have done it
+silently with no warning and no undo.
+
+Suraj's call was to leave it. Their verdict matched mine on all three lenses, so nothing was
+gained by overwriting and a colleague's work would have been lost.
+
+**A matching verdict from an independent annotator is a useful cross-check.** They reached B on
+all three lenses from different evidence: an amber money tile breaking the green palette the
+request specified, and a sound switch on Website A that changes state in name only without
+updating its icon. Both are real and both were missed here. Worth knowing that a build can
+answer a control's state in the class attribute while the visible mark never changes, which is
+exactly the kind of thing the "test everything present" rule is meant to catch.
+
+## Anchoring on a keyframe list beats counting animations
+
+The brief for #5979 named six animations: slideUp, fadeIn, scalePop, neonGlowPulse, iconBounce
+and parallax drift. Counting running animations gave 42 for Website A and 44 for Website B,
+which suggests parity and is nearly meaningless.
+
+Reading `CSSRule.KEYFRAMES_RULE` names off the stylesheets settled it. Website B defines
+fourteen keyframes including all six the request named by exact name. Website A defines five in
+total and matches two. **When a request names its requirements, check for the names.** A raw
+count of running animations counts decorative particle loops the same as the specific effects
+that were asked for.
+
+This also corrected the draft twice. The first version credited Website B with five of six
+because iconBounce was missing from the running set, and it is present in the stylesheet. The
+second said Website A matched "only the neon pulse" when driftParticle answers drift as well.
+Both fixed in the final fact pass, after the validator had already returned CLEAN.
+
+## Task #5991 (Feather 68bce7a1) - Wi-Fi discovery, B on all three
+
+Verdict: B is better on aesthetics, functionality and overall. Submitted and verified
+Completed with all three fields read-only.
+
+**Count the dead controls on both sides before deciding functionality.** The draft for this
+task was one sentence from claiming functionality for Website A, on the strength of its search
+and filter chips working. Tallying both sides reversed it. Website A has two dead buttons,
+Start scan and Saved locations, and Start scan is the main call to action in its opening block.
+Website B has one, the map zoom. Website B also has more working: search, sidebar navigation, a
+scanning state and row selection that fills the details panel. Fewer broken and more working is
+the whole argument, and it only appears once both sides are tallied.
+
+**Counting `<section>` tags undercounts a page.** Website A appeared to have two sections
+against Website B's seven, which read as a large structural gap. Website A actually carries all
+four content regions the brief named, at #overview, #networks, #security and #learn; they are
+simply not all `<section>` elements. Query the anchor targets the navigation points at instead
+of counting tag names.
+
+**`innerText` does not see SVG text, so a visible label can read as absent.** The claim that
+Website B's map carries a "you are here" marker failed an `innerText` check while the marker
+was plainly visible in the screenshot and present in `outerHTML`. Same shape as the Uritorco
+checkout placeholders. When a check says a visible thing is missing, distrust the check. The
+screenshot settles it.
+
+**Verify a dead control by snapshotting geometry, not by looking for a transform.** The first
+zoom probe read `getComputedStyle(...).transform` on one guessed element and found "none",
+which proves nothing about the wrong element. Recording the position of every node inside the
+map before and after two clicks, plus the radius label, is what actually established that
+nothing moves.
+
+**The humanizer catches cross-field repetition the validator cannot.** All three drafted fields
+closed on the same move: a final sentence restating the verdict as a scored comparison. The
+validator's 6-gram reuse check passes that cleanly because the words differ. A reader sees it
+at once. Worth reading the three closing sentences as a set before dispatching, the same way
+the openers are already checked.
