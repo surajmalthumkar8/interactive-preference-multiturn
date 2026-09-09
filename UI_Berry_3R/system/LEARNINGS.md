@@ -1426,3 +1426,38 @@ The humanizer's catch this time was structural again: all three fields closed on
 reassert. It also flagged, unprompted, that it had dropped a real observation (the mobile card
 pile) for length rather than rephrasing it into something unverified. I restored that
 observation by hand. That is the behaviour I want from the gate.
+
+## Task 6124 — pretty frame, broken picture
+
+Verdict B / B / B. One-line brief: "an isometric room that feels cozy". Website A wrapped a
+lovely cream-and-olive interface, serif headings and a comfort meter around a room render that
+is a floating pile of shapes with no walls, no floor and no consistent grid. Website B built an
+actual isometric room and wired seven controls to it.
+
+**A short brief moves weight onto execution, not compliance.** With a fifteen-line prompt most of
+the judgement is a checklist of requested features. With five words, almost nothing is specified,
+so the two words that ARE there carry everything. Here that was "isometric" and "cozy", and
+Website A misses the first one outright while looking more polished than Website B everywhere
+else. The polish was the trap.
+
+**Check `getAnimations()` before calling a render broken.** Website A's room looked like a
+half-finished transition. It returned zero animations, which is what let me say the mess is the
+settled state rather than a frame I caught mid-move. On task 6099 the same reflex went the other
+way: a single frame showed cards colliding and a later frame showed them fine. One check, two
+opposite conclusions, both times it stopped a false finding.
+
+**A subtle toggle is not a dead toggle.** Website B's "Toss the cushions" produced no change I
+could see in the screenshot. Before writing it up as broken I looked for the mechanism and found
+it sets `html[data-cushions]` and applies a `cushion-tossed` class to a real SVG path. It works;
+the art change is just quiet. Eyeballing a screenshot would have produced a false finding here,
+which is the mirror image of the usual failure where a measurement lies and the screenshot is
+right. Neither instrument wins by default. Cross-check whichever one is about to cost a candidate.
+
+**`href="#"` is the cheapest tell for decorative navigation.** The accessibility snapshot showed
+all three of Website A's room links pointing at `#` before any click, and clicking appended a
+bare `#` to the address. That took seconds and was confirmed afterwards with one real click.
+
+**The word "chrome" trips the platform-reference check.** Meant as interface framing, read as the
+browser. The validator flagged it as advisory, not a block, but a reviewer would trip on it the
+same way. Rewritten to "frame". Worth remembering: the validator's advisories are about how a
+human will read the sentence, not only about literal rule violations.
