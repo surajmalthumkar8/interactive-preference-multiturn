@@ -1650,3 +1650,69 @@ not appear in an early DOM query, then did appear in innerText, which looked lik
 carousel. Resizing the viewport taller showed everything present at once. The content was below
 the fold and my selector had failed to match across element boundaries. Two wrong theories before
 the right one, and the fix was to make the whole page visible rather than to keep querying.
+
+## Task 6916 — the marketplace that could actually take money, and a Vercel submit that cost forty minutes
+
+**Verdict A / A / A.** Both candidates built a full used furniture marketplace and both looked
+serious at a glance. The lens that decided it was arithmetic.
+
+Website B ships with two items already sitting in its cart and a subtotal of 1,659. Add a third
+item worth 1,890 and the row appears, the badge goes 2 to 3, and **the subtotal does not move**.
+Add it twice more, nothing. Remove an item, badge drops, **money still does not move**. Its
+totals are display text, not a calculation. Its approval button opens nothing and leaves every
+listing PENDING. Its checkout button does nothing at all. Website A adds, sums, refuses a
+duplicate with a note, removes and recalculates, then takes an address and a delivery slot,
+issues order #RF-379025, empties the cart and starts a tracking strip. Sell a piece on Website A
+and it reaches the approval queue, gets approved, and appears for sale in the public shop at a
+price the site derived from the asking figure. That is the brief's whole seller to admin to
+buyer chain, working.
+
+**Website A's conceded flaw, stated in the overall field:** the checkout summary totals 26,950
+while the pay button underneath reads 26,500. The button omits the delivery fee. Two figures
+disagreeing on one panel is bad in a shop and it is said plainly.
+
+**Aesthetics was the close one and nearly went the other way.** Website B has better type by a
+distance, and its prices set in serif with a small unit beneath are the nicest thing on either
+site. It loses because its damage is where a viewer looks: a cart row whose item name is
+squeezed to zero width so the price prints on top of it, a heading sliced mid word, a badge cut
+off by the edge of its own circle, and one identical beige oval standing in for a lamp, a desk,
+a chair and a stool. Website A's repeated emoji artwork is a real weakness and is named, but
+Website A never breaks its own layout.
+
+### Four findings withdrawn before they reached the write-up
+1. "Website B's category filter is broken" — all eight cards stayed in the DOM after filtering.
+   **False.** offsetParent and getBoundingClientRect showed only the two matching cards render at
+   nonzero size. The counter said 02 ITEMS and was telling the truth. **Never count h3 elements
+   to test a filter. Count what renders.**
+2. "Website B dropped my duplicate add" — no, the cart **ships pre-seeded** with two items.
+   Reloaded to establish the baseline before blaming a click. The real defect was worse and
+   different, and I would have missed it by reporting the wrong one.
+3. "Website B's checkout works, it prints Order confirmed" — that text is **static pre-existing
+   content** in the Order Tracking panel, present before any click. Its order #RH-2048 at 2,450
+   matches neither the cart nor anything I did.
+4. "Website A's hero is clipped" — .hero has overflow:hidden with 681px of content in a 381px
+   box. Walked the children: all three render fully. It is holding a decorative background curve.
+
+### PLATFORM: two mechanics that cost most of the task
+**The Feather reason fields have SIX textareas, not three.** Each visible field has a hidden
+read-only sizing twin. Writing to `querySelectorAll('textarea')[0..2]` puts the functionality
+text in the aesthetics field and the overall text in functionality. **Always write by id:**
+`root_aesthetics_scoring_reason`, `root_functionality_scoring_reason`, `root_overall_scoring_reason`.
+Caught only by reading back each field's label alongside its content.
+
+**The MUI rating toggles ignore real mouse clicks when the form is inside its scroller.** Three
+input methods failed on two of three groups: synthetic events, real page.mouse clicks at verified
+coordinates, and keyboard Enter on a focused button. What worked was calling React's own handler:
+`b[Object.keys(b).find(k=>k.startsWith('__reactProps'))].onChange(evt, 'A is better')`. It also
+commits a beat late, so verify after a pause rather than concluding it failed.
+
+**The Vercel Attempt URL is `input[type="url"]`, NOT the first textarea.** The first textarea is
+Notes. I typed the URL into Notes and the submit kept failing. The error is a toast that vanishes
+in under a second; catching it at 700ms gave the exact reason:
+`• Task Information — "Attempt URL" is required`. **Read the toast immediately or work blind.**
+
+**The Vercel confirm dialog is SweetAlert, and its Submit carries `disabled` during the entrance
+animation.** Every mouse click bounced off it silently, with no error and no network request.
+Dispatching the pointer/mouse event sequence directly on the element after the dialog settles is
+what lands. If a submit click produces no request at all, check the button for a `disabled`
+attribute before assuming the click missed.
