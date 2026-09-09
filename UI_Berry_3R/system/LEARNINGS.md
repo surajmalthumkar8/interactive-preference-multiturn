@@ -1353,3 +1353,33 @@ re-run of something else.**
 moved to "Awaiting Review" with no Save or Submit button left, only "Claim Review", which is
 the reviewer role. Where the attempt URL was filled before submitting, no second submit is
 needed on the Vercel side.
+
+## Task #6087 (Feather 5aaf13eb, RC16 pairing) - answering the wrong brief
+
+Verdict: Website A on all three lenses. The request asked for a low poly 3D model of a banner
+printing machine, built for a web renderer, centred on a plain background and ready to rotate
+slowly. Website A produced exactly that in a full screen canvas with pause, reset and a drag
+hint. Website B produced a printing company marketing website with navigation, a headline,
+statistics and buttons, and a flat CSS drawing of a machine inside it. Zero canvases,
+window.THREE undefined, no WebGL context anywhere, nothing that rotates.
+
+**Never call getContext on a canvas that will later be pixel sampled.** This trap has now
+fired on two consecutive tasks. On #6087 an early `getContext('webgl2')` probe returned 'none'
+and then `toDataURL` reported no change across five samples, which looked like proof that
+Website A's scene was static. It is not: two screenshots taken three and a half seconds apart
+have different md5 hashes, and the PAUSE SPIN control toggles to START SPIN. Identify the
+context type from the source or the class name. If pixel comparison is needed, take two
+screenshots and hash them.
+
+**Hashing two screenshots is the cheapest animation test there is.** No context needed, no
+readback, nothing to break. `md5(shot1) != md5(shot2)` settles whether anything moved.
+
+**scrollWidth can under-report a page that still scrolls.** Website B measured scrollWidth 1253
+against a 1258 viewport, which reads as no overflow, yet `window.scrollTo(9999, y)` moved the
+page. Test scrollability directly rather than inferring it from a width comparison.
+
+**The humanizer added a claim I had not verified, and it flagged that itself.** Its rewrite
+included "Dragging does move it." I had only observed the DRAG TO INSPECT hint text, never
+dragged the model. Cut before submitting. The agent was right to surface it: a claim about a
+control that was not exercised is the most serious defect on this rubric. **Read a rewrite for
+new factual claims, not only for style.**
