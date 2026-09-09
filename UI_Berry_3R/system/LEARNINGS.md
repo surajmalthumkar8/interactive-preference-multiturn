@@ -1461,3 +1461,41 @@ bare `#` to the address. That took seconds and was confirmed afterwards with one
 browser. The validator flagged it as advisory, not a block, but a reviewer would trip on it the
 same way. Rewritten to "frame". Worth remembering: the validator's advisories are about how a
 human will read the sentence, not only about literal rule violations.
+
+## Task 6139 — three near-miss findings in one task, and the fix for all of them
+
+Verdict B / B / B on the ocean wave brief. Website B is a full bleed animated sea with a pause
+that genuinely works; Website A is a split layout with a handsome data panel, a real sand beach
+with waves breaking onto it, and not one thing a viewer can press.
+
+This task nearly produced three false findings. All three were caught the same way, by asking
+what the measurement actually measured before letting it cost a candidate.
+
+**1. "Website B's pause is fake."** Two screenshots taken while paused hashed differently, which
+looks like proof the water never stopped. A pixel diff said 29 pixels changed, all inside a six
+by six box in the header, which is the status dot pulsing. The pause works perfectly. **A hash
+answers "did anything change", never "did the thing I care about change."** When a hash is about
+to cost a candidate a point, diff the images and look at where the change actually is.
+
+**2. "Website A barely animates."** Its first motion test reported 177 changed pixels in a tiny
+box. The viewport was still 390 wide from the previous task, and at that width Website A's ocean
+panel sits off screen entirely. Re-measured at desktop width: 102,791 pixels moving across the
+whole panel. **Confirm the viewport width before any motion or layout measurement.** A stale
+resize from an earlier task is invisible and it produces confident nonsense.
+
+**3. "Website A's readouts are frozen."** True over a six second window. But Website B's looked
+frozen over seven seconds too, and Website B's tide reading later drifted from 0.36 to 0.37 on
+its own. So the observation neither separates the two nor is reliably true. Dropped. This is the
+same shape as the mobile axis on task 6099: **when a fault appears on both sides it is not
+evidence, and a short observation window is not proof of a frozen value.**
+
+**Report only what was verified, and say so when a check was impossible.** Website B's sound
+control flips its label between sound and mute. Whether audio actually reaches the speakers could
+not be established, because the audio context is not exposed. The reason field says the label
+moves and stops there. The humanizer was told explicitly not to upgrade that claim, and did not.
+
+**Concede the named requirement the winner misses.** The brief listed shore breaking. Website A
+renders an actual beach with waves washing onto sand; Website B only implies a shoreline with a
+foam line and has no beach at all. That went into the overall field as a real point for Website A
+before ruling against it. A verdict that never concedes anything reads as a verdict that never
+looked.
