@@ -1499,3 +1499,40 @@ renders an actual beach with waves washing onto sand; Website B only implies a s
 foam line and has no beach at all. That went into the overall field as a real point for Website A
 before ruling against it. A verdict that never concedes anything reads as a verdict that never
 looked.
+
+## Task 6294 — an image brief, a dead-queue detour, and conceding the point that hurt
+
+Verdict A / A / A on an image-generation style brief: a 3D skeleton in an Athens marketplace with
+a glassy skin overlay, large cartoon eyes, metallic braces and a teal background named by hex.
+
+**The queue serves dead templates. Read the comment count first.** Two tasks in a row came back
+"Task not found" on Feather. The first carried twelve comments from eleven different contributors
+saying exactly that, the most recent forty minutes old; the second carried thirty one. Both were
+older batches than the one that has been working. **A high comment count on a UI Berry task is
+almost always a queue of people reporting the same dead link, and it costs nothing to read it
+before claiming.** Confirmed each myself rather than trusting the thread, then released both.
+Adding a thirteenth identical comment would have been noise, so I did not.
+
+**Zoom before judging a small drawing.** At full page scale Website B's eyes looked like two
+small black dots and "eyes are not large or expressive" was about to go into the aesthetics
+field. A zoomed crop showed they are reasonably large, dark with highlights and a teal rim. The
+claim was cut. The real defect was elsewhere and survived the zoom: stump arms with no hands, a
+ribcage that is one striped teardrop, a pelvis of two loose ovals.
+
+**Sample the colour, do not eyeball it.** The brief named a background shade by hex. Website A
+looked like the more careful piece overall, so the lazy assumption was that it also got the
+colour right. Sampling both said the opposite: Website B sits within a short distance of the
+named shade and is a flat fill, Website A is markedly darker. **That is a real instruction
+following point for the candidate that loses, and it went into two of the three fields.** A
+verdict that quietly drops the loser's best point is the kind that does not survive an audit.
+
+**Where a brief is a list of things to depict, functionality is almost entirely depiction.**
+Both candidates are static illustrations. Website A having the only pressable thing mattered, but
+what decided the functionality lens was which one rendered more of the named attributes: braces
+as separate brackets, eyes wide, glass over bone, portrait framing. Website B reframed a portrait
+brief as a weather card with a clock and a temperature nobody asked for.
+
+**The validator flags "page a" inside ordinary prose.** "the only thing on either page a viewer
+can press" tripped the abbreviated-name check. It is a false positive on the phrase, but the fix
+is to reword rather than argue, because a human reviewer skimming for "Website A" would stumble
+in the same place.
