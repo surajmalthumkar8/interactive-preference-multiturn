@@ -1,7 +1,11 @@
 # UI Berry 3R — session handoff
 
-**Written 2026-09-10, ~03:25 PDT.** Read this first, then start working. It is written to be
-picked up cold with no memory of the previous session.
+**Written 2026-09-10, ~03:25 PDT. Updated ~05:35 PDT after task #7760 shipped.** Read this
+first, then start working. It is written to be picked up cold with no memory of the previous
+session.
+
+**New laptop?** Read [../../DAILY_RUN.md](../../DAILY_RUN.md) first — it carries the one-time
+machine setup and the daily run prompt. Then come back here.
 
 Standing instruction from Suraj: **do 25 tasks today, do not stop between them.** Submit one,
 pull the next, keep going. Every reason field must be humanized and validated. Fast turns.
@@ -11,23 +15,20 @@ pull the next, keep going. Every reason field must be humanized and validated. F
 ## Start here, in this order
 
 1. Open `https://annotation-platform-henna.vercel.app/dashboard`
-2. **Task #7760 is already claimed and waiting.** Vercel task page:
-   `https://annotation-platform-henna.vercel.app/tasks/6aa1be517ea75f1a1f5b9dc9`
-   Its live Feather task is `9a14b5e6-630f-4e28-8e7b-32245569d2fe` (verified alive, previews
-   should mount there). **Its Attempt URL field is still empty — fill it before submitting.**
+2. **Task #7838 is already claimed and in flight** (a pricing-page comparison: "Pricecraft" vs
+   "Pricely", three pricing layout concepts each). Continue it from the dashboard's
+   `Continue Task #7838` button, or the UI Berry card's task link.
 3. Work it end to end using the gate order below, submit on Feather then Vercel, then pull the
-   next one and repeat until 25 are done.
+   next one and repeat until the day's 25 are done.
 
-Counters at handoff time (they reset overnight, these are the fresh day's numbers):
+Counters as of this update (2026-09-10, ~05:35 PDT):
 
 ```
-UI Berry 3 R    0 queued   59 completed   1/35 claims   0/25 submits
+UI Berry 3 R    0 queued   60 completed   2/35 claims   1/25 submits
 ```
 
-So the 25 target is a full day's allowance and it is completely untouched. One claim is used
-(that is #7760).
-
----
+Task **#7760 submitted successfully** earlier in the day. That one is done and logged; do not
+reopen it. One submit against the 25 target, 24 to go.
 
 ## THE SUPPLY SITUATION CHANGED — read this before you panic about dead tasks
 
@@ -178,6 +179,33 @@ for (const t of ['pointerover','pointerdown','mousedown','pointerup','mouseup','
 
 Success reads `Task #NNNN submitted!`. **If a submit click produces no network request at all,
 check the button for a `disabled` attribute before assuming the click missed.**
+
+### 4b. Keyboard input does not reach Feather's textareas — use raw CDP insertText
+NEW on task 7760. `page.keyboard.press` and `keyboard.type` are silent no-ops here even when
+`document.activeElement` correctly reports the target textarea. Three fields ended up exactly one
+character short each. The per-field real keystroke that task 6527 made mandatory has to go through
+a raw CDP session:
+
+```js
+const cdp = await page.context().newCDPSession(page);
+await page.evaluate(id => { const el=document.getElementById(id); el.focus();
+  el.setSelectionRange(el.value.length, el.value.length); }, id);
+await page.waitForTimeout(700);
+await cdp.send('Input.insertText', {text: '.'});
+```
+
+The symptom to watch for is a field short by exactly the number of characters typed.
+
+### 4c. Feather submit is the status pill, not a button
+There is no Submit control on the task form. The "In progress" pill at the top opens a menu with
+Mark as complete / Cancel task / Escalate issue / Release task / Decline. **Mark as complete
+submits with no confirm dialog**, and the tab then navigates itself to the campaign page. Queried
+mid-transition that reads exactly like a failed click. Do not re-click. Reload the task URL and
+check for "Completed".
+
+### 4d. Set the rating toggles ONE AT A TIME
+Calling the React `onChange` on all three groups inside a single `page.evaluate` commits only the
+last one. Split into three calls with ~2.5s between them.
 
 ### 5. Dashboard cards sit side by side — index matters
 The three project cards are in one row. "Start Tasking" buttons resolve as

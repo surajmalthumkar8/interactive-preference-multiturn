@@ -4,7 +4,9 @@ Everything needed to work this project from any machine: the reconciled operatin
 client source documents, the binding rules, the Claude Code agent pipeline, and the saved
 project memory.
 
-**New machine? Read [SETUP.md](SETUP.md). Cloning this repo is the setup.**
+**New machine? Read [DAILY_RUN.md](DAILY_RUN.md)** for the short path: machine setup plus the
+prompt that runs a full day of UI Berry tasks. [SETUP.md](SETUP.md) is the long reference.
+Cloning this repo is the setup.
 
 ---
 
