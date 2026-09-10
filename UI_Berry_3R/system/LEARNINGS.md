@@ -1716,3 +1716,61 @@ animation.** Every mouse click bounced off it silently, with no error and no net
 Dispatching the pointer/mouse event sequence directly on the element after the dialog settles is
 what lands. If a submit click produces no request at all, check the button for a `disabled`
 attribute before assuming the click missed.
+
+## Task 7760 — the VIER LABS footer, and a keystroke method that finally works
+
+**Verdict B / B / B.** Both candidates built the same dark footer to the same brief and both
+covered every listed element, so nothing here was decided by a missing feature. What separated
+them was that Website A spends the top of its page on a huge dim VIER ghost word inside a faint
+ring that the brief never asked for, then strands its lime pill at the far right of a wide empty
+field, so the call to action drifts away from the question it answers. Website B keeps the
+headline and the pill on one line together and reads as a finished block.
+
+**A finding withdrawn on the second check, and it changed the verdict's reasoning.** The first
+draft said Website A's column entries "do nothing when pressed" and used that against Website A.
+Clicking them proved otherwise: `#work` moved the page from 0 to 472, because Chrome falls back
+to scrolling when a fragment has no target and the page has room. Then the same test on Website B
+showed **its** column entries are equally dead, since neither page contains a single one of the
+sections its own columns name. The honest write-up makes it a shared flaw and finds the real
+separator elsewhere: Website B's phone number dials, its Back to top actually returns the page,
+and its privacy and terms exist, while Website A's Schedule a call goes nowhere.
+
+**The rule that caught it:** a fragment link that scrolls is not a working link, and a fragment
+link that fails to scroll is not necessarily broken differently from its opposite number. Test
+the same control on both sides before making it an argument. This is the second session running
+where a "Website X is broken" claim survived one check and died on the second.
+
+### PLATFORM: `page.keyboard.press` and `keyboard.type` do not reach Feather's textareas
+
+The per-field real keystroke that task 6527 made mandatory could not be delivered the usual way.
+`locator.click()` times out on this page as always (the preview iframes never let the stability
+check settle), so focus was set with `el.focus()` plus `setSelectionRange`. `document.activeElement`
+then correctly reported the target textarea — **and `page.keyboard.press('Period')` still did not
+insert anything.** Three fields, three silent no-ops, each field left exactly one character short
+of its intended text.
+
+What worked: a raw CDP `Input.insertText` on a fresh `newCDPSession(page)`.
+
+```js
+const cdp = await page.context().newCDPSession(page);
+await page.evaluate(id => { const el=document.getElementById(id); el.focus();
+  el.setSelectionRange(el.value.length, el.value.length); }, id);
+await page.waitForTimeout(700);
+await cdp.send('Input.insertText', {text: '.'});
+```
+
+All three fields took it immediately and all three survived the hard reload. Worth using as the
+default keystroke method on this platform rather than discovering the shortfall again. The
+symptom to watch for is a field whose length is short by exactly the number of characters typed.
+
+**Feather submit is not a button, it is the status control.** There is no Submit on the task
+form. The "In progress" pill at the top opens a menu carrying Mark as complete, Cancel task,
+Escalate issue, Release task and Decline. Mark as complete submits with no confirm dialog, and
+the tab then **navigates itself to the campaign page**, which reads exactly like a failed click
+if the status is queried mid-transition. Do not re-click. Reload the task URL and check for
+"Completed" before concluding anything.
+
+**Rating toggles: set them one at a time.** Calling the React `onChange` on all three groups in a
+single `page.evaluate` committed only the last one. Splitting into three calls with 2.5s between
+each set all three. Same underlying late-commit behaviour logged on 6916, but the batching detail
+is new.
