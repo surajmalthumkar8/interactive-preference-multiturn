@@ -1,5 +1,9 @@
 # Mandatory Toolchain — UI Berry 3R
 
+> **Starting a new session? Read [SESSION_HANDOFF.md](SESSION_HANDOFF.md) first.**
+> It carries the live task in flight, the current campaign and supply, and the platform traps
+> that cost hours to rediscover.
+
 Directed by Suraj, 2026-08-27. These four gates are **compulsory on every task**. None is
 optional, and the order does not vary.
 
