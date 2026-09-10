@@ -1774,3 +1774,76 @@ if the status is queried mid-transition. Do not re-click. Reload the task URL an
 single `page.evaluate` committed only the last one. Splitting into three calls with 2.5s between
 each set all three. Same underlying late-commit behaviour logged on 6916, but the batching detail
 is new.
+
+## Task 7838 — pricing templates, a 502 that was not a failure, and the confirm dialog nobody had seen
+
+**Verdict A / B / A, a deliberate split.** Both builds answered the brief (three distinct pricing
+layouts) and both worked. Website A ("Pricely") puts three templates behind a switcher: dark
+cards, a blue editorial split, an orange comparison sheet. Website B ("Pricecraft") stacks three
+concepts on one long page: cream editorial, dark glass, brutalist blocks.
+
+**What decided it was one rendering fault in Website B's third concept.** In the brutalist
+section the Play plan shows a big clear $0, but Build and Own show a giant dollar sign with the
+number shrunk into the caption beside it, so the two paying plans do not show a readable price on
+a conversion-first layout. Verified on a clean load before any interaction, so it was not
+something I caused by driving the stepper. Website A has no equivalent fault.
+
+**Functionality went the other way and that is the honest reading.** Website B has more working
+machinery and all of it holds: the seat stepper recalculates both paid tiers (5 seats gives 45
+and 90, 8 gives 72 and 144, 3 gives 27 and 54) and clamps at 1 and 50, the billing choice
+discounts, the header entries scroll to real sections, every CTA raises a named toast. Website A
+also answers everywhere but has less to exercise. Splitting the verdict keeps that information
+rather than collapsing it.
+
+### The 502 that would have been a badly wrong write-up
+Website B's preview returned **HTTP 502 `service_not_listening` on four consecutive attempts**
+over about twenty seconds. The task instructions say a site that fails to load is a functionality
+failure, so the tempting move was to write that up and hand Website A the win.
+
+**It was a dead container, not a broken site.** Reloading the Feather task page issued
+**completely new preview hostnames** for both candidates. The old ones stay dead; the new ones
+served both sites perfectly. **The preview containers are re-provisioned per task-page load, and
+a hostname captured earlier in the session goes stale.**
+
+Rule from this: **before writing up any load failure, reload the Feather task page and re-read
+the iframe src attributes.** Never judge a 502 against a URL captured minutes earlier. This one
+would have produced a confident, entirely false functionality failure.
+
+Related: a screenshot at full-page scale made Build and Own look like they had *no* price at all.
+Zooming and reading the DOM showed the numbers are present but rendered at caption size. The
+claim shipped as "shrunk into small print", which is what is true, rather than "missing".
+
+Also checked and deliberately left out: **neither** site can hand over an actual Figma file
+despite both advertising "Figma-ready". A shared miss separates nothing, so it is stated as
+shared in the functionality field rather than used against either one.
+
+### PLATFORM: Feather's submit has a SECOND confirm dialog
+Task 7760 went Instructions to Completed with one click on Mark as complete. This one refused,
+about eight times, across every input method: synthetic pointer sequences, React's own onClick,
+`page.mouse`, raw CDP `Input.dispatchMouseEvent` at verified coordinates, and keyboard Enter on
+the correctly focused menu item. Status stayed "In progress" and **zero POST requests** fired.
+
+A screenshot showed why: a **"Confirm Submission" modal was already open** the whole time, with
+an info line ("Are you sure you want to submit this task?") and a green **"Submit Task"** button.
+Every one of my clicks had worked. The dialog was simply invisible to the DOM queries I was
+running, which looked only for `[role="menuitem"]` and the status pill.
+
+**Clicking that Submit Task button submitted immediately**, five POSTs at 200, status Completed,
+auto-navigation to the campaign page.
+
+**The lesson is the cheap one I skipped: screenshot before theorising.** I spent roughly ten
+minutes and six failed approaches building theories about MUI portals, stale menu state and
+coordinate offsets, when one screenshot showed the actual blocker in a second. When an action
+"does nothing", look at the page before instrumenting it.
+
+Two supporting notes: the confirm button is a plain `<button>` reading `Submit Task`, not a
+SweetAlert `.swal2-confirm` (that is the Vercel side). And `Mark as complete` on a task whose
+form is still mounting silently does nothing, so wait for
+`document.getElementById('root_aesthetics_scoring_reason')` to exist before touching the status
+pill. On a fresh load these pages need well over twelve seconds.
+
+**Vercel claim does not claim on Feather.** #7838 arrived from the dispenser with its Feather
+task still "Unclaimed" and no previews mounted. The status pill offers **Claim task**, and the
+claim also **changes the task URL** (`bd3a5367-...` became `af9d88ea-...`). The live URL after
+claiming is the one that belongs in the Attempt URL field. #7760 arrived already In progress, so
+this path had never come up.
