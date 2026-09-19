@@ -2236,3 +2236,31 @@ The validator blocked `colour`, `palette` and `serif` in the functionality field
 task the visual vocabulary is the natural way to describe *everything*, including the parts that
 are genuinely behavioural. Recast as "every value in the house set" and "the lettering and its
 tracking" and it passed. Expect this block on every design-system task.
+
+## Task 6194074 / work item 7589230 — four dark futuristic SaaS cards (2026-09-19)
+
+**Verdict A / A / A.** Both builds produce all four named cards with the exact titles and
+subtitles from the brief, the dark grid, the purple-blue glow and a centre orb on each. The
+decision came down to one measurable defect.
+
+**Website B draws its orb over its own card content.** On the second card the sphere spans
+x 1479-1695, y 865-1081 while its four checklist rows span x 1374-1793, y 926-1064, so the orb
+covers all four and two item names are lost behind it. `elementFromPoint` at the orb centre
+returns the orb's own `SPAN.ring-value`, confirming it paints on top. Website A's orb occupies
+y 689-931 with its checklist at y 1145-1298: **zero overlaps.**
+
+Website A also carries more per card: four avatars, three timed messages to Website B's two,
+a 7/10 progress bar beside the ring, and priority filters with a reset that Website B has no
+equivalent for.
+
+### The measurement error worth recording
+
+**The first overlap calculation was wrong and would have produced a true-sounding but
+unfounded claim.** It collected every round element on the page and every checklist row, then
+compared them pairwise. The orbs it found were in the *left* card (x≈851-1065) and the rows were
+in the *right* card (x≈1374-1793). Different cards, so the overlap arithmetic was meaningless,
+yet it still reported thirteen overlaps because the y-bands happened to coincide.
+
+Re-scoping the orb query to `x > 1300` produced the real measurement, which happened to agree.
+**It could easily have disagreed.** On a multi-card or multi-column page, always constrain both
+sides of a geometric comparison to the same container before believing the result.
