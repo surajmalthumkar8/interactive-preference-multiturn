@@ -579,3 +579,29 @@ Built after §17c so the wedge cannot cost time again. All live in the session s
 **Order per task:** `opentask.py` → judge the candidates in their own standalone tabs → fill →
 `verify.js` → `submitchain.py` → `svrstatus.py` must read `COMPLETED` → then LinkedIn
 (`fillurl.js` with the **claimed** uuid, then `lnksubmit.js`, confirm `POST … 202`).
+
+### 18 — batch exhaustion: what a persistent 404 actually means
+
+On 2026-09-19 at ~22:10 the claim endpoint began returning **404 "No claimable task results
+available in pipeline"** on every attempt. A Slack notice from the project lead explained it:
+
+> the batch has been completed in the Attempter layer, and we will now continue with the Review
+> layer. Therefore, if you see the message "No task available," there is no need to report it.
+
+**So a sustained 404 is a normal end state, not a fault.** §16 records 404 as "genuinely empty
+pool"; the addition here is that an empty pool can mean the batch is *finished*, and the right
+response is to stop polling rather than to keep retrying or escalate.
+
+**How to tell exhaustion from a lull.** A lull refills within minutes and the campaign keeps an
+active batch with claimable work. Exhaustion looks like: every claim 404s over a long window, the
+task list shows only submitted rows, and the Feather todo queue is empty
+(`userTaskTodos(params:{completed:false})` → `count: 0`). Those three together mean stop.
+
+**Do not reach for other campaigns to keep a task count up.** `allocatedCampaigns` lists seven for
+this account and several still have active batches, but they are different projects with different
+rubrics and instructions. Claiming into one to keep working is a scope decision for Suraj, not a
+way to fill idle time. Also note the claim API cannot be driven directly — a hand-rolled
+`POST …?action=claimResults` returns **403 CSRF check failed**; only the in-app dropdown path works.
+
+**Leave the tooling armed.** `claimloop.py` claims on the first 200 and suppresses 404 noise, so it
+can be re-armed when the next batch opens without re-deriving anything.
