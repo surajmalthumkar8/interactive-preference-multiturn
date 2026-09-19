@@ -688,6 +688,23 @@ match the `requestWillBeSent` whose `postData` contains `UpdateTaskStatus`, keep
 `requestId`, wait for `loadingFinished`, then call `Network.getResponseBody`. The body
 names the exact missing property. This took one run and replaced five blind retries.
 
+**Correction, same day, task 6192184.** The `change` + `blur` pair above was **not
+enough**. The identical rejection came back on the overall field, on a task filled by the
+patched script. A synthetic `t.focus()` does not give the element real focus, so the
+synthetic blur that follows commits nothing.
+
+What actually works, verified end to end:
+
+1. `scrollIntoView` the textarea,
+2. **click it with the mouse** (`Input.dispatchMouseEvent`), not `.focus()`,
+3. select-all and Delete **as keystrokes** (`Ctrl+A`, `Delete`), not a value setter,
+4. `Input.insertText`,
+5. **click a neutral spot on the page** to blur it for real.
+
+The whole chain has to go through the input pipeline. Anything that touches `value`
+directly leaves React's state and the server's copy out of sync no matter what events are
+dispatched afterwards. `fill3q.py` now does all five steps.
+
 **Standing rule.** Never read success from the status pill, and do not read it from the
 HTTP status either. Either query `workflowStatus` back with `svrstatus.py`, or read the
 mutation body and check for an `errors` key. `submit3q.py` now blurs every field before

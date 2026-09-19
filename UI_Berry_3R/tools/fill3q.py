@@ -49,20 +49,29 @@ def main(uuid, ansfile):
     # fill reasons
     for k,idx in zip(ORDER, idxs):
         txt=d[k]["reason"]
-        # section 21: clear via the native setter, type, then fire change + blur.
-        # Feather commits a reason field on blur; without it the text stays in the DOM
-        # only and updateTaskStatus rejects with 'is a required property' inside a 200.
-        cdp.ev(ws,"""(()=>{const t=document.querySelectorAll('textarea')[%d];
-          t.scrollIntoView({block:'center'});
-          const s=Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype,'value').set;
-          s.call(t,''); t.dispatchEvent(new Event('input',{bubbles:true}));
-          t.focus(); return 1;})()""" % idx, timeout=25)
-        time.sleep(0.6)
+        # Section 21. Feather commits a reason on a REAL blur, and a synthetic
+        # .focus()/.blur() pair is not enough: the text sits in the DOM, the textarea
+        # reads back the right length, and updateTaskStatus still rejects with
+        # 'overall_scoring_reason is a required property' inside an HTTP 200.
+        # What works: scroll it in, click it with the mouse, select-all + Delete by
+        # keystroke, insertText, then click a neutral spot to blur it for real.
+        cdp.ev(ws, """(()=>{const t=document.querySelectorAll('textarea')[%d];
+          t.scrollIntoView({block:'center'}); return 1;})()""" % idx, timeout=25)
+        time.sleep(1.2)
+        pos = cdp.ev(ws, """(()=>{const t=document.querySelectorAll('textarea')[%d];
+          const q=t.getBoundingClientRect();
+          return JSON.stringify({x:Math.round(q.x+q.width/2),y:Math.round(q.y+q.height/2)});})()""" % idx, timeout=25)
+        p = json.loads(pos)
+        mouse.click_at(ws, p['x'], p['y'], settle=0.8)
+        for k, code, vk, mod in [('a','KeyA',65,2), ('Delete','Delete',46,0)]:
+            raw('Input.dispatchKeyEvent', {'type':'keyDown','key':k,'code':code,
+                'windowsVirtualKeyCode':vk,'modifiers':mod})
+            raw('Input.dispatchKeyEvent', {'type':'keyUp','key':k,'code':code,
+                'windowsVirtualKeyCode':vk,'modifiers':mod})
+            time.sleep(0.3)
         raw('Input.insertText',{'text':txt})
-        time.sleep(0.8)
-        cdp.ev(ws,"""(()=>{const t=document.querySelectorAll('textarea')[%d];
-          t.dispatchEvent(new Event('change',{bubbles:true})); t.blur(); return 1;})()""" % idx, timeout=25)
-        time.sleep(1.0)
+        time.sleep(0.9)
+        mouse.click_at(ws, 200, 300, settle=1.2)   # real blur, commits the field
         got=cdp.ev(ws,"(()=>document.querySelectorAll('textarea')[%d].value.length)()"%idx,timeout=25)
         ok='OK' if got==len(txt) else 'MISMATCH'
         cdp.p('%-14s idx %d want %d got %s  %s' % (k, idx, len(txt), got, ok))
