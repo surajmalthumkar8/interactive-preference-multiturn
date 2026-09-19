@@ -2264,3 +2264,37 @@ yet it still reported thirteen overlaps because the y-bands happened to coincide
 Re-scoping the orb query to `x > 1300` produced the real measurement, which happened to agree.
 **It could easily have disagreed.** On a multi-card or multi-column page, always constrain both
 sides of a geometric comparison to the same container before believing the result.
+
+## Task 6198091 / work item 7589243 — Google Sheets predictive budget tracker (2026-09-19)
+
+**Verdict A / B / B.** Both deliver all six named columns, a real Sheets formula and a dark-mode
+hex palette. Website A is the better-composed page; Website B is the deeper working model.
+
+- Website B: four sections (sheet, insights, formulas, palette), a real grid with lettered
+  columns and an fx bar, a critical alert naming the breach date and two remedies, an
+  actual-versus-projected chart with a safety-buffer line, and what-if sliders.
+- **Website A carries a self-contradiction.** Five of its seven ledger rows read "Gap risk
+  detected" while the panel beside them reads "Cash flow on track" and "Projected cash flow
+  remains positive", with a projected month end of **+$8,182**. For a tracker whose stated purpose
+  is warning about a cash-flow gap, the alert column disagreeing with its own forecast is the
+  defect that decided the task.
+
+### The near-miss worth recording above everything else
+
+**The first pass on Website B reported zero hex codes and no formula.** Both were wrong, and
+either would have been a false negative in a scored field. Two separate causes:
+
+1. **`innerText` only sees rendered text.** Website B's CSS `:root` variables live in `<style>`
+   blocks, so `textContent` found 31 hex values where `innerText` found none. Neither number was
+   the answer.
+2. **The real content was behind sections I had not opened.** Website B has "Formulas" (9,787
+   characters) and "Palette" (21 hex values) sections. Reading only the default view and
+   concluding "not present" is the same error as reading only the home route on the school site.
+
+**Rule:** before writing that a site lacks something the brief asked for, enumerate its
+sections and open every one. Absence from the first screen is not absence.
+
+### Lens note
+Four blocks on this task, more than any other: `tabs` and `working` in aesthetics, `laid out`
+and `palette` (then `colour`) in functionality. A task about a spreadsheet's *appearance and*
+*behaviour* pulls both vocabularies into both fields. Budget an extra validator round-trip.
