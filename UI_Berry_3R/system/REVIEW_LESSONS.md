@@ -199,3 +199,37 @@ ossicles, which a body radiograph would not itemise); ribs drawn as an evenly pi
 rather than anatomical curves (the brief asked for visible bones, not a medical illustration);
 and a "clipped" first message that was only the transcript's scroll position after my own
 test sends. Rigour includes discarding true-but-irrelevant findings.
+
+## The instrument, not the site — what 2026-09-19 actually proved (P17–P20)
+
+Across this batch, **twelve claims of a dead control were investigated and twelve were my own
+tooling.** Zero were real. That ratio, not any individual catch, is the finding: on a batch where
+both candidates are competent, the base rate of genuinely dead controls is very low, and the base
+rate of *probes that miss* is high. Weight the prior accordingly.
+
+**P17 — Attach the listener before the thing you are diagnosing runs.**
+A Feather task page hung six consecutive renderers. An hour went into probing the wedged tab, which
+by definition cannot answer. `Runtime.enable` + `Log.enable` on a *blank* tab before navigating
+produced the cause in one shot: `THREE.WARNING: Multiple instances of Three.js`. When something is
+already stuck, stop interrogating it and instrument the next attempt from before it starts.
+
+**P18 — Diagnose a service by its cheapest page.**
+Feather's root rendered perfectly the whole time one task page was unloadable. Probing with the
+heavy page made a healthy service look dead and produced a wrong written diagnosis. Always have a
+cheap control for "is the service up" that is separate from "is this page up".
+
+**P19 — A disconfirming test only counts if it removed the suspect.**
+I cleared the animating ocean canvases as the cause because two wedge attempts had those *tabs*
+closed. But the task page embeds its own copies of both candidates, so closing the tabs removed
+nothing, and the original suspicion was right all along. Before accepting "it still happened
+without X", verify X was actually absent.
+
+**P20 — Verify the write at the layer that stores it.**
+After Submit Task the UI pill still read "In progress" while the server already held
+`workflowStatus: COMPLETED`. Conversely a textarea can read back full in the DOM and still not be
+saved. Neither direction of UI state is evidence; check the store.
+
+**The corollary that ties these together.** Three of the four are the same mistake in different
+clothes: trusting a reading taken from the wrong place. A measurement is only evidence about the
+thing it actually touched. Before any negative claim ships, name the layer the measurement came
+from and confirm that layer is the one the claim is about.
