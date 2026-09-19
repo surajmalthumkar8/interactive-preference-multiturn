@@ -230,3 +230,31 @@ inputData: {"link":"https://msft.feather-prod.azure.com/tasks/<uuid>","title":"W
 **Read `rejections` before celebrating.** A non-empty `rejections` array with an empty
 `approvedIds` is the real "pool is dry" signal, and it is the only trustworthy one. An absent
 dropdown says nothing about supply either way.
+
+---
+
+## 11. A claimed task can carry a dead Feather link. Verify before Start annotation.
+
+**Seen 2026-09-19, task 6208115 / work item 7586230.** The claim succeeded normally
+(`approvedIds:[7586230]`, `rejections:[]`, toast `Claimed task #7586230`) and the detail page
+showed an Attempt URL as usual. That URL answered **"Task not found for the provided ID"** —
+retried three times over about fifteen seconds, identical each time. The task was unworkable.
+
+**This is the whole reason the verify-before-start rule exists.** Because `Start annotation` had
+not been pressed, `Skip` was still available and the task was dropped at no cost. Had the order
+been reversed, dropping it would have needed a Feather release plus a Slack post to a QM.
+
+### Skipping, in practice
+
+`Skip` opens an Ant modal headed **"Skip task"**, warning that *skips are limited and tracked* and
+that *skipped results will not be reclaimable*. A **Reason is required**, max 50 characters. State
+the fact plainly, for example `Feather link returns Task not found`.
+
+Two mechanics worth knowing:
+
+- Type the reason with a CDP `Input.insertText` after focusing the field. The character counter
+  (`n / 50`) confirms React saw it.
+- **`elementHandle.click()` on the modal's Skip button times out** waiting for the element to be
+  "stable" — the modal is still animating. Fire the React `onClick` instead, exactly as for the
+  other Ant controls on this platform. Success shows `Task skipped successfully!` and returns to
+  the task list.
