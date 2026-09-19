@@ -2384,3 +2384,61 @@ in each position, light mode, blue-only accent. Nothing missing from either, not
 **Both were cosmetic and marginal.** Spending more probes on them would have bought nothing, and
 asserting either on the failed measurement would have been a fabrication. When a measurement is
 inconclusive and the claim is minor, drop it.
+
+---
+
+## 2026-09-19 — Task 6191089 (WI 7590206), "devlope a few chat box themes for a website" — B / A / A
+
+**Websites.** A = ChatKit/Themes, a builder: 8 presets, live sliders (radius, text size,
+density), 4 switches, 3 layout modes, shuffle, CSS export. B = Chatterbox, an editorial
+lookbook: 5 presets, big display serif, chat preview, showcase cards.
+
+**Verdicts.** Aesthetics B, Functionality A, Overall A. The lenses split, so the overall
+reason had to weigh a real trade-off rather than inherit a winner.
+
+### Five false negatives caught in one task — a session record
+
+Every one would have been a scored 2 under `REVIEW_LESSONS.md` P1.
+
+1. **A's theme switch read "no change".** My snapshot selector grabbed a transparent wrapper.
+   The panel had restyled the whole time, and the page even printed "Midnight Terminal applied".
+2. **B's send read dead via Enter.** B posts through a dedicated **Send message** button that
+   my first probe never looked for. Two routes disagreed, so the negative was not written.
+   Real click: 22 -> 30 messages, input cleared, "Sent" marker, auto-reply.
+3. **B's showcase cards read dead, three times.** `inViewport: false` — every click landed
+   below the fold. The cards carry `data-target-theme` and work once scrolled to.
+4. **A's avatar toggle read dead.** Settle was too short. At 2.2s `aria-pressed` flipped.
+5. **The "clipped first message" on B.** `scrollTop` was 337 *because of my own sent messages*.
+   At scrollTop 0 the cut is 0. Dropped rather than forced.
+
+**The through-line:** four of the five were my instrument, not the site. Two were bad
+selectors, one was viewport, one was timing. Zero were real defects.
+
+### What a negative needs before it ships
+
+The one negative that *did* survive — "nothing else adjustable" on B — is backed by a
+**positive measurement**, not by absence of looking: B has 0 `input[type=range]`,
+0 `button.switch`, 0 `input[type=color]`, against A's 3 / 4 / 1. The validator WARNs on the
+phrase; the probe log is what answers it.
+
+### Method notes
+
+- **Build the scorecard before opening either tab.** The brief was one loose line with a typo,
+  so it named no palette and no font. That means aesthetics carries **no brief-fidelity
+  component** and is judged purely on execution — which is what made B's win defensible
+  despite losing everything else.
+- **Scope geometric claims to the element, not a wrapper.** First overlap pass returned a
+  1425x1087 "badge" and three meaningless overlaps. Re-scoped to the actual `theme-count`
+  element: 109x93, z-index 3, covering the start of one reply chip by 42px across its full
+  32px height. Visible in the screenshot too, so two routes agree.
+- **Count from the page, not from a regex.** My theme-name regex found 7 on A; the page label
+  says "8 presets" and enumerating gives 8. The regex had missed "Daylight Minimal Clean · light".
+- **Emptiness is measurable.** "A's stage looks empty" became defensible as: the panel occupies
+  28% of its stage. That number stays in the probe log and never reaches the reason field.
+
+### A Feather trap worth remembering
+
+After the first submit attempt the task stayed `In progress`. A hard reload showed **the third
+textarea had saved as empty** while the first two persisted. Refilled, reloaded again to confirm
+all six survived server-side, then submitted. **Always reload and re-read before pressing submit
+a second time** — the form can lie about what it holds.

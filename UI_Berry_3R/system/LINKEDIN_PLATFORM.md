@@ -314,3 +314,67 @@ read the status:
 
 On a 409, open `/ai-trainer/tasks` **unfiltered** and look for the row whose Work status is not
 `Submitted`. The project-filtered view can lag and may not show it.
+
+---
+
+## §13 — The task detail route, and why the list has no buttons (2026-09-19)
+
+The task list at `/ai-trainer/tasks` (filtered or unfiltered) renders **nine columns and zero
+controls**. There is no Start annotation button on a row, no hover action, no hidden tenth
+column, no expander. Hovering, clicking the Task ID cell and widening the table all find
+nothing, because nothing is there.
+
+**Every per-task action lives on its own detail page:**
+
+```
+https://www.linkedin.com/ai-trainer/tasks/<WORK_ITEM_ID>
+```
+
+Note **work item ID**, not Task ID. Passing the Task ID returns
+`Annotation task result not found for id=` — which is a useful confirmation that the route
+shape is right and only the identifier is wrong.
+
+That page carries: the countdown, **Start annotation**, **Skip**, the **Attempt URL** field,
+Save and Submit. Go straight there after a claim instead of hunting the list.
+
+## §14 — Submit is `type="submit"`; a synthetic onClick does nothing at all
+
+LinkedIn's Save and Submit both sit inside a `<form>`. Submit is `type="submit"`.
+
+- Invoking `props.onClick` fires **zero network requests**. No error, no toast, and
+  `Last modified` still updates from unrelated re-renders, so it looks like it worked.
+- A real pointer click fires only a **GET** re-fetch, not the POST.
+- The only thing that commits is:
+
+```js
+const b = [...document.querySelectorAll('button')].find(x => x.innerText.trim() === 'Submit');
+b.closest('form').requestSubmit(b);   // -> POST .../frontendAnnotationTaskResults/<id> 202
+```
+
+**Always confirm with a response hook, never the UI.** A success is `POST ... 202`. Then check
+the row reads `Submitted`; `In progress` after a submit attempt means it did not commit.
+
+## §15 — The Attempt URL is required, empty, and must be the CLAIMED task URL
+
+The detail page *displays* the original Attempt URL as body text, but the input
+`#ATTEMPT_URL-link-single` is **empty** and the template marks it `"required": true`.
+While it is empty, Submit silently refuses — no validation message is shown.
+
+Two traps:
+
+1. **Claiming on Feather mints a NEW task id.** The page navigates from
+   `/tasks/<original>` to `/tasks/<claimed>`. The claimed one is what belongs in the field.
+   Confirmed in the POST response: `{"ATTEMPT_URL":"...<claimed>"}` alongside the untouched
+   `inputData.link` holding the original.
+2. **`Input.insertText` alone does not populate it.** It is a controlled React input; the
+   keystrokes show in `.value` but React's state never updates, so Save fires no request and
+   the value reverts on reload. Use the native setter, then dispatch `input` and `change`:
+
+```js
+const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;
+setter.call(input, claimedUrl);
+input.dispatchEvent(new Event('input',{bubbles:true}));
+input.dispatchEvent(new Event('change',{bubbles:true}));
+```
+
+`requestSubmit` then carries it. Save is not needed separately.
