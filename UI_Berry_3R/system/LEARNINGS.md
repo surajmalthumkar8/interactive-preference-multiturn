@@ -2610,3 +2610,64 @@ reports its own state, comparing that report against the DOM is a free second ro
 Two new blocks worth remembering: **"control"** is behaviour language in the visual lens (so
 "control panels" fails, plain "panels" passes), and **"annotation"** trips the platform-reference
 check even when it means leader lines on a diagram. Both cost one rewrite each.
+
+---
+
+## 2026-09-19 — Task 6206089 (WI 7593084), neon rhythm platformer — B / A / A
+
+**Two real, playable games.** Both ran a genuine loop: one-key jump, beat-timed spikes,
+collision death, instant restart. Progress counters moved (A to 8%, B to 11%) and attempt
+counters climbed (A reached attempt 18). Neither was a mockup.
+
+### How to prove a game's audio without hearing it
+
+This is the technique worth keeping. A naive scan of `window` globals for an AudioContext
+found **nothing on either site**, which would have supported "no music integration" on both.
+That reading is worthless: the context is held in a closure, and browsers refuse to create or
+start one before a user gesture.
+
+The method that actually works:
+
+```
+Page.enable
+Page.addScriptToEvaluateOnNewDocument  <- wrap the AudioContext constructor
+Page.reload                            <- so the hook exists before the app runs
+...supply a REAL gesture (click, keypress)...
+read the log
+```
+
+Wrapping `createOscillator` / `createGain` / `createBufferSource` on the instance shows whether
+anything is actually wired, not merely that a context exists. Result: **both sites logged
+`state: "running"` with oscillators, gain nodes and buffer sources**, clocks advancing to 3.67s
+and 6.66s. Genuine synthesised music on both. Tenth false negative avoided, and it would have
+been a double, hitting both candidates at once.
+
+### Eleventh: test a control in the state where it means something
+
+"Website B's pause key does nothing." The first test ran while the death screen ("SHATTERED")
+was up, where pause is meaningless. Clicking TRY AGAIN and pressing P within a third of a
+second, while the cube was still alive, produced "PAUSED · TAP P TO RESUME" **and froze the
+canvas** (pixel signature identical across a one-second gap). **A control tested in the wrong
+game state is not a dead control.**
+
+### Detecting whether a canvas game is running at all
+
+Hash a grid of `getImageData` samples across the canvas and compare across a delay. Cheap,
+needs no knowledge of the game, and distinguishes a live loop from a static frame. It also
+doubled as the pause proof above, since a frozen signature is exactly what a working pause
+should produce.
+
+### What separated two working games
+
+Not the loop, which both do well. Everything around it: three tracks at 150/162/174 BPM with
+easy/normal/hard labels, per-track best and attempt records, an Escape menu, four settings
+(music, effects, screen shake, particles) plus a progress wipe, and an end-of-track report of
+attempts, time and jumps. Against one track at 140 BPM, a pause and a retry. All verified by
+string presence and by exercising the controls.
+
+### Validator note
+
+**"work"** is behaviour language in the visual lens, so the idiom "the more striking piece of
+work" is blocked. "the more striking of the two" passes. Also confirmed the lens checker is
+word-list based rather than naive substring: **"screen shake"** survives in the functionality
+field even though "screen composition" is banned.
