@@ -288,3 +288,29 @@ value setter plus an `input` event (not `Input.insertText`, which needs focus th
 will not give), then fire the modal's own Skip `onClick`. Check `b.disabled` before firing so a
 rejected reason is reported rather than silently swallowed. Success shows
 `Task skipped successfully!` and returns to the task list.
+
+
+## 12. A silent claim means HTTP 409, not an empty pool
+
+**Seen 2026-09-19 after fifteen submits.** The Annotation item's `onClick` fired, no toast
+appeared, and the obvious reading was that supply had run out. It had not:
+
+```
+409 :: {"message":"Cannot claim new task results while having unfinished task results","status":409}
+```
+
+**One task may be held at a time.** A previous claim had succeeded while its toast was missed, so
+that task sat at `Pending attempt / Not started` and blocked every further claim. Nothing was
+lost: its `Start annotation` was still available and it became the next task.
+
+**Never read a missing toast as a dry pool.** Attach a response listener to `claimResults` and
+read the status:
+
+| Status | Meaning |
+|---|---|
+| `200` with `approvedIds:[...]` | claimed, id in the array |
+| `200` with empty `approvedIds` and a non-empty `rejections` | genuinely nothing claimable |
+| `409` | **an unfinished task is already held** — find it and work it |
+
+On a 409, open `/ai-trainer/tasks` **unfiltered** and look for the row whose Work status is not
+`Submitted`. The project-filtered view can lag and may not show it.
