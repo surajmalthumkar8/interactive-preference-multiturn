@@ -400,27 +400,44 @@ pipeline offers them, so a healthy Feather pool alongside a 404 is normal and is
 to investigate. Do **not** claim directly in Feather to get around it: claiming in Feather
 without a LinkedIn claim breaks the required sequence.
 
-## §17 — A Feather task page can wedge its renderer after a reload
+## §17 — A Feather task page can permanently wedge every renderer that loads it
 
-Seen 2026-09-19 on task 6203060, whose two candidate sites were both full-screen animating
-ocean canvases. After the textareas were filled and verified, `location.reload()` left the
-page permanently unresponsive to CDP: every `Runtime.evaluate` timed out, including
-`document.readyState` and `1+1`.
+Seen 2026-09-19 on task 6203060 (Feather task `7154eef4`). After the three textareas were
+filled and each read back at its exact expected length, a `location.reload()` left the page
+unresponsive to CDP: `Runtime.evaluate` timed out on `document.readyState` and even on `1+1`,
+and `DOM.enable` timed out too, so the renderer process itself was blocked rather than the
+evaluate channel.
 
-**It is the page, not the browser.** The LinkedIn tab in the same browser answered `2+2`
-instantly throughout. Closing the other tabs, closing and reopening the task tab, and
-navigating a known-good tab to the same URL all reproduced the hang.
+**It is the page, not the browser, and not the candidate sites.** Reproduced four times:
 
-**What this means for the run:**
+| Attempt | Result |
+|---|---|
+| Reload the task tab | wedged |
+| Close it, open the same URL in a brand-new tab | wedged |
+| Close every other tab first, then open it | wedged |
+| SPA-route a *healthy, responsive* campaign tab to it with `history.pushState` | that tab wedged too |
 
-- **Fill, verify, and submit without an intermediate reload where possible.** The hard
-  reload exists to catch the empty-textarea trap in §NOTE below, but it costs a page load
-  on a heavy task, and on a very heavy one it can cost the page.
-- **The data is server side.** The textareas had already been written and each read back at
-  its exact expected length, so the content was saved before the reload. Nothing was lost,
-  and the three verdicts were recorded before it too.
-- **Keep the draft JSON on disk.** `t<N>_final.json` is the recovery copy; everything can be
-  refilled from it once a page responds.
-- Do not kill Chrome to recover. The profile is pinned and hardened, and a restart costs the
-  whole session's tab state. Wait the page out or reopen the task later; the Feather claim
-  survives, and the LinkedIn 24h timer gives plenty of room.
+Throughout all four, the LinkedIn tab in the same browser answered `1+1` instantly. The two
+candidate sites (full-screen animating canvases) were closed before attempts three and four,
+so they were not the cause.
+
+**What survives the hang:**
+
+- **The reason fields and the verdicts are saved.** They were written and verified before the
+  reload, and Feather persists on change, not on submit.
+- **The Feather claim and the LinkedIn 24h timer both survive.** Nothing is forfeited.
+- **`t<N>_final.json` on disk is the recovery copy.** Everything can be refilled from it.
+
+**What to do:**
+
+1. Do not kill Chrome. The profile is pinned and hardened and a restart costs the session.
+2. Do not re-open the task repeatedly. Each attempt wedges another renderer.
+3. Leave it and come back later, or finish it in a fresh browser session. The submit chain
+   (status pill → Mark as complete → Submit Task) is all that remains.
+4. If it is still wedged when the 24h timer runs low, escalate with the Task ID rather than
+   letting the claim expire.
+
+**Prevention:** the hard reload before submit exists to catch the empty-textarea trap (§NOTE).
+That trap is real and cost a resubmit on task 6191089. But on a heavy task the reload is what
+triggers this. Prefer verifying each field's length immediately after writing it, and treat
+the reload as optional insurance rather than a required step.
