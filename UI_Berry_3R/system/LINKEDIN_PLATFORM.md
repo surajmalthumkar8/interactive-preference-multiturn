@@ -605,3 +605,46 @@ way to fill idle time. Also note the claim API cannot be driven directly — a h
 
 **Leave the tooling armed.** `claimloop.py` claims on the first 200 and suppresses 404 noise, so it
 can be re-armed when the next batch opens without re-deriving anything.
+
+## 19. The DA0518 3-question batch uses a different form component than the 2-question one
+
+Measured 2026-09-20 on task #6197148 (WI 7574351). Four differences that break the
+scripts written against the older batch, each one costing a retry:
+
+**19a. The claim pill is not an antd dropdown.** `tools/claim.js` looks for
+`button.ant-dropdown-trigger` and returns `NO TRIGGER BUTTON` here. This batch renders a
+plain Tailwind button whose text is the status itself (`Unclaimed`), carrying `onClick`
+directly in `__reactProps$`. Fire that handler, then click the `Claim task` item in the
+MUI menu that opens. The same pill later offers `Mark as complete`.
+
+**19b. There is no Submit button on the page.** Submitting is `status pill -> Mark as
+complete`, and that raises a **Confirm Submission** panel with `Cancel` / `Submit Task`.
+The panel is **not** a `[role=dialog]` and is invisible to a dialog query; find it from
+the `.MuiAlert-message` carrying "Are you sure you want to submit this task?" and walk up
+one parent for the buttons. Clicking `Mark as complete` alone leaves the task
+`IN_PROGRESS`, which looks exactly like a successful submit if you only read the pill.
+
+**19c. Half the textareas are hidden sizing mirrors.** The form shows three reason fields
+but `document.querySelectorAll('textarea')` returns **six**. The odd indices are
+zero-height shadow elements holding the single character `x`. The real fields are indices
+**0, 2, 4**. Writing to 0,1,2 concatenates two reasons into the first box and leaves the
+third empty. Filter on `getBoundingClientRect().height > 0`, or take the even indices, and
+always read back `value.length` per field.
+
+**19d. Clicking all three verdict toggles in one pass silently drops the first two.**
+A single `forEach(b=>b.click())` over every `A is better` button left only the last group
+selected. Set each `.MuiToggleButtonGroup-root` separately via its React `onClick`, with a
+pause between, then re-read which buttons carry `Mui-selected` before submitting.
+
+## 20. LinkedIn's printed Attempt URL can name a task id that does not exist
+
+Task #6197148 displayed `.../tasks/a234a8b4-6265-5081-b141-57baa7dd5e2e`. Opening it
+served the correct task, but GraphQL answered **`Task a234a8b4... not found` / NOT_FOUND**
+for that id, while the tab's own URL had become
+`b5c174b6-be37-4895-acc1-35340f732830`, which resolved normally and was the id that
+actually went `IN_PROGRESS` and then `COMPLETED`.
+
+So the id in the LinkedIn panel is not reliably the id Feather stores. **Read the real
+uuid off the task tab's `location.href` after it settles**, verify it with
+`svrstatus.py`, and put *that* uuid into the Attempt URL field on the way out. Filling the
+printed one would have logged an attempt URL pointing at a task that does not exist.
