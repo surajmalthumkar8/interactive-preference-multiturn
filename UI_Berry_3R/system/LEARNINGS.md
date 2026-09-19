@@ -2298,3 +2298,32 @@ sections and open every one. Absence from the first screen is not absence.
 Four blocks on this task, more than any other: `tabs` and `working` in aesthetics, `laid out`
 and `palette` (then `colour`) in functionality. A task about a spreadsheet's *appearance and*
 *behaviour* pulls both vocabularies into both fields. Budget an extra validator round-trip.
+
+## Task 6205079 / work item 7589255 — boxing-ring fighter-card face-off (2026-09-19)
+
+**Verdict B / B / B.** Both carry the supplied stats correctly and both invent an opponent as
+asked (Website A picked ChatGPT, Website B picked Claude). Both are dark with neon.
+
+- Website B builds an actual ring in perspective with lit corner posts, fighter cards carrying
+  nicknames, health and stamina bars, four stat bars and fight records, a Tale of the Tape panel
+  marking the winner of each row, and a **FIGHT control that runs a real bout**: the round counter
+  moved from its dash to 1 and both health readings dropped from 100/100 to 95/100 and 97/100.
+- Website A is a static split-screen poster: zero buttons, one pointer element, 263 characters of
+  text. That is a defensible reading of "just two divs fighting for attention", so it was framed
+  as doing less rather than as broken.
+- **Website A's defect:** both fighter names are `font-size: 160px` inside a `line-height: 115.2px`
+  box, 45px short of the glyphs, so the bottom of every letter in "CRIS" and "CHATGPT" is cut.
+  The element's own `overflow` is `visible`, which rules out an ancestor and pins the cause on the
+  line-height.
+
+### Diagnostic worth reusing
+
+For clipped text, compare `font-size` against `line-height` before hunting for an
+`overflow: hidden` ancestor. A line box shorter than the type is the commonest cause and it
+shows up instantly in computed style, whereas the ancestor walk returns nothing and invites the
+wrong conclusion that the screenshot was misread.
+
+### Validator note
+Blocked once for a shared 6-gram: `website b is better because it` appeared in two fields. With
+all three fields on the same mandated opener, **only one may use "it" as the next word.** Plan the
+three continuations before drafting rather than fixing it afterwards.
