@@ -2102,3 +2102,51 @@ and a screenshot impression is a hypothesis until measured. Four of these in two
 112/114/113, actual 123/126/120; previous task claimed 113/116/112, actual 127/133/119). Always
 re-count after the humanizer rather than trusting its figure. The second validator pass catches
 this, which is one more reason it is not optional.
+
+## Task 6204068 / work item 7587203 — email marketing analytics "in Excel" (2026-09-19)
+
+**Verdict B / A / A.** Both builds fully functional; nothing dead on either. Website B is the
+better-looking dashboard, Website A is the thing the request actually asked for.
+
+- Website A models a real workbook: eight named sheets on an Excel-style tab strip, a 17,109-row
+  source table over 24 campaigns and 8 countries, in-workbook instructions and a metric dictionary
+  listing the formula behind every column.
+- **Decisive:** adding a record opened a validated dialog, committing took 17,109 to 17,110, and
+  every other sheet restated its totals with a fresh "Auto-recalculated" stamp. That is the
+  brief's "formulas are dynamic and update automatically" requirement, demonstrated.
+- Website B carries 2,340 records, no editing, but is the only one that exports a real Excel file
+  (2,955,119 bytes, `application/vnd.ms-excel`) alongside a 201,614-byte CSV. Website A's export
+  is a 20,346-byte `text/csv`. All three verified by pass-through `createObjectURL` hook reading
+  the blob's own size and MIME, never a toast.
+
+### Three more false negatives caught, one of them four probes deep
+
+1. **Website A "Add row does nothing."** The count did not move because a *dialog* opened. A
+   screenshot showed it immediately.
+2. **Website A "country filter is dead."** Synthetic `onClick` failed, a real mouse click on the
+   control failed, and a real mouse click on the option failed *and closed the panel*. Keyboard
+   `Enter` opened it, and `checkbox.click()` cut 17,110 rows to 1,865 for Japan. **Four probes
+   before the truth.** Had this been written up it would have been a scored 2.
+3. **Website B "pivot is dead."** `document.querySelector('table')` returned a *hidden* country
+   table. The visible pivot was `table[1]`, and its heading had already changed to CAMPAIGN VALUE.
+
+**Rule reinforced:** never let a single probe carry a negative, and never trust `querySelector`
+on a page with hidden tables. Check `getBoundingClientRect().height > 0` before reading any
+element as evidence.
+
+### Toolchain notes
+
+- **`mt-humanizer` broke the validator's opener anchor** this task, rewriting two fields to start
+  on something other than `Website A is better because`. It flagged the risk itself rather than
+  hiding it. The second validation pass caught both as BLOCKs. Openers were restored and the
+  tightened prose kept: final 117/117/111 words. **This is the clearest demonstration yet of why
+  validate-after-humanize is not optional.**
+- **MCP `browser_run_code_unsafe` hung for 30 minutes, twice**, both times on a polling loop
+  inside `page.evaluate` waiting for a MUI menu to reach opacity 1. The menu was open the whole
+  time but stuck at `opacity: 0`, so the loop never exited. Fix: drive the page over a raw CDP
+  WebSocket instead (`scratchpad/cdp.py`), and never poll for an animation to settle — read the
+  element and fire its React handler regardless of opacity.
+- Raw CDP needs `suppress_origin=True` on `websocket.create_connection`, or Chrome answers
+  `403 Handshake status` on the devtools socket.
+- Windows console is cp1252; printing page text with arrows or non-breaking hyphens raises
+  `UnicodeEncodeError`. Write to a file, or set `PYTHONIOENCODING=utf-8`.
