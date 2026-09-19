@@ -179,3 +179,19 @@ Not every button takes the same treatment. Check `type` and whether it sits in a
 | Feather rating toggles | React `onChange(evt, label)`, one group at a time |
 
 Reading `b.type` and `b.closest('form')` first is cheaper than guessing.
+
+---
+
+## 10. An empty Claim dropdown means the pool is dry, not a broken control
+
+**Seen 2026-09-19 ~15:48 IST, after four submits.** The caret click opens the dropdown and it
+renders **no items at all** — no `Annotation`, no `Review`. Earlier in the same session the same
+click reliably produced both.
+
+This is supply, not a bug. At that moment every row read `Submitted`, two of them `In review`.
+The training video (05:09) says a contributor cannot claim again until a reviewer has cleared
+earlier work, and an exhausted batch behaves the same way.
+
+**Do not debug it.** Check the rows first: if nothing is `Pending attempt` or `In progress` and
+the dropdown is empty, wait and retry rather than hunting for a click target. Re-check every few
+minutes; tasks return as reviewers work through the queue.
