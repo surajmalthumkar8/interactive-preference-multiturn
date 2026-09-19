@@ -564,3 +564,18 @@ the hook instead.
 **Verify the submit server-side, not from the pill.** After Submit Task the status pill still read
 "In progress" while the server had already recorded `workflowStatus: "COMPLETED"`. Confirm with the
 GraphQL `task(id:)` query from a healthy tab (§17b) rather than trusting stale UI.
+
+### 17d — the standing per-task scripts
+
+Built after §17c so the wedge cannot cost time again. All live in the session scratchpad.
+
+| script | does |
+|---|---|
+| `opentask.py <uuid>` | closes any existing copy, opens the task in a fresh tab with the §17c WebGL/rAF hook installed *before* navigation, waits, reports `readyState` |
+| `verify.js` | reads back every textarea length and the `aria-pressed` verdict per question group — run before submitting, never trust memory of what was typed |
+| `submitchain.py <uuid>` | pre-submit check, then status pill → Mark as complete → Submit Task, each as a real pointer click |
+| `svrstatus.py <uuid>` | the authoritative check: GraphQL `workflowStatus` from a healthy tab, since the pill goes stale (§17c) |
+
+**Order per task:** `opentask.py` → judge the candidates in their own standalone tabs → fill →
+`verify.js` → `submitchain.py` → `svrstatus.py` must read `COMPLETED` → then LinkedIn
+(`fillurl.js` with the **claimed** uuid, then `lnksubmit.js`, confirm `POST … 202`).
