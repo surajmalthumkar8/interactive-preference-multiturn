@@ -2202,3 +2202,37 @@ working notice filter, WhatsApp and Google Maps.
 **The recurring lesson, now five tasks deep:** a "no change" reading has been wrong every single
 time this session. It has never once been a real defect. Before any negative, confirm the selector
 actually matches the rendered element, and take a screenshot.
+
+## Task 6190068 / work item 7589225 — "Regal Lumina" luxury logo (2026-09-19)
+
+**Verdict B / B / B.** Both builds are genuinely elegant and both honour the brief's avoid-list
+(nothing cartoonish, neon, gradient-heavy or stock). The decision came down to depth.
+
+- Website B is a brand manual: six sections (mark anatomy, palette, typography, construction grid,
+  applications, usage rules), 9,274px against Website A's 2,732px, six published hex values
+  against five, a NOIR/IVORY toggle that flips the whole identity between
+  `rgb(6,32,26)` and `rgb(242,238,228)`, and the mark reused at three sizes on consistent geometry.
+- Website A is a single, beautifully restrained statement: fine gold-and-sage outline crown over
+  three stacked rules, ivory serif, three sections.
+
+### A screenshot reading corrected by geometry
+
+The first look said Website A's crown had **five points** against Website B's three, which would
+have been a direct brief violation and a strong differentiator. Reading the SVG path killed it:
+
+```
+M24 111 L30 50 L66 82 L90 22 L114 82 L150 50 L156 111
+```
+
+Three peaks (y=50, y=22, y=50) with V-dips between them. The two outer uprights read as extra
+points to the eye but are not. **Both marks are three-pointed, as asked.** Not claimed as a
+difference in any field.
+
+**Generalisation worth keeping:** on a logo or icon task, count geometry from the path data, never
+from the rendered picture. Strokes, dips and end-caps routinely read as features that are not there.
+
+### Lens note
+The validator blocked `colour`, `palette` and `serif` in the functionality field. On a branding
+task the visual vocabulary is the natural way to describe *everything*, including the parts that
+are genuinely behavioural. Recast as "every value in the house set" and "the lettering and its
+tracking" and it passed. Expect this block on every design-system task.
