@@ -2498,3 +2498,63 @@ The aesthetics draft was BLOCKED for the word **"function"** — used in its mat
 ("the formula"), but the lens checker cannot tell the senses apart and should not try.
 On any maths or data brief, write "formula", "expression" or "the curve" in the aesthetics
 field. The fix cost one line; catching it after submission would have cost the task.
+
+---
+
+## 2026-09-19 — Task 6197082 (WI 7592208), Anglican church site, 7 named departments — B / A / A
+
+**A checklist brief, so the functionality audit was objective.** Seven departments named
+outright (choir, media, youths, children, harvest, priest section, vicar's column) plus an
+exact church name. **Both sites scored 7 of 7.** When both pass the checklist the verdict has
+to move to depth, not presence.
+
+### textContent lied, innerText told the truth — the reverse of task 14
+
+First checklist pass used `textContent` and both sites "passed" everything. But A carries
+**160K of inline script** against B's 9K, so keyword hits could easily have been JavaScript
+strings rather than rendered sections. Re-running against `innerText` (which excludes
+script/style and hidden nodes) confirmed all fourteen sections are genuinely rendered.
+
+**Task 14 taught that `innerText` misses content behind unopened tabs. This task teaches the
+opposite failure: `textContent` invents content that is only in code.** Use both, and know
+which question each one answers. For "is this really on the page?", innerText. For "does this
+exist anywhere?", textContent.
+
+### False negatives seven and eight
+
+7. **"A's youth department is a 404."** `#/department/youths` returned "Page not found" while
+   all five siblings resolved, which looked like a genuine broken route. Reading the actual
+   `href` values showed the site uses `#/department/youth`, singular. **I had typed the URL
+   from the visible label ("Youths") rather than from the markup.** Youth Fellowship loads.
+   Never type a route by hand when the href is sitting in the DOM.
+8. **"A's contact form does nothing."** Two submits produced no confirmation and left the
+   fields filled. Both were my own incomplete input. Diffing the page text after submit showed
+   the site was answering correctly: "This field is required" against an empty `dept` select.
+   Filled it and got "Message sent. The Parish Office replies within two working days." with
+   the fields cleared. **A form that refuses to submit is not a dead form; it is a validating
+   one.** Diff the text rather than looking for a success string.
+
+### A technique worth reusing: diff the rendered text
+
+Snapshot `document.body.innerText` into a global, act, then diff line arrays. It surfaced both
+the validation messages and the confirmation without knowing in advance what either would say,
+and it is far more reliable than regex-matching for "thank" or "success".
+
+### Architecture is measurable, not impressionistic
+
+"A is a router, B is one long page" was settled by counting: A has **75** `href="#/"` links
+and one plain anchor; B has **zero** router links and **27** plain anchors. That single count
+carried the functionality verdict more cleanly than any amount of describing.
+
+### Aesthetics went to the site with more headings, not more artwork
+
+Measured heading sizes: B uses **9 distinct sizes** (103px down to 18px), A uses **4**. Both
+set in Georgia. B reads as having hierarchy; A reads flat and busy despite having more
+illustration and more pages. Counting distinct computed font sizes is a fast, honest proxy for
+typographic hierarchy.
+
+### Dropped after measuring
+
+A's "overflow" elements were a skip link parked at -9999px (standard accessibility practice)
+and an offscreen mobile menu panel with empty text. B's were two decorative SVGAnimate nodes.
+None are visible defects, so none were written.
