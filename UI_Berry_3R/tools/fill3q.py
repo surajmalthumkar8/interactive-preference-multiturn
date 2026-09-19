@@ -63,10 +63,10 @@ def main(uuid, ansfile):
           return JSON.stringify({x:Math.round(q.x+q.width/2),y:Math.round(q.y+q.height/2)});})()""" % idx, timeout=25)
         p = json.loads(pos)
         mouse.click_at(ws, p['x'], p['y'], settle=0.8)
-        for k, code, vk, mod in [('a','KeyA',65,2), ('Delete','Delete',46,0)]:
-            raw('Input.dispatchKeyEvent', {'type':'keyDown','key':k,'code':code,
+        for kk, code, vk, mod in [('a','KeyA',65,2), ('Delete','Delete',46,0)]:
+            raw('Input.dispatchKeyEvent', {'type':'keyDown','key':kk,'code':code,
                 'windowsVirtualKeyCode':vk,'modifiers':mod})
-            raw('Input.dispatchKeyEvent', {'type':'keyUp','key':k,'code':code,
+            raw('Input.dispatchKeyEvent', {'type':'keyUp','key':kk,'code':code,
                 'windowsVirtualKeyCode':vk,'modifiers':mod})
             time.sleep(0.3)
         raw('Input.insertText',{'text':txt})
