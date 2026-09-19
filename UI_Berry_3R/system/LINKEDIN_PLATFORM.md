@@ -182,16 +182,51 @@ Reading `b.type` and `b.closest('form')` first is cheaper than guessing.
 
 ---
 
-## 10. An empty Claim dropdown means the pool is dry, not a broken control
+## 10. The Claim dropdown portal never renders. Invoke the item onClick instead.
 
-**Seen 2026-09-19 ~15:48 IST, after four submits.** The caret click opens the dropdown and it
-renders **no items at all** — no `Annotation`, no `Review`. Earlier in the same session the same
-click reliably produced both.
+**Corrected 2026-09-19 ~16:10 IST. The earlier note in this slot was wrong** — it read the
+dropdown as empty and concluded the pool was dry. It was not. Supply was there the whole time and
+a claim succeeded the moment the handler was called directly.
 
-This is supply, not a bug. At that moment every row read `Submitted`, two of them `In review`.
-The training video (05:09) says a contributor cannot claim again until a reviewer has cleared
-earlier work, and an exhausted batch behaves the same way.
+What is actually true: `Claim task` is an `ant-dropdown-trigger`, and **no `.ant-dropdown`
+element is ever added to the DOM** — not on caret click, not on centre click, not on
+`click({force:true})`, not on hover. `document.querySelectorAll('.ant-dropdown').length` stays
+`0`, and **zero network requests fire**, so the handler is never reached. Nothing settles later;
+waiting does not help.
 
-**Do not debug it.** Check the rows first: if nothing is `Pending attempt` or `In progress` and
-the dropdown is empty, wait and retry rather than hunting for a click target. Re-check every few
-minutes; tasks return as reviewers work through the queue.
+The items exist in the React tree the whole time. Walk the fiber from the button up to the
+`memoizedProps.menu` and both are there, each carrying its own `onClick`:
+
+```js
+// in page.evaluate
+const b = document.querySelector('button.ant-dropdown-trigger');
+const key = Object.keys(b).find(k => k.startsWith('__reactFiber$'));
+let f = b[key], menu = null, hops = 0;
+while (f && hops < 25) {
+  const p = f.memoizedProps;
+  if (p && p.menu && Array.isArray(p.menu.items)) { menu = p.menu; break; }
+  f = f.return; hops++;
+}
+// menu.items -> [{key:'ANNOTATION', label:'Annotation', onClick:fn},
+//                {key:'VALIDATION', label:'Review',     onClick:fn}]
+menu.items.find(i => i.key === 'ANNOTATION')
+  .onClick({ key:'ANNOTATION', domEvent:{ stopPropagation(){}, preventDefault(){} } });
+```
+
+Note the menu takes **no `onClick` of its own** (`menu.onClick` is `undefined`) — the handler is
+per item, so calling it on the menu does nothing. The synthetic `domEvent` stub is required;
+Ant calls `stopPropagation` on it.
+
+That fires `POST /ai-trainer/api/frontendAnnotationTaskResults?action=claimResults`, which
+answers `{"value":{"approvedIds":[<workItemId>],"rejections":[]}}`, and a
+`Claimed task #<id>` toast appears. The follow-up
+`GET ...?q=annotator&...&pipelineId=<batchId>` returns the new row, and its `inputData` field
+carries the **Feather URL as JSON** — read the link from there rather than from the table:
+
+```
+inputData: {"link":"https://msft.feather-prod.azure.com/tasks/<uuid>","title":"Website comparison","count":"1"}
+```
+
+**Read `rejections` before celebrating.** A non-empty `rejections` array with an empty
+`approvedIds` is the real "pool is dry" signal, and it is the only trustworthy one. An absent
+dropdown says nothing about supply either way.

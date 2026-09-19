@@ -2047,3 +2047,25 @@ made that safe.
 Shipped 6210077 at 140/133/117 words. Inside 40-160, but HOUSE_STYLE §4 says the approved
 corpus centres on 100-120 and warns against padding toward 150. Two of three were padded.
 Noted in `HOUSE_STYLE.md` §4.
+
+## Task 6211076 / work item 7586215 — AUY partner-university 3D globe (2026-09-19)
+
+**Verdict A / A / A.** First sweep of the session, and it was the right call: both builds work,
+so the decision rested on coverage and one visible layout defect rather than on any dead control.
+
+- Website A: photoreal textured Earth, accurate coastlines, 3D national flag object planted on
+  the selected country, 20 partners across 14 countries, card carries established year, pathway
+  type and distance from Yangon. Country select, search, year slider, arcs/idle/tour/reset
+  switches, dark mode — all verified responding.
+- Website B: flat polygon globe (India absent, landmasses unrecognisable), 10 partners across 9
+  countries, no flag object. Its filters, search, slider, dark mode and drag all work fine.
+- **B's one hard defect:** on every partner row the city/country text runs under the year badge
+  and past the panel edge. Measured ~21-22px overlap on 3 sampled rows; A measured 0 on 4 rows.
+
+**Two P1 saves this task.** Clicking a row on either site produced no change in my text-state
+probe, twice. A screenshot showed a full card, a country highlight, a 3D flag and a flown globe
+both times. Had I trusted the text probe I would have written two false "row click does nothing"
+claims, each a scored 2. **Screenshot before believing a no-change reading on a canvas app.**
+
+**Did not claim:** A's header says "19 PARTNERS" while its list header says 20 (home campus
+counted differently). Defensible either way, so it was left out rather than written up as a bug.
