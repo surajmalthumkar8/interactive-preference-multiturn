@@ -2358,3 +2358,29 @@ Blocked on a P1 negative-claim warning for "never opens anything dedicated to it
 backed by route enumeration, but it was restated positively as "every address jumps down that
 single page instead of reaching a page per item". **Prefer the positive form of a negative whenever
 one exists** — it carries the same information and cannot be read as an unproven dead-control claim.
+
+## Task 6197065 / work item 7590172 — HR Analytics dashboard (2026-09-19)
+
+**Verdict A / B / A.** The closest task of the session. **Both builds scored 11 of 11** on the
+brief: three named filters, four named KPIs, the 2x2 grid with the correct chart type and title
+in each position, light mode, blue-only accent. Nothing missing from either, nothing dead.
+
+- Website A frames it as a product: a left rail with five sections, a breadcrumb, a
+  last-updated stamp, icon tiles and trend lines on every KPI card.
+- Website B reads better as data: every bar labelled with its value across all four panels, the
+  ring marked 65/35, and a working Table switch on each of the four charts (firing one took
+  visible tables 0 to 1). Website A has none.
+- Website A's filters recompute correctly and consistently: R&D gives 982 employees and 114
+  attrition at 11.6%, and 114/982 is 11.6%.
+
+### Two claims dropped rather than forced
+
+1. **Website A's bar-chart centring.** The first measurement matched the page wrapper rather than
+   the chart card (cardW 2545, the full viewport), so the gaps were meaningless. Not re-measured,
+   not claimed.
+2. **Website B's thin department bars.** The measurement returned empty because that chart had
+   already been switched to table view by the previous probe. Not claimed.
+
+**Both were cosmetic and marginal.** Spending more probes on them would have bought nothing, and
+asserting either on the failed measurement would have been a fabrication. When a measurement is
+inconclusive and the claim is minor, drop it.
