@@ -258,3 +258,33 @@ Two mechanics worth knowing:
   "stable" — the modal is still animating. Fire the React `onClick` instead, exactly as for the
   other Ant controls on this platform. Success shows `Task skipped successfully!` and returns to
   the task list.
+
+
+### Dead Feather links are not rare: two in fourteen claims
+
+Second occurrence 2026-09-19, task 6204073 / work item 7589237. Same signature as 6208115: the
+claim succeeds, the detail page shows an Attempt URL, and that URL answers **"Task not found"**
+on every load. Roughly **one claim in seven** on this batch. Budget for it and always verify
+before `Start annotation`.
+
+**Beware the blank-page false negative.** A retry loop that tests `notFound` on a page that has
+not rendered yet returns `notFound: false` with `innerText.length === 0`, which reads as "the
+link recovered". It has not. Wait for `document.body.innerText.length > 100` **before** testing,
+and treat any read on a zero-length body as no reading at all:
+
+```js
+for (let i = 0; i < 20; i++) {
+  await page.waitForTimeout(1500);
+  const s = await page.evaluate(() => ({
+    len: document.body.innerText.length,
+    nf: /Task not found/i.test(document.body.innerText),
+  }));
+  if (s.len > 100) return s;   // only now is nf meaningful
+}
+```
+
+**Skip in one call.** Fire the Skip button's React `onClick`, set the reason with the native
+value setter plus an `input` event (not `Input.insertText`, which needs focus the animating modal
+will not give), then fire the modal's own Skip `onClick`. Check `b.disabled` before firing so a
+rejected reason is reported rather than silently swallowed. Success shows
+`Task skipped successfully!` and returns to the task list.
