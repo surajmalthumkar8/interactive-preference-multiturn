@@ -441,3 +441,82 @@ so they were not the cause.
 That trap is real and cost a resubmit on task 6191089. But on a heavy task the reload is what
 triggers this. Prefer verifying each field's length immediately after writing it, and treat
 the reload as optional insurance rather than a required step.
+
+### 17a — correction: Feather is fine, one task page is not, and the wedge blocks the whole loop
+
+Three findings on 2026-09-19 that change §17 materially.
+
+**Feather itself never went down.** With the task tab closed, `https://msft.feather-prod.azure.com/`
+loaded to `/?tab=toDo` and rendered normally: `readyState complete`, full text, a live campaign
+filter, and the counts `To do (1) / Awaiting response (0) / Done (81)`. The claimed task was listed
+there as **Finish incomplete task — Website comparison**, linking to
+`/tasks/7154eef4-…`. So the server, the session and the claim are all healthy. **Diagnose Feather
+by loading the root, never by reloading the task page** — the task page is the one thing that hangs,
+so using it as the probe makes a working service look dead.
+
+**It is the page, not the navigation path.** §17 recorded four cold loads. A fifth route was tried:
+a real pointer click on the task's link *from the healthy To Do page*, as an in-app SPA navigation.
+The tab navigated (title became "Website comparison") and the renderer wedged exactly as before.
+Cold load and warm SPA route both wedge, which rules out the load path and leaves the task page's
+own render.
+
+**The renderer is busy, not dead.** `/json/list` keeps reporting the tab with the correct URL and
+the correct title throughout, so navigation and the browser process are fine. Only the renderer
+stops answering CDP — consistent with a synchronous loop in page script, not a crash.
+
+**Why this is urgent rather than something to defer.** §17 said to leave it and pick up another
+task. That is wrong, and the reason is §16: claiming again returns
+
+```
+409 {"message":"Cannot claim new task results while having unfinished task results"}
+```
+
+**One unfinished task blocks every future claim.** A wedged task page is therefore not a
+single-task problem to work around; it stops the loop dead until it is resolved. Fix it first, and
+if it cannot be fixed, escalate immediately rather than waiting on the 24h timer.
+
+**What is still true from §17:** the fields and verdicts are saved server-side, the claim and the
+timer survive, `t<N>_final.json` is the recovery copy, and only the submit chain remains.
+
+### 17b — the GraphQL API is reachable when the task page is not
+
+Feather's data layer is a batched GraphQL endpoint at **`POST /api/graphql`**, plus REST under
+`/api/v2/`. From **any healthy Feather tab** (the root `/?tab=toDo` renders fine) these can be
+called with `credentials:'include'` and the session cookie authenticates normally. This gives a
+way to read and change task state while the task's own page is unrenderable.
+
+**Capturing the real queries.** A `window.fetch` hook installed by `Runtime.evaluate` is wiped by
+the next navigation. Install it through CDP instead so it survives:
+
+```python
+raw('Page.enable', {})
+raw('Page.addScriptToEvaluateOnNewDocument', {'source': open('gqlhook.js').read()})
+raw('Page.navigate', {'url': 'https://msft.feather-prod.azure.com/?tab=toDo'})
+```
+
+**Introspection is disabled**, but the errors are verbose and name the valid field on a miss
+("Did you mean 'updateTaskStatus'?", "Did you mean 'completedAt'?"), so the schema can be walked
+one deliberate wrong guess at a time. Enum values are the exception: a bad `TaskStatus` reports
+only that the value does not exist, without listing the alternatives.
+
+**What was established for this campaign:**
+
+| | |
+|---|---|
+| my todo query | `userTaskTodos(params:{completed:false}, pagination:{page:0,pageSize:N})` |
+| task fields that exist | `task(id: UUID!) { id title workflowStatus }`, concrete type `WidgetLayoutTask` |
+| unfinished task | `workflowStatus: "IN_PROGRESS"`, one todo `type: "STATUS_TRANSITION"`, `completedAt: null` |
+| finished task | `workflowStatus: "SIGNED_OFF"`, same todo carrying a `completedAt` timestamp |
+| the submit mutation | `updateTaskStatus(taskId: UUID!, status: TaskStatus!)` |
+
+So **`SIGNED_OFF` is the end state**, confirmed against 81 of my own completed tasks rather than
+guessed from the button label.
+
+**Two cautions learned here:**
+
+- **`POST /api/v2/tasks/search` ignores a `task_ids` filter** and returns the whole campaign —
+  47,637 rows including other trainers' claims and their anonymized handles. Do not use it to look
+  up one task. `userTaskTodos` returns only your own and is the right query.
+- **`/api/tasks/<id>` and `/api/v2/tasks/<id>/...` are not APIs.** They return the SPA shell with
+  `200 text/html`, so a naive check reads as success. Always look at `content-type` before
+  treating a 200 as data.
