@@ -2069,3 +2069,36 @@ claims, each a scored 2. **Screenshot before believing a no-change reading on a 
 
 **Did not claim:** A's header says "19 PARTNERS" while its list header says 20 (home campus
 counted differently). Defensible either way, so it was left out rather than written up as a bug.
+
+## Task 6214090 / work item 7586226 — 2025 LinkedIn year-in-review infographic (2026-09-19)
+
+**Verdict B / A / A.** A true split. Website B composes the better page; Website A answers more
+of the brief. Both builds work; nothing was claimed dead on either.
+
+- Decisive fact: the brief asked for a "follower growth bar chart". Website A ships 12 labelled
+  month-end columns (Jan 4,895 → Dec 10,983) with an axis and a Chart/Table toggle. Website B
+  reduces the whole year to two proportion bars. Proven three ways: no SVG with ≥8 rects, no
+  `<table>`, and zero of the 12 month names anywhere in Website B's text (the 6 case-insensitive
+  hits are all timeline date rails, never a chart axis).
+- Website A also has working nav anchors (scrollY 0 → 5679) and 14 milestones across 5 tracks
+  with a live "Showing N of 14" counter. Website B has 11 across 4 and no nav.
+
+**Two more false-negative saves, plus one withdrawn positive.**
+1. Website B's track filter read as dead (counts unchanged across three chips). Cause: stale
+   coordinates plus a selector that matched nothing. An element-handle click proved it works
+   (11 → 3 → 5 → 11).
+2. Website A's Chart/Table toggle read as dead (identical DOM counts in both views). Cause: both
+   nodes always exist and CSS swaps them. Measuring boxes proved it: chart 637x456 ↔ table
+   620x506, exact swap, `aria-pressed` tracking.
+3. **Withdrawn before it reached a draft:** "Website A uses a narrow left column with a big empty
+   right side," read off a screenshot. Measurement showed gutters of 717 left and 732 right — a
+   centred max-width container. The hero paragraph just wraps early. Cut from the aesthetics case.
+
+**The rule that keeps paying:** a no-change reading is a tooling failure until proven otherwise,
+and a screenshot impression is a hypothesis until measured. Four of these in two tasks.
+
+### Tooling note
+`mt-humanizer` under-reports its own word counts by roughly 10-13 words per field (claimed
+112/114/113, actual 123/126/120; previous task claimed 113/116/112, actual 127/133/119). Always
+re-count after the humanizer rather than trusting its figure. The second validator pass catches
+this, which is one more reason it is not optional.
