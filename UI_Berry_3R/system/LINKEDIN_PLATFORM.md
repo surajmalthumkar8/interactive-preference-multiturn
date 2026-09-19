@@ -90,6 +90,29 @@ There is **no Submit button** on the Feather form. Submission is the status pill
 
 ## 5. Submitting on LinkedIn
 
+> ### ⚠️ The Submit button ignores clicks. Use `form.requestSubmit()`.
+> **Found 2026-09-19 on task 6194086, after four real pointer clicks and a React `onClick`
+> all did nothing — no network request, no error, no toast, status stuck on In progress.**
+>
+> The button is Ant Design, `type="submit"`, and lives inside a `<form>`. Clicking it (even
+> with `page.mouse.down/up` at the rect centre) and calling its React `onClick` both fail
+> silently. What works is asking the form itself to submit:
+>
+> ```js
+> const b = [...document.querySelectorAll('button')].find(x => x.innerText.trim() === 'Submit');
+> const f = b.closest('form');
+> f.requestSubmit(b);          // passes the submitter, so the right handler runs
+> ```
+>
+> Success signals, all three together: `POST /ai-trainer/api/frontendAnnotationTaskResults/<id>`,
+> an **HTTP 202**, and a redirect to `/ai-trainer/tasks`. The row then reads
+> `Pending review · Submitted`.
+>
+> **Do not keep clicking.** A click that produces no network request at all is this bug, not a
+> missed target. Check the row on the task list before concluding anything.
+
+
+
 `Submit` commits **immediately, with no confirm dialog**, and redirects to `/ai-trainer/tasks`.
 The row then reads `Pending review · Submitted`. Verify there before calling it done.
 
@@ -101,3 +124,22 @@ The row then reads `Pending review · Submitted`. Verify there before calling it
 - After `Start annotation` it is gone.
 - To drop one after that: release on Feather, then post in Slack with the **Task ID** and ask for
   it to be removed. You cannot do it yourself.
+
+---
+
+## 7. Claiming the next task — the caret, not the button
+
+The `Claim task` control is one Ant button carrying `ant-dropdown-trigger`. Clicking its centre
+does nothing visible. **Click ~14px inside its right edge** (the chevron zone) and the menu opens
+with `Annotation` and `Review`.
+
+```js
+const el = [...document.querySelectorAll('button')].find(x => /Claim task/i.test(x.innerText));
+const r  = el.getBoundingClientRect();
+await page.mouse.click(r.right - 14, r.y + r.height / 2);   // caret, not centre
+```
+
+Then click `Annotation`. The new row appears as *Pending attempt · Not started* with a 24h timer.
+
+**Read coordinates fresh every time.** Cached rects go stale after a navigation and send clicks
+into empty space, which looks exactly like a dead control.
