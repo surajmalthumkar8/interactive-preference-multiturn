@@ -2442,3 +2442,59 @@ After the first submit attempt the task stayed `In progress`. A hard reload show
 textarea had saved as empty** while the first two persisted. Refilled, reloaded again to confirm
 all six survived server-side, then submitted. **Always reload and re-read before pressing submit
 a second time** — the form can lie about what it holds.
+
+---
+
+## 2026-09-19 — Task 6195060 (WI 7592187), "contour map for f(x,y)=y*e^x" — B / A / A
+
+**Ground truth computed before opening either tab.** The brief names a specific function, so
+the whole factual audit could be derived first and turned into a lookup:
+`y·e^x = c  =>  y = c·e^-x`, every contour a scaled exponential; zero level exactly on the
+x-axis and the only straight one; `sign(f) = sign(y)` because `e^x > 0`;
+`|∇f| = e^x·√(y²+1)`, never zero, so **no critical points**. Wrong renderings to watch for
+were listed in advance: closed loops, contours crossing the axis, symmetry about the y-axis,
+straight slanted lines.
+
+**Both sites got the mathematics right.** Neither had a single one of the listed errors. That
+is worth recording because it changes where the decision lives: when both are correct, the
+verdict moves entirely to what a person can *do* with the drawing.
+
+### Verifying an instrument instead of trusting it
+
+Website A's point probe was checked by recomputing every figure it reported, twice, at two
+very different scales:
+
+| Probe reported | Independent |
+|---|---|
+| x=1.492 y=1.049 → f=4.663, ∂x=4.663, ∂y=4.447, ‖∇‖=6.444 | 4.664 / 4.664 / 4.446 / 6.443 |
+| x=5.184 y=1.239 → f=221.2, ∂x=221.2, ∂y=178.5, ‖∇‖=284.2 | 221.0 / 221.0 / 178.4 / 284.0 |
+
+The second reading matters more than the first: it came after retyping the view window, so a
+hardcoded panel would have failed it. Website B's hover readout was checked the same way
+(f=2.781 against 2.780) and is also correct, but reports three quantities to A's six.
+
+A nice detail found only by testing: typing `6` into A's x-max **also moved the y bounds** to
+±3.1282, holding the 1:1 aspect. Needed ratio 9/6.2564 = 1.4385 against a canvas of
+1041×727 = 1.432. Consistent.
+
+### Sixth false negative of the session
+
+"Website A's Export PNG produces nothing" — the `URL.createObjectURL` hook logged nothing,
+because this export goes through `toDataURL` plus an anchor download, not a blob. A second
+hook on `toDataURL`/`toBlob`/`HTMLAnchorElement.click` caught a real **196 KB `image/png`**
+saved as `contour-y-exp-x.png`. **One export API is not all export APIs.** Hook all three
+before calling an export dead.
+
+### The negative that did ship, and what backs it
+
+"Nowhere further to go past two sliders" on Website B rests on positive counts, not on
+failing to find things: B has exactly **one** button on the page, and neither "export" nor
+"download" appears anywhere in its 754 characters of text. A has 5 buttons, 7 radios,
+2 sliders, 5 checkboxes.
+
+### Validator note worth keeping
+
+The aesthetics draft was BLOCKED for the word **"function"** — used in its mathematical sense
+("the formula"), but the lens checker cannot tell the senses apart and should not try.
+On any maths or data brief, write "formula", "expression" or "the curve" in the aesthetics
+field. The fix cost one line; catching it after submission would have cost the task.
