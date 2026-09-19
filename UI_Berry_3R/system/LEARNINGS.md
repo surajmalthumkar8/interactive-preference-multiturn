@@ -2175,3 +2175,30 @@ hardest part of the review into a lookup.
 **One thing deliberately not claimed.** Website B advertises "click any chart mark to drill in".
 Several probes neither confirmed nor refuted it. It was left out of all three fields rather than
 asserted in either direction. A missing positive costs nothing; a false negative costs two points.
+
+## Task 6200086 / work item 7588242 — 7-page school website, Hindi/English (2026-09-19)
+
+**Verdict B / B / B.** The first clean sweep of the session, and it earned it on visible defects
+rather than on missing features. Both builds carry all seven pages, a working Hindi toggle, a
+working notice filter, WhatsApp and Google Maps.
+
+- **Website A's two hero badges are clipped.** "25+ Years of Excellence" starts 23px outside its
+  `overflow: hidden` container and reads as "5+"; "UP Board Recognised" overruns the right edge by
+  16px. Measured, and plainly visible in the screenshot.
+- **Website A's gallery contains no photographs.** Eighteen gradient tiles, one emoji each, and
+  one tile rendering the bare letters "IN" where its emoji failed. Verified three ways before
+  writing it: zero `<img>`, zero `background-image: url()`, and the screenshot. Website B's
+  gallery is sixteen real images with a working lightbox that locks body scroll.
+- Website B's Hindi toggle is the deeper one (23 → 3,851 Devanagari characters) and translates
+  the per-page title too. Its notice board carries ten notices to Website A's six, with the count
+  printed on each filter chip.
+
+### Two more corrections caught before drafting
+1. **"Website A's notice filter is dead"** — wrong selector again. The real list is `div.board`,
+   and against it the filter gave 6 → 2 → 1 → 2.
+2. **"Website B has no Google Maps"** — withdrawn. The first iframe count was taken on the home
+   route; the map lives on `#/contact`. Navigating there found it.
+
+**The recurring lesson, now five tasks deep:** a "no change" reading has been wrong every single
+time this session. It has never once been a real defect. Before any negative, confirm the selector
+actually matches the rendered element, and take a screenshot.
