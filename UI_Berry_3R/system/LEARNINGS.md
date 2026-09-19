@@ -2558,3 +2558,55 @@ typographic hierarchy.
 A's "overflow" elements were a skip link parked at -9999px (standard accessibility practice)
 and an offscreen mobile menu panel with empty text. B's were two decorative SVGAnimate nodes.
 None are visible defects, so none were written.
+
+---
+
+## 2026-09-19 — Task 6199094 (WI 7592206), "transparent body, only the bones, business attire" — B / A / A
+
+**An image-led brief where both builds satisfied the request.** Three demands (transparent
+body, bones visible through it, business attire) and both sites met all three, so the verdict
+turned on execution rather than fidelity.
+
+### Reading anatomy from geometry, not from the screenshot
+
+The crown lesson from task 6190068 applied directly. Both figures *look* like ribcages in a
+screenshot; the SVG says otherwise:
+
+- **Website B** draws genuine mirrored rib pairs: matched curved paths at y=286/308/332/357/384,
+  x=239 and x=327, symmetric about a spine at x=323.
+- **Website A** draws a ladder: 17 rects at a constant ~10px pitch, widths growing monotonically
+  19→30px. Real ribs curve and the lower pairs shorten. Schematic, not anatomical.
+
+Neither observation reached a reason field, because the brief asked for bones to be visible, not
+for a medical illustration. **Measuring something does not entitle you to claim it.**
+
+### The 20-bone gap that was not a defect
+
+Website A's header says 206 bones; its index rows sum to 186. Twenty short — and exactly the
+facial bones (14) plus auditory ossicles (6), which a whole-body radiograph would not itemise.
+Checked the container was scrollable and that 19 rows was the whole list before reasoning about
+it. **Dropped.** Every individual figure in that index is correct (cranium 8, cervical vertebrae
+7, ribs 24, carpals and phalanges 54, tarsals and metatarsals 52), so calling the total an error
+would have been pedantry dressed as rigour.
+
+### Ninth false negative: the wrong property, not a dead control
+
+"Website A's pose rig does nothing." The named joint groups (`j-armL`, `j-legL`) returned null
+for `getAttribute('transform')`, and my status regex matched the section heading "POSE RIG"
+instead of the readout. Both readings said nothing changed.
+
+Measuring the **figure's bounding box** settled it: 237 wide standing, 483 waving, 734 in
+anatomical position, back to 237. The rig works. **When an attribute reads null, measure the
+rendered geometry before concluding anything.**
+
+### Layer opacity as a two-route check
+
+Website A's four presets were verified twice in one step: the displayed percentages
+(45 / 12 / 0 tissue) matched the computed SVG opacities (0.45 / 0.12 / 0) exactly. When a page
+reports its own state, comparing that report against the DOM is a free second route.
+
+### Validator notes
+
+Two new blocks worth remembering: **"control"** is behaviour language in the visual lens (so
+"control panels" fails, plain "panels" passes), and **"annotation"** trips the platform-reference
+check even when it means leader lines on a diagram. Both cost one rewrite each.
