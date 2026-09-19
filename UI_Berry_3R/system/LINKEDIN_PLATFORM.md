@@ -399,3 +399,28 @@ list still showed **24** tasks in the batch. Those are not dispatchable until th
 pipeline offers them, so a healthy Feather pool alongside a 404 is normal and is not a fault
 to investigate. Do **not** claim directly in Feather to get around it: claiming in Feather
 without a LinkedIn claim breaks the required sequence.
+
+## §17 — A Feather task page can wedge its renderer after a reload
+
+Seen 2026-09-19 on task 6203060, whose two candidate sites were both full-screen animating
+ocean canvases. After the textareas were filled and verified, `location.reload()` left the
+page permanently unresponsive to CDP: every `Runtime.evaluate` timed out, including
+`document.readyState` and `1+1`.
+
+**It is the page, not the browser.** The LinkedIn tab in the same browser answered `2+2`
+instantly throughout. Closing the other tabs, closing and reopening the task tab, and
+navigating a known-good tab to the same URL all reproduced the hang.
+
+**What this means for the run:**
+
+- **Fill, verify, and submit without an intermediate reload where possible.** The hard
+  reload exists to catch the empty-textarea trap in §NOTE below, but it costs a page load
+  on a heavy task, and on a very heavy one it can cost the page.
+- **The data is server side.** The textareas had already been written and each read back at
+  its exact expected length, so the content was saved before the reload. Nothing was lost,
+  and the three verdicts were recorded before it too.
+- **Keep the draft JSON on disk.** `t<N>_final.json` is the recovery copy; everything can be
+  refilled from it once a page responds.
+- Do not kill Chrome to recover. The profile is pinned and hardened, and a restart costs the
+  whole session's tab state. Wait the page out or reopen the task later; the Feather claim
+  survives, and the LinkedIn 24h timer gives plenty of room.
