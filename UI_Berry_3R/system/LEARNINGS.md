@@ -2671,3 +2671,39 @@ string presence and by exercising the controls.
 work" is blocked. "the more striking of the two" passes. Also confirmed the lens checker is
 word-list based rather than naive substring: **"screen shake"** survives in the functionality
 field even though "screen composition" is banned.
+
+## 2026-09-19 — Task 6203060 / WI 7575197 — ocean wave simulation — B / A / A
+
+**Brief:** rolling swells, foam crests, shore breaking, tidal rhythm, peaceful seaside
+atmosphere, auto-starts.
+
+**Verdicts.** Aesthetics **B** — the whole frame is given over to the sea, calm and uncluttered.
+Functionality **A** — six scene presets, seven sliders and an automatic tidal cycle against
+Website B's single pause control. Overall **A** — the request asks for a *simulation*, and the
+side that lets the sea be changed and watched answers more of it.
+
+Both met all six demands and both auto-start with no gesture (4/4 distinct frames each, checked by
+pixel-hashing). So the split is genuine rather than one site failing: B wins the picture, A wins
+the instrument, and the overall reason weighs those against each other rather than restating either.
+
+**Submitted on the seventh attempt, after the §17c fix.** Worked and filled on the first pass;
+six consecutive renderer wedges then blocked the submit for roughly an hour. Fields and verdicts
+survived every one of them untouched.
+
+**What this task taught, in order of value:**
+
+1. **A wedged task page stops the whole loop, not one task.** Claiming again returns 409
+   "Cannot claim new task results while having unfinished task results" (§17a). Treat a wedge as
+   a stop-everything problem.
+2. **Console events name the cause; probing the wedged tab never will.** `Runtime.enable` +
+   `Log.enable` on a blank tab *before* navigating gave `THREE.WARNING: Multiple instances of
+   Three.js` on the first try, after an hour of guessing (§17c). Attach the listener before the
+   thing you are diagnosing runs.
+3. **Diagnose a service by its cheapest page.** Feather's root rendered fine throughout. Using the
+   heavy task page as the probe made a healthy service look dead and sent §17 down a wrong path.
+4. **Check the server, not the widget.** The pill still read "In progress" after the submit had
+   landed as `COMPLETED`.
+5. **My own §17 rewrite was wrong, and the original guess was right.** I dismissed the ocean
+   canvases because attempts 3 and 4 had those *tabs* closed — but the task page embeds its own
+   copies, so closing the tabs proved nothing. A disconfirming test only counts if it actually
+   removes the suspect.
