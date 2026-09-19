@@ -233,3 +233,40 @@ saved. Neither direction of UI state is evidence; check the store.
 clothes: trusting a reading taken from the wrong place. A measurement is only evidence about the
 thing it actually touched. Before any negative claim ships, name the layer the measurement came
 from and confirm that layer is the one the claim is about.
+
+## P21. A control that reads as dead is usually a control you never actually hit
+
+Five times in this run a control looked broken and was not. Every one was my own probe.
+
+- **Task 34.** Website B's add-to-cart badge stayed at 0. The card I targeted had been
+  hidden by a filter I had left applied, so the button sat inside an `article` with
+  `display: none` and my click went nowhere. Resetting the filter fixed it first try.
+- **Task 37.** Website B's quantity stepper read stuck at 1. The button was below the
+  fold; the click never landed. After `scrollIntoView` it counted 1, 2, 3, 4 cleanly.
+- **Task 40.** Website B's department filter appeared not to recalculate. Opening the
+  menu in one call and clicking the option in the next let the popup close in between.
+  Done in a single evaluated script it worked immediately.
+- **Task 33.** The inverse, and the reason this rule is not "assume it works": Website A's
+  ball genuinely never launched. What made that finding safe was the control case, the
+  same harness scored on Website B on the first serve.
+
+**The rule.** Before a control goes in a reason field as broken, it needs all four:
+1. the element scrolled into view and confirmed hit-testable at the coordinates used,
+2. no ancestor with `display: none` or zero height,
+3. the interaction performed atomically where a popup is involved,
+4. a control case, either the same harness succeeding on the other candidate or the same
+   control succeeding under a different route.
+
+Three of those four failures would have shipped a false negative, which is the exact
+class of error that produced eight of nine historical bad scores.
+
+## P22. Check a claim against its own neighbour before shipping
+
+Task 40's overall field said Website B "buries most of its job roles in one bucket". The
+functionality field, forty words earlier, correctly said the opposite: Website B names
+nine roles and Website A buckets them. Both fields were drafted in one pass and the
+inversion survived until the validator forced a rewrite for an unrelated lens word.
+
+Read the three fields against each other as a set, not just each against the notes. Where
+two fields touch the same fact they must agree, and the cheapest check is to grep the
+draft for the candidate names and confirm each claim points the right way.
