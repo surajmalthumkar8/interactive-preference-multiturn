@@ -1847,3 +1847,100 @@ task still "Unclaimed" and no previews mounted. The status pill offers **Claim t
 claim also **changes the task URL** (`bd3a5367-...` became `af9d88ea-...`). The live URL after
 claiming is the one that belongs in the Attempt URL field. #7760 arrived already In progress, so
 this path had never come up.
+
+---
+
+## Task #6210077 (Feather 95d534d4) — the platform moved to LinkedIn AI Trainer, and Feather grew a submit confirm dialog
+
+**Submitted 2026-09-19, 13:35 IST. Verdict A / B / B.** Elapsed inspection time 11m04s.
+
+### THE DISPATCHER CHANGED. Vercel is gone.
+
+Everything in `SESSION_HANDOFF.md` about `annotation-platform-henna.vercel.app`, the dashboard
+cards, the Release button and the SweetAlert confirm is **retired**. Tasks are now claimed from
+**LinkedIn AI Trainer**:
+
+```
+https://www.linkedin.com/ai-trainer/tasks?projectId=1253002&batchId=p-1875002&page=1
+```
+
+That URL is already filtered to UI Berry + batch DA0518. The in-progress task is the row whose
+Work status is `In progress`; its Work item ID is the path segment for the detail page
+(`/ai-trainer/tasks/<workItemId>`), which is **not** the Task ID shown in the first column.
+
+### The claim order is inverted from what feels natural, and getting it wrong is unrecoverable
+
+From the training video (`OB ATT DAS.mp4`, transcript at 02:12 and again at 05:09):
+
+1. LinkedIn → `Claim task` → `Annotation`. Task becomes *Pending attempt*, 24h timer starts.
+2. **Do NOT press `Start annotation`.** Go to Feather first.
+3. Claim on Feather, confirm Website A and Website B both load.
+4. Only then return to LinkedIn and start. **The Skip button disappears permanently at this point.**
+5. Paste the Feather task URL into the Attempt URL field, Save, then Submit after Feather completes.
+
+Once started, a task cannot be skipped. Releasing needs a Feather release *plus* a Slack post
+quoting the task number so a QM removes it. Verify before claiming, never after.
+
+After your **first** task you cannot claim another until a reviewer reviews it. One-time gate.
+
+### Feather login on a fresh CDP profile
+
+The Feather tab shows "Log In with Microsoft / GitHub / LinkedIn". Use **LinkedIn**; if the
+LinkedIn session is live the OAuth round-trip completes on its own and lands back on the task.
+A `/uas/login` screen flashing past is not a failure, it redirects through to `/callback`.
+
+### NEW TRAP: Feather now has a "Confirm Submission" dialog
+
+`SESSION_HANDOFF.md` §4c says Mark as complete submits with no confirm. **That is now wrong.**
+The flow is:
+
+1. Status pill `In progress` → its React `onClick` opens the menu. A real mouse click on the
+   pill does **not** open it; call the handler.
+2. The menu is a **MUI Popover in a portal**, and `.MuiPaper-root` sits at `opacity: 0` during
+   its entrance animation. Clicking the `li` while it is still transparent does nothing. Poll
+   until `getComputedStyle(paper).opacity === '1'` (took 8 × 250ms), then click the
+   `li.MuiMenuItem-root` by its real coordinates.
+3. A dialog appears: "Confirm Submission / Are you sure you want to submit this task?" with
+   `Cancel` and `Submit Task`. Click `Submit Task`; the tab then redirects to the campaign page.
+4. Verify by reloading the task URL. Status reads `Completed` and all six fields go `readOnly`.
+
+### LinkedIn submit has NO confirm dialog
+
+Unlike Feather and unlike the old Vercel step, the LinkedIn `Submit` button commits immediately
+and redirects to `/ai-trainer/tasks`. The row then reads `Pending review · Submitted`.
+
+### The rating toggles and the six textareas are unchanged
+
+Traps #1 (write by `root_*_scoring_reason` id), #4 (React `onChange` for the MUI toggles),
+#4b (raw CDP `Input.insertText` for the final keystroke) and #4d (one group at a time, ~2.5s
+apart) all still hold exactly as documented. The hard reload before submit still matters.
+
+### Verdict reasoning, and three findings I withdrew before writing
+
+Request: OCR a PDF of product tables into Excel with six tagged columns, page-wise extraction
+visible before download.
+
+- **Website A** (TableLens) — the better looking build by a clear margin, and its grid genuinely
+  works: page tabs swap real data, search narrows rows, cells edit and save, add-row appends,
+  the needs-review filter toggles correctly. **But both export controls are dead.** Download
+  Excel and Copy CSV each produce no blob, no anchor, no fetch, no error, under instrumentation
+  that caught Website B's export immediately. Every sidebar entry is inert too.
+- **Website B** (OCR Table Extractor) — busier and more cramped, but complete: it produced a
+  real 19,782-byte xlsx blob, and the download stayed `disabled` until all three pages were
+  marked reviewed, which is literally the "page-wise extraction visible before download" clause.
+  Column-tag dropdowns reassign and hold; the flagged filter cut 12 rows to 1.
+
+Split verdict **A / B / B**: the prettier build cannot deliver the one artifact the request is
+for, so overall went to the one that finishes the job.
+
+**Three findings withdrawn during checking** (the measurement discipline earning its keep again):
+- "Website A's page tabs don't change the data" — false. My regex only matched `SSE-###-##`;
+  pages 2-4 use different code shapes. Reading the actual cells showed distinct products per page.
+- "Website B's page switching is broken" — false. The tabs are `div.ptab`, not `button`, and the
+  page is vanilla JS with no React props. A coordinate click switched them correctly.
+- "Website A's Add missing row is broken" — false. The needs-review filter was still active,
+  hiding the appended row. Toggling it off revealed the new "New product" row.
+
+Also note: the cell-edit test initially wrote into the product name column because my coordinate
+maths picked the wrong `td`. That was my error, not a defect, and the value was restored before
+submission. **Always read back the header of the cell you are about to edit.**

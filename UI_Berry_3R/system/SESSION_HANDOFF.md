@@ -1,5 +1,36 @@
 # UI Berry 3R — session handoff
 
+> ## ⚠️ PLATFORM CHANGED 2026-09-19 — read this before anything below
+>
+> **Tasks are no longer claimed on Vercel.** `annotation-platform-henna.vercel.app` is retired.
+> Claiming now happens on **LinkedIn AI Trainer**:
+>
+> ```
+> https://www.linkedin.com/ai-trainer/tasks?projectId=1253002&batchId=p-1875002&page=1
+> ```
+>
+> Everything in the sections below about the Vercel dashboard, dashboard cards, the Release
+> button, the Attempt URL `input[type="url"]` and the SweetAlert confirm describes the **old**
+> dispatcher. The Feather half of this document is still accurate and still binding.
+>
+> **The claim order, and it is not optional:**
+> 1. LinkedIn → `Claim task` → `Annotation` (24h timer starts, task is *Pending attempt*).
+> 2. **Do not press `Start annotation` yet.** Open Feather, claim there, confirm both websites load.
+> 3. Only then start on LinkedIn. **Skip disappears for good at that moment** — an unwanted task
+>    after this point needs a Feather release plus a Slack post quoting the task number.
+> 4. Paste the Feather task URL into Attempt URL → Save → Submit once Feather says Completed.
+>
+> After your **first** task, a reviewer must review it before you can claim another. One time only.
+>
+> **New Feather trap:** `Mark as complete` now raises a **"Confirm Submission"** dialog
+> (`Cancel` / `Submit Task`). The old note saying there is no confirm is wrong. The status-pill
+> menu is a MUI portal whose paper animates from `opacity: 0` — poll until it reads `1` before
+> clicking the item. **LinkedIn's own Submit has no dialog** and commits immediately.
+>
+> Full write-up, including three false findings withdrawn during inspection:
+> `LEARNINGS.md`, entry for task #6210077.
+
+
 **Written 2026-09-10, ~03:25 PDT. Updated ~05:35 PDT after task #7760 shipped.** Read this
 first, then start working. It is written to be picked up cold with no memory of the previous
 session.

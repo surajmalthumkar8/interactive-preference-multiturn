@@ -84,3 +84,6 @@ exports_raw/
 *-pair.txt
 *_pair.txt
 /turn*.txt
+
+# --- Session media (large, not source of truth) ---
+*.mp4
