@@ -2150,3 +2150,28 @@ element as evidence.
   `403 Handshake status` on the devtools socket.
 - Windows console is cp1252; printing page text with arrows or non-breaking hyphens raises
   `UnicodeEncodeError`. Write to a file, or set `PYTHONIOENCODING=utf-8`.
+
+## Task 6207085 / work item 7588237 — Tableau-style sales dashboard (2026-09-19)
+
+**Verdict A / B / B.** A ten-row dataset was pasted into the brief, so for the first time this
+session the arithmetic was independently checkable. **I computed the ground truth before looking
+at either build** (total 325,700; North 174,000; Electronics 289,000; returning 5/10; top three
+Laptop 155,000, Phone 104,000, Tablet 30,000; 29 units).
+
+**Both sites were correct on every single figure.** No factual error on either, so the decision
+rested entirely on presentation and on how directly each one answered the five asked questions.
+
+- Website B labels five panels `QUESTION 1` to `QUESTION 5`, one per question, all on one screen,
+  and puts a written answer above each chart ("North has the highest sales, 174,000, 53.4% of the
+  total. That is 2.3x the next region, South."). Five filters, per-panel chart/table toggle.
+- Website A is the better-looking build by a clear margin and its filters are arithmetically
+  sound (region North gives 1,74,000 over 3 records, matching the computed truth exactly). It
+  also uses Indian digit grouping for the INR data, which Website B does not.
+
+**Worth repeating: computing the ground truth first made the whole factual audit trivial.** When
+a brief pastes its own dataset, derive the answers before opening either site. It converts the
+hardest part of the review into a lookup.
+
+**One thing deliberately not claimed.** Website B advertises "click any chart mark to drill in".
+Several probes neither confirmed nor refuted it. It was left out of all three fields rather than
+asserted in either direction. A missing positive costs nothing; a false negative costs two points.
