@@ -142,3 +142,60 @@ Speed comes from fewer *drafting* iterations, not from skipping evidence. The mi
 one combined probe that (a) opens both standalone, (b) runs the brief's main flow with real
 pointer actions and before/after capture, (c) records console errors, downloads and live regions,
 (d) measures any suspected overlap. Then draft with P1/P4/P7 in mind, validate, humanize, gate.
+
+---
+
+## The eleven near-misses of 2026-09-19 — a catalogue of causes
+
+Eleven times in one session a control read as dead and **every one was the instrument, not the
+site**. Zero real dead controls were found across seven tasks. That ratio is the point: when a
+probe says "nothing happened", the prior should be that the probe is wrong.
+
+Grouped by root cause, with the check that settles each:
+
+### 1. The probe never reached the element (4 of 11)
+| Case | What happened | The check |
+|---|---|---|
+| Showcase cards "dead" ×3 | Clicks landed below the fold; `inViewport:false` | Assert `getBoundingClientRect()` is inside the viewport **and** `document.elementFromPoint(cx,cy)` returns the target, before clicking |
+| Option buttons "not registering" | Three synthetic clicks batched in one `evaluate`; only the last survived | One call per control, with a settle between |
+| Textarea insertText wrote nothing | Click did not focus it; `activeElement` was BODY | Call `.focus()` explicitly, then verify `document.activeElement.id` |
+| Avatar toggle "dead" | Settle too short, read before React re-rendered | Settle ≥ 2s before re-reading state |
+
+### 2. The measurement looked in the wrong place (4 of 11)
+| Case | What happened | The check |
+|---|---|---|
+| Theme switch "no change" | Sampled a transparent wrapper, not the themed panel | Sample an element with a non-transparent background and a real size |
+| Pose rig "dead" | Read `getAttribute('transform')` (null) and matched a section heading, not the readout | Measure rendered geometry (`getBBox`) when an attribute reads null |
+| Export PNG "produces nothing" | Hooked `createObjectURL`; this export used `toDataURL` + anchor download | Hook **all three**: `toDataURL`, `toBlob`, `HTMLAnchorElement.click` |
+| Route "404" | Typed the URL from the visible label ("Youths"); real href is `youth` | Read the `href` from the DOM, never retype it from the label |
+
+### 3. Tested in a state where the control has no meaning (2 of 11)
+| Case | What happened | The check |
+|---|---|---|
+| Pause key "dead" | Pressed on the death screen | Establish the state the control belongs to first, then press |
+| Contact form "does nothing" | Two submits were rejected by validation on a field I had left empty | Diff `innerText` before/after; the page names the missing field |
+
+### 4. The API cannot be observed the naive way (1 of 11)
+| Case | What happened | The check |
+|---|---|---|
+| "Neither game has audio" | Scanned `window` for an AudioContext; it is closure-held and needs a gesture | `Page.addScriptToEvaluateOnNewDocument` wrapping the constructor, reload, **then** a real gesture |
+
+## The generalisation
+
+Before writing any negative, answer these four:
+
+1. **Did my event reach the element?** (in viewport, hit-tested, focused)
+2. **Am I reading the thing that would change?** (right element, right property)
+3. **Is the control meaningful in this state?** (alive vs dead, open vs closed, paused vs running)
+4. **Would this API even be visible to my probe?** (closure-held, gesture-gated, different method)
+
+If any answer is "not sure", the negative does not ship. A missing negative costs nothing.
+
+## Corollary: measuring something does not entitle you to claim it
+
+Also this session, three measurements were taken and then **deliberately dropped**:
+a bone index summing to 186 against a stated 206 (the gap is exactly facial bones plus
+ossicles, which a body radiograph would not itemise); ribs drawn as an evenly pitched ladder
+rather than anatomical curves (the brief asked for visible bones, not a medical illustration);
+and a "clipped" first message that was only the transcript's scroll position after my own
+test sends. Rigour includes discarding true-but-irrelevant findings.
