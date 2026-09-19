@@ -648,3 +648,47 @@ So the id in the LinkedIn panel is not reliably the id Feather stores. **Read th
 uuid off the task tab's `location.href` after it settles**, verify it with
 `svrstatus.py`, and put *that* uuid into the Attempt URL field on the way out. Filling the
 printed one would have logged an attempt URL pointing at a task that does not exist.
+
+## 21. A 200 from updateTaskStatus can still be a rejection, and the pill will not tell you
+
+Measured 2026-09-20 on task #6190171. The submit chain ran clean: pill opened, `Mark as
+complete` clicked, `Confirm Submission` appeared, `Submit Task` clicked, no error toast.
+`svrstatus.py` still said `IN_PROGRESS`, five attempts running.
+
+Capturing the actual response body showed the real answer. The mutation **did** fire and
+the transport **did** return HTTP 200, but the GraphQL envelope carried an error:
+
+```
+"message": "Validation error in 42e5dc5f-...: Form data is invalid:
+            'overall_scoring_reason' is a required property"
+"extensions": {"service_exception_code": "INVALID_ARGUMENT"}
+```
+
+So the third reason had **never reached the server** even though the textarea read back
+641 characters in the DOM. This is the §17c persistence trap again, with a new symptom:
+the field looks filled, the form looks valid, and the only visible signal is that the
+status never moves.
+
+**The fix that worked.** Clear through the native setter and fire the events React
+listens for, rather than only using `Input.insertText`:
+
+```js
+const s = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype,'value').set;
+s.call(t, ''); t.dispatchEvent(new Event('input', {bubbles:true}));
+t.focus();                       // then CDP Input.insertText
+// afterwards:
+t.dispatchEvent(new Event('change', {bubbles:true})); t.blur();
+```
+
+The `change` + `blur` pair is the part that was missing. Feather commits a reason field on
+blur, so a field that is only ever typed into and never blurred stays local to the DOM.
+
+**The diagnostic to reach for.** Do not guess at a silent submit. Enable `Network`, click,
+match the `requestWillBeSent` whose `postData` contains `UpdateTaskStatus`, keep its
+`requestId`, wait for `loadingFinished`, then call `Network.getResponseBody`. The body
+names the exact missing property. This took one run and replaced five blind retries.
+
+**Standing rule.** Never read success from the status pill, and do not read it from the
+HTTP status either. Either query `workflowStatus` back with `svrstatus.py`, or read the
+mutation body and check for an `errors` key. `submit3q.py` now blurs every field before
+submitting for this reason.
