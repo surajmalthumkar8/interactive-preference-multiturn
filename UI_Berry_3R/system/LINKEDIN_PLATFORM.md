@@ -520,3 +520,47 @@ guessed from the button label.
 - **`/api/tasks/<id>` and `/api/v2/tasks/<id>/...` are not APIs.** They return the SPA shell with
   `200 text/html`, so a naive check reads as success. Always look at `content-type` before
   treating a 200 as data.
+
+### 17c — SOLVED: the wedge is Three.js/WebGL in the embedded candidates, and the fix is one hook
+
+**Root cause, finally measured.** Attaching `Runtime.enable` + `Log.enable` to a blank tab *before*
+navigating, then collecting console events during the load, produced the answer on the first try:
+
+```
+THREE.WARNING: Multiple instances of Three.js being imported.
+```
+
+The task page embeds both candidate sites inline. On this task both candidates were **Three.js
+WebGL ocean simulations**, so the page ran two duplicated Three.js instances and two WebGL contexts
+with continuous `requestAnimationFrame` loops. That saturates the renderer, and CDP never gets a
+turn. This is why `DOM.enable` timed out alongside `Runtime.evaluate` — the thread was busy, not
+broken.
+
+**The fix — disable WebGL and rAF before any page script runs:**
+
+```js
+// noglhook.js, via Page.addScriptToEvaluateOnNewDocument BEFORE Page.navigate
+HTMLCanvasElement.prototype.getContext = function(){ return null; };
+window.requestAnimationFrame = function(){ return 0; };
+```
+
+The page then loaded to `readyState complete` in under 35 seconds, after six consecutive wedges.
+Everything was intact: all six textareas (658 / 687 / 651 chars plus three short follow-ups) and
+`aria-pressed="true"` on exactly one option per question — B / A / A, as recorded. Nothing had been
+lost in any of the six wedges.
+
+**Use it whenever a task's candidates are animation-heavy** — 3D scenes, canvas games, particle
+fields. It costs nothing on an ordinary task, since the form itself needs neither WebGL nor rAF.
+Judge the candidates in their own standalone tabs, exactly as the protocol already requires; the
+hook only ever touches the Feather form page.
+
+**Two corrections to earlier sections.** §17's original guess (the animating ocean canvases) was
+right after all, and my §17 rewrite that dismissed it was wrong: attempts 3 and 4 had the candidates
+closed in *separate tabs*, but the task page embeds its own copies, so closing those tabs changed
+nothing. And §17's "leave it and come back later" is the wrong instruction — the renderer never
+recovers on its own, verified over ~6 minutes of spaced probes and six separate loads. Fix it with
+the hook instead.
+
+**Verify the submit server-side, not from the pill.** After Submit Task the status pill still read
+"In progress" while the server had already recorded `workflowStatus: "COMPLETED"`. Confirm with the
+GraphQL `task(id:)` query from a healthy tab (§17b) rather than trusting stale UI.
