@@ -378,3 +378,24 @@ input.dispatchEvent(new Event('change',{bubbles:true}));
 ```
 
 `requestSubmit` then carries it. Save is not needed separately.
+
+## §16 — The three claim status codes, and how to tell them apart
+
+Always read the status from a response hook on `?action=claimResults`. The toast is
+unreliable and all three of these look identical in the UI: nothing happens.
+
+| Status | Body | Meaning | What to do |
+|---|---|---|---|
+| **200** | `{"value":{"approvedIds":[<id>],...}}` | Claimed. `<id>` is the **work item ID**. | Go to `/ai-trainer/tasks/<id>` |
+| **409** | `Cannot claim new task results while having unfinished task results` | An earlier claim succeeded and its toast was missed. **One task at a time.** | Find the row whose Work status is not `Submitted` and finish it |
+| **404** | `No claimable task results available in pipeline` | The dispatcher pool is genuinely empty. | Wait and retry; nothing is wrong |
+
+**404 is the only true "no work" answer.** Confirmed 2026-09-19 after task 6206089: four
+attempts across about forty seconds all returned 404, while every row in My tasks read
+`Submitted`, so nothing was held.
+
+**Feather's count does not predict LinkedIn's.** At that same moment Feather's unclaimed
+list still showed **24** tasks in the batch. Those are not dispatchable until the LinkedIn
+pipeline offers them, so a healthy Feather pool alongside a 404 is normal and is not a fault
+to investigate. Do **not** claim directly in Feather to get around it: claiming in Feather
+without a LinkedIn claim breaks the required sequence.
