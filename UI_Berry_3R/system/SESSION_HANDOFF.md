@@ -105,6 +105,33 @@ b[Object.keys(b).find(k=>k.startsWith('__reactProps'))].onClick();
 
 ---
 
+## Evidence gate — read before every functionality reason (added 2026-09-19)
+
+`REVIEW_LESSONS.md` + `INSPECTION_PROTOCOL.md` are binding and were adopted from the
+TechAegisAI fork, where they came out of **14 scored reviews**. The headline:
+
+> **Eight of nine sub-4 scores were a working control described as dead**, and in seven of
+> them the false claim flipped the functionality verdict. Aesthetics was praised almost
+> every time. **A missing negative costs nothing; a false one costs two points.**
+
+Before any of *dead / inert / does nothing / never / nothing else / static / unusable /
+broken / stuck / not wired / only a toast / swallows clicks* reaches a draft:
+
+1. **Real pointer action** (`page.mouse` / `locator.click`), visible standalone tab.
+   `el.click()` from `evaluate` does not count and is how live buttons get called dead.
+2. **Before/after capture >=800ms later** — DOM text, aria state, URL, scrollY, console
+   errors, toast text.
+3. **A second route** (keyboard Enter/Space, or a coordinate click). Two routes minimum.
+   If they disagree, the negative is not written.
+4. **Rule the tool out** — a `createObjectURL` hook must pass the real URL through, and a
+   suspect export is re-run with hooks removed on a fresh reload. Read the blob **type**,
+   never the toast.
+
+Then build the P10 claim table (`claim -> evidence`) and delete every row without evidence,
+**before** humanizing.
+
+---
+
 ## The mandatory gate order — never varies
 
 ```

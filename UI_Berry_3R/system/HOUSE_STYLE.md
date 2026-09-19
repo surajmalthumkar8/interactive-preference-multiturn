@@ -54,6 +54,11 @@ Not about what the page technically contains.
 
 ### 4. Length: 90 to 160 words, most near 100
 
+> **Self-correction, 2026-09-19 (task 6210077).** Shipped at 140 / 133 / 117 words. Inside the
+> range, but the first two sit well above the corpus centre of mass and read as padded next to
+> approved work. Aim 100-120 and stop. "Do not pad toward 150 to look thorough" is the rule and
+> it was not followed.
+
 Measured: 94, 93, 94, 118, 158, 147, 102, 92, 98, 121, 136, 111. The centre of mass is around
 100 to 120. Do not pad toward 150 to look thorough. Say the thing and stop.
 

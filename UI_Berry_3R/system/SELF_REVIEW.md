@@ -88,6 +88,29 @@ Go back to both tabs. This pass is what separates a real submission from a plaus
 
 ---
 
+## Pass 4b — Negative claims (`REVIEW_LESSONS.md`, the 2026-09-16 review batch)
+
+Eight of nine sub-4 scores were a working control described as dead. For **every** sentence that
+says a control is dead, inert, static, does nothing, never, nothing else, unusable, broken, stuck,
+not wired, toast-only, or swallows clicks:
+
+- [ ] A **real pointer action** was used (locator/mouse), in a **visible standalone tab**, with a
+      before/after capture >=800 ms apart and one retry by another route. **BLOCK**
+- [ ] The claim is **scoped** to what was tested ("the five prompts tried"), never "every". **BLOCK**
+- [ ] Downloads/copies were tested with a non-awaited download listener / live-region read,
+      not assumed. **BLOCK**
+- [ ] Any overlap/clipping claim was **measured** (rect intersection at default and 390 px). **BLOCK**
+- [ ] The brief's main flow was run end to end on **both** sites with the same test data and
+      console errors captured. **BLOCK**
+- [ ] Unrequested extras did not decide functionality; when both deliver the brief's asks and the
+      happy path is clean, the lens is "Both are good". **BLOCK**
+- [ ] Layout faults (duplicates, overlaps, clipping) sit in aesthetics, not functionality.
+
+Any row without evidence in the probe log: delete the sentence. Silence is free; a false negative
+is a 2.
+
+---
+
 ## Self-score
 
 Score the submission honestly on the reviewer's scale, then act on it.
@@ -123,3 +146,12 @@ Same passes, plus the rules that govern the reviewer rather than the work:
 - **Any score below 5 needs three things in the feedback:** which field, what exactly is
   wrong, and what it should have said or chosen instead. "The task had errors" teaches
   nothing and wastes the review.
+
+
+### Pass 4c — Second-observation rule (added 2026-09-18 after the 17980/17892/17760/18128 reviews)
+- [ ] Every negative in the draft was tried **twice by two routes** (P11). If not, delete it.
+- [ ] Every export claim names the blob **type** read from the hook, and the hook passed `createObjectURL` through (P12). "Still image" / "CSV" / "no file" only if the type says so.
+- [ ] Every render/progress claim waited to completion or thirty seconds (P13).
+- [ ] Every period/filter claim lists which tiles moved and which are balances (P14).
+- [ ] A BOTH verdict in functionality: the reason names **no** behaviour one side has and the other lacks (P15).
+- [ ] No "to the letter / every piece / complete / crowds the edge" unless enumerated or measured (P16).

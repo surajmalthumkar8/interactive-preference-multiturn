@@ -1944,3 +1944,106 @@ for, so overall went to the one that finishes the job.
 Also note: the cell-edit test initially wrote into the product name column because my coordinate
 maths picked the wrong `td`. That was my error, not a defect, and the value was restored before
 submission. **Always read back the header of the cell you are about to edit.**
+
+---
+
+## 2026-09-19 — studied the TechAegisAI fork, and the one statistic that should change how we work
+
+Source: `github.com/TechAegisAI/interactive-preference-multiturn` @ `ca50586`. A divergent
+fork of this repo, further along on UI Berry (27/35 submits in a day) and carrying reviewer
+feedback we had never seen.
+
+**The fork and our repo diverge in BOTH directions.** Their `LEARNINGS.md` is 121KB, ours is
+133KB. Their `TOOLCHAIN.md` and `HOUSE_STYLE.md` are *older* than ours — theirs would have
+deleted our SESSION_HANDOFF pointer and both 2026-09-09 client sections. **Do not bulk-copy
+from that fork.** What follows was merged selectively.
+
+### The finding that matters more than anything else in this repo
+
+They had **14 scored reviews** back from the client. Of nine in the 09-16 batch: two 2/5 and
+seven 3/5, and **eight of the nine were the same defect — a working control described as
+dead.** In seven the false claim flipped the functionality verdict, and overall inherited it.
+The whole 09-17 batch repeated it: "a negative written from one observation".
+
+**Aesthetics was praised in almost every review.** The inspection *looks* thorough. The
+negative claims are what fail.
+
+> A missing negative costs nothing. A false one costs two points.
+
+Root causes were **tooling, not prose**:
+- `el.click()` from `evaluate` instead of a real pointer, so hover/press/pointerdown handlers
+  never fire and a live button reads as dead
+- Website B judged inside the Feather iframe after a standalone `ERR_ABORTED`
+- wrong selector -> "no change" -> "tabs do nothing"
+- sweeping negatives from a one or two control sample
+- downloads skipped, then described as "not wired"
+- **a `createObjectURL` hook that faked the URL, which broke the site's own export**, and the
+  broken result was then reported as the site's defect (18128)
+- trusting a toast label for a file type instead of reading the blob MIME (17892)
+
+### What was merged in
+
+| Taken | Where |
+|---|---|
+| `REVIEW_LESSONS.md` (P1-P16 + the raw reviewer table) | new file; both new validator checks cite it |
+| Validator: sweeping-negatives WARN + P15 BLOCK | `validate_reasons.py`, one 31-line insert |
+| `SELF_REVIEW.md` Pass 4b and Pass 4c | negative-claim and second-observation gates |
+| humanizer **2.8.2 -> 2.9.1** | project + global; adds **"Never invent facts"** |
+| `INSPECTION_PROTOCOL.md` | new, written from P1-P16 as an operating procedure |
+
+**Two fixes applied while merging, not copied blind:**
+- their `ONE_SIDED` list hard-codes `website a's speakers` / `website b's speakers`, residue
+  from their task 17760. Dropped.
+- their P15 check fires only on `BOTH_GOOD`; widened to `startswith("BOTH")` to match the
+  existing `TIE_WINNER_WORDS` scope.
+
+Not taken: their `TOOLCHAIN.md`, their `HOUSE_STYLE.md` (both older than ours), their
+`LEARNINGS.md` (needs a real merge, not a copy). They have no `SESSION_HANDOFF.md` or
+`LINKEDIN_PLATFORM.md` at all — the LinkedIn migration is ours alone, and their docs still
+describe the Vercel dispatcher.
+
+### Auditing my own task 6210077 against the new protocol
+
+The claim at issue: *"Website A's Download Excel and Copy CSV do nothing when clicked."*
+That is exactly the sentence shape that cost them two points eight times.
+
+Checked against P1 and it holds:
+- real pointer action — `page.mouse.move` then `click` at the rect centre, scrolled into
+  view, visible tab. Not `el.click()`.
+- before/after >=800ms — waited 4000-4500ms, captured blobs, anchor clicks, fetches,
+  `window.onerror`, `console.error` and toast text. All empty, no errors.
+- second route — three routes tried: dispatched event sequence, real coordinate click, then
+  an instrumented real click.
+- **positive control** — the identical instrumentation on Website B returned
+  `{size:19782, type:'application/octet-stream'}`. The hook demonstrably works.
+
+**P12 partially unverified, and recorded as such.** My hook did pass through
+(`return o.call(URL,b)`), so it could not have broken A's export the way 18128's did. But the
+P12 instruction to re-run with *all hooks removed on a fresh reload* could not be completed:
+Website A's container had already returned **502 `service_not_listening`** by the time I went
+back. The sandbox expires. **Do the clean-reload re-test during the task, not after it.**
+
+Verdict on the submission: the claim stands on the evidence gathered, but a step that the
+protocol demands was skipped, and only luck (a pass-through hook and a positive control)
+made that safe.
+
+### Other things worth carrying
+
+- **Scroll-reveal pages break fullPage screenshots.** Sections at `opacity:0` waiting on an
+  IntersectionObserver capture as a hero over thousands of blank pixels. Scroll in ~400px
+  steps before any capture or any "empty below the fold" claim.
+- **Downloads can crash the MCP server** — three context resets in one of their days. Install
+  the pass-through hook as `addInitScript` before the first click on anything labelled
+  export/download/save/print.
+- **P7 vs P15.** Unrequested extras cannot decide functionality; but if the reason names a
+  brief *requirement* one side meets and the other does not, that side wins and it is not a
+  tie. The validator now enforces the second half.
+- **Reviewer objectivity rule, for when we review:** never dock for taste or wording. Only
+  for something verifiable. And the overall question gets extra restraint — challenge it only
+  when it contradicts the attempter's own evidence or never explains the weighing.
+
+### My own length deviation
+
+Shipped 6210077 at 140/133/117 words. Inside 40-160, but HOUSE_STYLE §4 says the approved
+corpus centres on 100-120 and warns against padding toward 150. Two of three were padded.
+Noted in `HOUSE_STYLE.md` §4.

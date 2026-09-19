@@ -229,6 +229,37 @@ def check(task):
         if leak:
             add("BLOCK", "functionality", f"visual language in the behavior lens: {leak}")
 
+    # --- sweeping negatives (REVIEW_LESSONS.md P1/P4) ------------------------
+    NEG = ["does nothing", "do nothing", "did nothing", "nothing happens", "nothing else",
+           "never leaves", "never respond", "inert", "dead", "unusable", "not wired",
+           "only a toast", "toast-only", "toast only", "swallows", "static", "every question",
+           "every click", "all of them fail", "none of", "no confirmation", "stuck on",
+           "cannot be", "can't be", "broken", "crashes", "never ",
+           # 09-18 review batch (REVIEW_LESSONS.md P11-P16)
+           "stub", "stayed at zero", "still image", "rather than a drag", "rather than drag",
+           "ignore the", "ignores the", "left the page as it was", "left the view", "left the overview",
+           "did not register", "never counted", "kept its", "to the letter", "every piece present",
+           "nothing missing", "point for point", "crowds the", "crowd the"]
+    for f in ("functionality", "overall"):
+        r = task.get(f, {}).get("reason", "")
+        lo = r.lower()
+        neg_hits = sorted({w for w in NEG if w in lo})
+        if neg_hits:
+            add("WARN", f, f"negative claims {neg_hits}: each needs pointer-action evidence in the probe log "
+                           f"(REVIEW_LESSONS.md P1), scoped to what was tested (P4); otherwise delete")
+
+    # --- P15: a BOTH_* functionality field must not name a one-sided behaviour ----
+    # Widened from BOTH_GOOD to every BOTH verdict, to match TIE_WINNER_WORDS scope.
+    fr = task.get("functionality", {})
+    if str(fr.get("option", "")).upper().startswith("BOTH"):
+        lo = fr.get("reason", "").lower()
+        ONE_SIDED = ["only website a", "only website b", "while website a", "while website b",
+                     "whereas website a", "whereas website b", "but website a", "but website b"]
+        os_hits = [w for w in ONE_SIDED if w in lo]
+        if os_hits:
+            add("BLOCK", "functionality", f"BOTH verdict but the reason names a one-sided behaviour {os_hits}; "
+                                          f"if it is a brief requirement the side that meets it wins (P15)")
+
     # --- cross-field text reuse ---------------------------------------------
     present = [f for f in fields if task.get(f, {}).get("reason")]
     for i in range(len(present)):
