@@ -2327,3 +2327,34 @@ wrong conclusion that the screenshot was misread.
 Blocked once for a shared 6-gram: `website b is better because it` appeared in two fields. With
 all three fields on the same mandated opener, **only one may use "it" as the next word.** Plan the
 three continuations before drafting rather than fixing it afterwards.
+
+## Task 6196092 / work item 7589270 — AURELYN luxury skincare (2026-09-19)
+
+**Verdict B / B / B.** The most prescriptive brief of the session: three exact hex values, three
+product names, eight named homepage sections, and several lines of copy quoted verbatim. Both
+builds are genuinely luxurious and both use the exact palette (`rgb(15,15,18)` = #0F0F12,
+`rgb(246,242,236)` = #F6F2EC; Website B's gold is `rgb(212,175,122)` = #D4AF7A exactly).
+
+**A brief this literal invites a scorecard.** Fourteen checkable strings were listed and tested
+against both: Website B carried thirteen, Website A eleven. Website B also has the hero sentence
+word for word where Website A paraphrases it, and ships the per-product pages the brief asked for
+(`#/product/radiance-elixir` and siblings, each with benefits, ritual steps, ingredients, price
+and add to bag) where Website A is one long page of anchors.
+
+**Website A's one unintended-looking flaw:** an enormous faint word reading "Results" sits
+ghosted across the upper half of the hero with no connection to the brand or the copy.
+
+### Method note worth keeping
+
+When a brief quotes its own copy, build the regex scorecard **before** opening either site, then
+run it against both after a **full-page scroll**. The first pass here reported four strings
+missing on Website A; scrolling and checking section ids showed two of those four were present
+(the bundle and reviews sections exist, "bundle" simply appears as an id rather than body copy).
+Only two were genuinely absent. **`innerText` on a long lazy page is a partial reading, and a
+scorecard built from one is wrong in the direction that costs points.**
+
+### Validator note
+Blocked on a P1 negative-claim warning for "never opens anything dedicated to it". The claim was
+backed by route enumeration, but it was restated positively as "every address jumps down that
+single page instead of reaching a page per item". **Prefer the positive form of a negative whenever
+one exists** — it carries the same information and cannot be read as an unproven dead-control claim.
