@@ -143,3 +143,39 @@ Then click `Annotation`. The new row appears as *Pending attempt · Not started*
 
 **Read coordinates fresh every time.** Cached rects go stale after a navigation and send clicks
 into empty space, which looks exactly like a dead control.
+
+---
+
+## 8. Background tabs throttle, and that looks exactly like a dead control
+
+**Found 2026-09-19 across tasks 6195071 and 6201100.** Two separate failures, same cause:
+
+- `Start annotation` on LinkedIn did nothing while its tab was in the background.
+- Feather's `Mark as complete` menu stayed at `opacity: 0` forever, so the settle poll timed
+  out and the click landed on a transparent element.
+
+**Always `page.bringToFront()` before driving a tab**, and run the opacity poll *inside*
+`page.evaluate` so it measures the real animation rather than a throttled one.
+
+```js
+await page.bringToFront();
+await page.waitForTimeout(1500);
+// ... then open the menu and poll in-page for opacity === '1'
+```
+
+Symptom to recognise: a control that works when you watch it and fails when you do not.
+
+## 9. Which invocation each control needs
+
+Not every button takes the same treatment. Check `type` and whether it sits in a `<form>`:
+
+| Control | Works with |
+|---|---|
+| LinkedIn `Submit` | `form.requestSubmit(button)` — `type="submit"` inside a form |
+| LinkedIn `Start annotation`, `Save` | React `onClick` — `type="button"`, no form |
+| LinkedIn `Claim task` | real mouse click at `right - 14` (the caret) |
+| Feather status pill | React `onClick` |
+| Feather menu items | real mouse click **after** polling `opacity === '1'` |
+| Feather rating toggles | React `onChange(evt, label)`, one group at a time |
+
+Reading `b.type` and `b.closest('form')` first is cheaper than guessing.
