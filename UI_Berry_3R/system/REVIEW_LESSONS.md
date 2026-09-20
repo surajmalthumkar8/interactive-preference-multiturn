@@ -742,3 +742,32 @@ separate candidate defects on this task died: A's palette tabs, A's active-state
 transition read too early, `mismatch: false` at a 2.5s settle), A's gradients (all 1px grid
 overlays at or below 7% alpha, zero SVG gradient defs) and B's off-palette colours (all Feather
 host chrome). Only the export gap survived being checked.
+
+## P43 — an SVG bounding box is in the wrong coordinate space until you resolve the transform
+
+Task 74. Candidate B's four navy letter paths reported `getBBox()` extents reaching
+x 4186-4562 and y -2034, against a `viewBox` of `0 0 800 800`. The union of every element
+measured **555% of the viewBox width and 315% of its height**. Read literally that is a
+catastrophic authoring error with most of the mark off-canvas.
+
+Nothing was off-canvas. The parent `<g>` carried `transform="translate(140 410) scale(.11 -.11)"`,
+which is the ordinary signature of glyph outlines exported from a font: a large em-square
+coordinate system, a negative Y scale to flip the font's Y-up axis into SVG's Y-down, and a
+translate to place it. Resolving each path through `getCTM()` put all eight elements inside
+the viewBox, `outsideViewBox: false` on every one.
+
+`getBBox()` returns the element's box in its **own** user space, before ancestor transforms.
+Comparing that number to the `viewBox` compares two different coordinate systems, so the
+comparison is meaningless on any document that uses a transform, which is most of them.
+
+**Rule.** Never compare `getBBox()` to `viewBox`. Map the box through `getCTM()` (or
+`getScreenCTM()` and back) into the root's space first, and only then ask whether anything
+is clipped. A negative scale factor and a large coordinate range together mean "exported
+from a font", not "broken".
+
+The finding that survived on this task came from the other direction: the *resolved*
+coordinates showed B's fourth path at height 213 against 71-93 for the three letter masses,
+starting 35 units right of where they ended. That is a real detached, disproportionate stroke,
+and it matched both the screenshot and an independent pixel blob count. General form:
+**a defect is real when the resolved geometry, the rendered pixels and the picture all say
+the same thing, and a probe artifact is what happens when only the raw numbers do.**
