@@ -771,3 +771,41 @@ starting 35 units right of where they ended. That is a real detached, disproport
 and it matched both the screenshot and an independent pixel blob count. General form:
 **a defect is real when the resolved geometry, the rendered pixels and the picture all say
 the same thing, and a probe artifact is what happens when only the raw numbers do.**
+
+## P44 — the dispatcher's Attempt URL is a placeholder until the task is claimed in Feather
+
+Task 75. The LinkedIn work item printed
+`https://msft.feather-prod.azure.com/tasks/b5f8ae65-2414-578d-b603-45f195486c6d`
+as its Attempt URL, and that uuid carries version nibble **5**. Task 70 taught that a v5 uuid
+is usually stale, so the reflex was to hunt for a v4 replacement. That reflex produced a
+wasted detour: a v4 uuid scraped out of the page HTML, `e50c5e4d-...-404c-...`, which Feather
+answered with "Task not found" just as firmly.
+
+The nibble was never the problem. Two separate things were true:
+
+1. **A dead link can mean a paused batch, not a stale id.** Work item 7592206's link failed
+   because its page said, in plain text, *"The batch containing this task is currently paused."*
+   That item was also already `Submitted`. Nothing about its uuid was wrong.
+2. **The v5 Attempt URL resolves fine.** Opening `b5f8ae65-...` loaded the real task, six
+   textareas and all. It showed status **Unclaimed**, and both candidate tabs read
+   *"Claim this task to interact with the environment"*. The candidates do not render until
+   the task is claimed.
+
+The claim control is not a button labelled Claim. It is the **status chip** in the top right
+(reading `Unclaimed`), which opens a menu containing `Action: Claim task`. Claiming rewrites
+the URL to the canonical task id, which is where the real v4 uuid finally appears
+(`5d6e0642-eaa2-4b5d-abd4-15577639ea26`), and only then do the candidate iframes exist.
+
+Two mechanics worth keeping:
+
+- `elementFromPoint` on that chip returns a **DIV**, not the button, so a hit-tested real
+  mouse click lands on an overlay and silently does nothing. What worked was dispatching the
+  full sequence `pointerdown, mousedown, pointerup, mouseup, click` on the element itself.
+  Radix menus listen on pointer events, not on `click` alone.
+- The tab panel ids are Radix-generated (`radix-:rf:-content-layout_node_4`) and **change on
+  re-render**, so an id captured before claiming is dead afterwards. Re-query the tabs.
+
+**Rule.** Do not judge an Attempt URL by its version nibble. Open it. If it says *Task not
+found*, read the work item page for a paused batch or an already-submitted state before
+hunting for another id. If it loads but shows *Unclaimed*, claim it through the status chip
+with a pointer-event sequence, then take the uuid from the **resulting** URL.
