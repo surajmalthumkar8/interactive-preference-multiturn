@@ -1274,3 +1274,30 @@ Then confirm the outcome from the response body, never from the UI settling
 **Generalises to:** any "it's rate limited / it's down / there's no work" conclusion. Those are all
 *absence* claims, and absence is exactly what a broken instrument counterfeits. Prove the negative
 against a second instrument before you act on it (P1).
+
+## P59 — `fill3q.py` reporting OK does not mean Feather accepted the field
+
+Task 92 filled cleanly. All three textareas reported `dom N react N OK`, the toggles read back
+`A is better` three times, and the cross-check in `fill3q.py` passed on both the DOM value and the
+React `__reactProps` value. Then `updateTaskStatus` returned:
+
+    'functionality_scoring_reason' is a required property
+    'overall_scoring_reason' is a required property
+
+Field 0 committed. Fields 1 and 2 did not, with identical local state. This is P21 and P24 again,
+but the important part is new: **the `fill3q.py` cross-check cannot detect it.** Both of the things
+it inspects, the DOM value and the React prop, were correct for all three fields. What was missing
+lived in Feather's own form store, which neither reads.
+
+**The recovery that worked.** Per field, click into the textarea, press End, delete the last
+character, re-insert it so a real `input` event fires, then click a blur target found by hit-testing
+upward from the field, skipping TEXTAREA/INPUT/BUTTON. Both landed on a LABEL and committed. The
+resubmit returned `COMPLETED` with `validationResults: []`.
+
+**The rule.** Treat `dom N react N OK` as necessary, never sufficient. The only authority on whether
+a reason committed is the `updateTaskStatus` response body, which is why `diagsub.py` prints it.
+A status-only submit check would have reported the first, rejected attempt as a success.
+
+**Generalises to:** any local assertion standing in for a remote one. Verifying the copy you control
+proves the copy you control. When another system owns the state that decides the outcome, only that
+system's answer counts, so read its reply before believing the write landed (P56).
