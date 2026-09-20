@@ -709,3 +709,48 @@ dispatched afterwards. `fill3q.py` now does all five steps.
 HTTP status either. Either query `workflowStatus` back with `svrstatus.py`, or read the
 mutation body and check for an `errors` key. `submit3q.py` now blurs every field before
 submitting for this reason.
+
+---
+
+## 22. The printed uuid can be a task that does not exist at all
+
+Section 20 said LinkedIn's printed Attempt URL can name a uuid that GraphQL reports
+`NOT_FOUND`, and that the fix is to read the real uuid from the task tab's settled
+`location.href`. Task 7584334 showed a harder version of the same fault, so the
+recovery has to be written down.
+
+`opentask3q.py` printed, claimed and started `bdb50685-4320-5b3f-8512-afcb5ecd15c0`,
+and reported `REAL uuid ... (SAME)`. The claim, the Start annotation and the whole
+evaluation all succeeded against that page. But when the task tab was later closed and
+reopened by uuid, `/tasks/bdb50685-...` rendered **"Task not found. This task may not
+exist, or you may not have permission to view it."** The LinkedIn task page still
+printed `bdb50685` in its link and its body text, so re-reading LinkedIn does not
+recover anything.
+
+Note the shape of that uuid: `bdb50685-4320-**5**b3f-...`. The version nibble is **5**,
+so it is a name-based (SHA-1) uuid, not the random v4 Feather actually issues. It is a
+**derived placeholder**, not a record id. The `(SAME)` check in `opentask3q.py` compares
+the printed uuid against the tab href and so cannot catch this: before the redirect
+settles, both are the placeholder.
+
+**Recovery, and it is cheap.** Open `https://msft.feather-prod.azure.com/?tab=toDo` and
+read the one `/tasks/<uuid>` link on it. A claimed, in-progress task is the only thing in
+To Do, so the link is unambiguous. Here it gave
+`f423ad11-505a-48c8-bef1-d73f83b4908f`, a real v4 uuid, and that page carried the right
+prompt, the right two candidate origins and the six-textarea form. Everything downstream
+(`fill3q.py`, `diagsub.py`, `svrstatus.py`, `lnkclose.py`) then worked first try.
+
+**Before filling, confirm identity, never assume it.** Read the prompt text and the two
+iframe srcs off the reopened page and check they match the candidates that were actually
+judged. Filling a form on the wrong task is unrecoverable once submitted.
+
+**Put the To Do uuid in the Attempt URL field**, not the printed one. `lnkclose.py
+7584334 f423ad11-...` returned `POST ... 202`.
+
+### Do not let the candidate tabs outlive the task tab
+
+The reason the task tab had to be reopened at all: opening each candidate in its own tab
+(needed, because the task page runs under the nogl hook and canvases must be real to be
+judged) left the profile holding 60+ tabs, and the task tab was lost among them. Reopening
+is safe, but the fill script finds the task tab by `uuid[:8]`, so a stale tab set makes it
+fail with a bare `IndexError`. Close candidate tabs when the evaluation is done.

@@ -270,3 +270,40 @@ inversion survived until the validator forced a rewrite for an unrelated lens wo
 Read the three fields against each other as a set, not just each against the notes. Where
 two fields touch the same fact they must agree, and the cheapest check is to grep the
 draft for the candidate names and confirm each claim points the right way.
+
+---
+
+### P23 — a slow control needs a slow window before it is called dead
+
+Task 42, Website A ("Quiet Tide"). Its tidal rhythm marker was sampled twice over six
+seconds and did not move a pixel. On that evidence the honest-looking write-up was "the
+tidal indicator is static", and it would have been wrong.
+
+Watched over seventy seconds instead, the marker moved (1463 -> 1465.2) and the state
+label turned from TIDE RISING to TIDE FALLING as it passed high water. The control was
+working the entire time. It was modelling a tide, and a tide is supposed to be slow.
+
+**The rule.** Before reporting that something does not change, ask what period the thing
+being modelled would actually have, and sample for at least one full cycle of it. Tides,
+day/night cycles, weather and season controls are all deliberately slow. A six-second
+window proves nothing about a two-minute cycle. Where the page states its own cycle
+length (Website B printed "Cycle length 2.0 min"), use that number rather than guessing.
+
+This is P21 in the time dimension: P21 asks whether the control was reachable, P23 asks
+whether the observation window was long enough for the effect to be visible. Both failure
+modes produce the same false negative.
+
+### P24 — localize a partial failure to a region before describing it
+
+Same task, Website B. Pause looked broken: pixels kept changing after it was pressed, on
+two separate runs, even after letting eased transitions settle. Calling it "pause does not
+work" would have been both wrong and unfair, since B's pause does most of its job.
+
+Hashing three horizontal bands separately (sky, open sea, shore surf) showed sky and sea
+frozen, the clock held at 15:11, the tide held at 2.8m, and only the **surf band** still
+animating. The accurate claim is narrow and checkable: pausing stops the swell, the light
+cycle and the tide, but the shore foam keeps running.
+
+**The rule.** When a whole-canvas check says "still moving", split the canvas and find out
+what is moving before writing anything. A defect that affects one band is a different
+claim from one that affects the page, and the narrow claim is the one that survives review.
