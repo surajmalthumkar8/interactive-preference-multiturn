@@ -1234,3 +1234,43 @@ asked for. A wrong clock does not fail loudly; it just makes the next decision w
 
 **Generalises to:** any gate expressed in someone else's timezone. Convert once,
 print the zone name next to the number, and confirm the two agree before acting.
+
+## P58 — read the disabled control's own tooltip before blaming the rate limit
+
+A claim attempt did nothing and `claim.js` returned `NO TRIGGER BUTTON`. The previous session had
+ended on a genuine 429 daily cap, so the cap was the obvious explanation and I was one step from
+reporting "still capped, nothing to do."
+
+It was not the cap. The React props behind the greyed-out button carried the answer in plain
+English:
+
+    "To claim a task, you must select a batch first."
+
+The board had loaded with the filter on **All batches**, and the dispatcher disables *Claim task*
+until exactly one batch is chosen. Selecting the batch flipped `disabled:true -> false`, the button
+gained the `ant-dropdown-trigger` class that `claim.js` looks for, and the very next claim returned
+`200 {"approvedIds":[7568507],"rejections":[]}`.
+
+**Two separate traps, both worth naming.**
+
+1. *The prior failure poisons the diagnosis.* Yesterday's 429 made "capped" feel confirmed rather
+   than assumed. A recent real failure is the most expensive thing to reason from, because it
+   supplies a ready answer that fits without being tested.
+2. *A wedged tab fakes an empty backend.* In the old tab the batch menu held exactly one item,
+   `All batches`, which read as "the server is offering nothing." In a **fresh tab** the same menu
+   held all six batches. No Ant portal was ever appended to `<body>` in the wedged tab, so every
+   dropdown silently opened nothing. Three different dropdowns failing the same way was the tell:
+   three coincidences is a pattern, not three bugs.
+
+**The rule.** When a control will not act, ask the control why before theorising:
+
+    disabled / aria-disabled / cursor  ->  is it off, or is it covered?
+    __reactProps + fiber .return walk  ->  the app usually states its own precondition
+    a fresh tab                        ->  before concluding the backend is empty
+
+Then confirm the outcome from the response body, never from the UI settling
+(P56). `claim.js` returns `'ANNOTATION onClick invoked'` whether or not the server agreed.
+
+**Generalises to:** any "it's rate limited / it's down / there's no work" conclusion. Those are all
+*absence* claims, and absence is exactly what a broken instrument counterfeits. Prove the negative
+against a second instrument before you act on it (P1).
