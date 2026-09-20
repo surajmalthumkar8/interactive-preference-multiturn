@@ -49,6 +49,14 @@ Impose:
   punctuation, fragments, comma splices. **Never invent a misspelling or a doubled letter.** Real
   typos are omissions; fabricated ones are additions, and additions are consistent in a way real
   slips are not.
+- **Exception, and it is absolute: no imperfections at all on UI Berry reason fields.** When the
+  dispatch is a UI Berry 3R aesthetics / functionality / overall reason, apply every other rule in
+  this file but ship the text with correct spelling, apostrophes and terminal punctuation. Those
+  fields are a written judgement read beside a scoring rubric, not a chat message typed in a hurry,
+  so a dropped apostrophe reads as carelessness rather than as a human. This was learned the hard
+  way on tasks 63 and 65, where `thats` and `its being built` were inserted and had to be reversed
+  by hand before submission. See `UI_Berry_3R/system/HOUSE_STYLE.md`,
+  "Deliberate typos are not humanisation, and they never ship".
 - **Variation.** Read the state file's rotation guard. Do not reuse the previous turn's opener
   shape, connective, or imperfection pattern. GL:180 detects stylistic fingerprints **across
   contributors and across unrelated topics** — a uniform assistant voice is the exact risk.

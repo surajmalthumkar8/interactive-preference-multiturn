@@ -618,3 +618,30 @@ Pick the blur target by hit test above the textarea rather than trusting a fixed
 which is section 24 applied to the blur point as well as the click point.
 
 Both are now in `tools/fill3q.py`, so the check runs on every task instead of being remembered.
+
+### P39 — a screenshot shows you where to look, never what is true
+
+Tasks 67, 68 and 69 each produced a defect that existed only in my reading of a PNG. Every one
+would have shipped as a false negative if the claim had gone in unverified.
+
+- **Task 67.** Website A's "show all models" control looked unreachable, measured offscreen twice
+  in a row. Scrolling the page to its limit first put the control at a normal viewport position,
+  fully hittable. The earlier reads happened before the scroll, which is P37 wearing a new hat.
+- **Task 68.** Website A's bag mark looked sliced flat along the bottom. The body path ends well
+  inside the viewBox and carries proper rounded corners; the flat-looking base is a drawn tote
+  silhouette. There was nothing to report.
+- **Task 69.** Website A's last assistant message looked cut off behind the composer. The
+  conversation is a scroll container, the full text was already in the DOM, and a real wheel event
+  reached the end of the reply cleanly.
+
+The rule: a screenshot is a pointer to a question, not an answer to one. When an image suggests
+something is clipped, cut, overlapping or unreachable, go and measure that specific thing before
+writing it down. Geometry, path data and scroll state decide it.
+
+**The inverse also holds, and it is why the screenshot still matters.** Task 67's real defect was
+invisible to every DOM probe run before the screenshot: Website A renders a "no reported scores"
+empty-state panel directly over a chart that is drawn and populated. Nothing in the series data or
+the control state hints at it. It was visible instantly in the image, and `display: flex` with
+full opacity over the chart's own box confirmed it afterwards.
+
+Screenshot to find candidates. Probe to confirm them. Neither one alone is evidence.
