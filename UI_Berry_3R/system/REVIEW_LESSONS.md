@@ -518,3 +518,32 @@ A live loop with a frozen image is a real defect, and it is invisible to a frame
 **Do not report frame rate.** Both candidates measured far below their real rate here because
 of tab throttling and the capture overhead of the probe itself. Frame rate in this harness says
 more about the harness than the site, and it is an instrument number besides (HOUSE_STYLE §2).
+
+## P35 — losing a game is not evidence the game is broken
+
+Task 60, two penalty shootout games. Fifteen shots were taken against Website A aiming at
+every corner and every power level, and all fifteen were saved. Nought from fifteen looks
+exactly like a rigged keeper, and "the player cannot score" was one edit away from a reason
+field.
+
+It was technique. Website A charges its power meter slowly, so a synthetic hold of half a
+second reached only about a third of the bar and the shot was still inside the TOO SOFT band.
+Charging all the way to full overshoots the other way. Once the hold was driven by reading the
+meter back and releasing inside the sweet band, the same site conceded two goals in five.
+
+**The rule.** Before reporting that a game mechanic cannot be beaten, prove the input reached
+the value the mechanic wanted. Read the control back while driving it, do not assume a timed
+hold maps to the intended strength, and sweep the input range rather than repeating one value.
+A uniform bad outcome across many attempts is a signal to suspect the harness first.
+
+**The second near miss in the same task.** A drag across Website A's aim track changed nothing,
+and every element under the pointer reported `cursor: auto`, which read as a dead control. The
+aim is not an input at all, it is a readout driven by pointer position over the pitch and by
+the arrow keys. Moving the pointer to the far left and far right swung it from Left to Right
+immediately. Confirm what drives a widget before calling the widget dead, and remember that a
+readout with no cursor affordance is a design choice, not a defect.
+
+**The third.** Website B's defend buttons measured zero wide and never grew while polling for
+eighteen seconds with the mouse. They are keyboard driven, exactly as that site's own
+instructions say, and arrow keys produced "Diving left" and a save. Read the instructions the
+site ships before concluding its controls do not respond.
