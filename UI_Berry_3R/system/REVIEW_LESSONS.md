@@ -1350,3 +1350,38 @@ control in question. Match on the element, never on the prose near it.
 produced a confident false negative, and each time the fix was to reach for the element a person
 would actually look at. Before acting on an alarming audit result, re-measure with a different
 instrument: alarming results earn a second measurement, not a repair.
+
+---
+
+## P62 — the instrument is a suspect too, and on task 100 it was guilty four times out of five
+
+Task 100 (WI 7569526, Dunkin' price-increase graphs). Five probe results looked like candidate
+defects. **One was real. Four were the measuring apparatus.**
+
+| What the probe said | What it actually was |
+|---|---|
+| Website A is too heavy to rasterise (`captureScreenshot` timed out repeatedly at 60s while JS evaluated in 0.0s) | A stale websocket. A fresh connection captured the same page in 0.1s. A is the *lighter* page: 150 nodes and one gradient, against B's 18 composited layers including a full-section `backdrop-filter: blur(14px)` — and B captured fine throughout. |
+| Website B's view toggle is dead (clicked it, `Price by year` stayed active, chart unchanged) | The click landed before `scrollIntoView` settled. Clicking at the re-measured position flipped `aria-pressed` to `true` and moved the `active` class. |
+| Website B clips six of twelve bars at 390px | `.chart-wrap` is `overflow-x: auto` and genuinely scrolls (scrollWidth 685 vs clientWidth 333). Setting `scrollLeft` revealed all twelve, zero clipped. A deliberate mobile pattern, not a break. |
+| Both pages have text overlaps | A's were the Feather proxy banner (not part of the candidate — the P61 trap again), B's were a tooltip **I** had left open from an earlier focus test. Excluding both: zero real overlaps on either page at four scroll positions. |
+| Website B's percentages and totals do not reconcile | Two of the six prices were **my own guesses**, not read values. Reading all twelve `aria-label`s gave $4.99/$5.29 for the sandwich, and then every per-item percentage, both totals, the delta and the +6.9% headline reconciled exactly. |
+
+The one real defect survived because it was checked three independent ways: B's y-axis reads
+`$6, $5, $4, $2, $1, $0` at a uniform 66.6px step. Geometry says six evenly spaced ticks across a
+linear $0–$6 range encode 6 / 4.8 / 3.6 / 2.4 / 1.2 / 0, so the tick captioned `$5` marks $4.80 and
+the one captioned `$2` marks $2.40. Cross-checked against the bars themselves, whose implied values
+matched their `aria-label`s within ~1% — proving the bars are drawn correctly and it is the
+gridline captions that lie.
+
+**The rule.** Before a negative result becomes a claim in a reason field, ask what else would
+produce that exact reading. A timeout, an empty selector match, a stale node set and a failed click
+are all things a *broken probe* produces just as readily as a broken page. Re-measure with a
+different instrument, and prefer one that reads the element's own data — `aria-label`, `.value`,
+`scrollWidth` — over one that reads the rendering.
+
+**Corollary, and this one nearly shipped.** Never let a value you supplied yourself enter an
+arithmetic check. Guessed inputs manufacture mismatches that look exactly like candidate errors.
+Read every operand off the page first, then compute.
+
+**Generalises to:** P58, P60, P61. Four sessions running, the dominant failure mode is not missing
+a defect — it is inventing one. Budget a verification pass per negative finding.
