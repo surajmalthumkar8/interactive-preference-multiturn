@@ -809,3 +809,37 @@ Two mechanics worth keeping:
 found*, read the work item page for a paused batch or an already-submitted state before
 hunting for another id. If it loads but shows *Unclaimed*, claim it through the status chip
 with a pointer-event sequence, then take the uuid from the **resulting** URL.
+
+## P45 — on a game, read the scoreboard, and start the run before judging the run
+
+Task 76, two 2D pixel shooters. Three separate false defects almost shipped, all from
+sampling a live simulation at the wrong moment.
+
+1. **"Website A starts the player dead."** The landing state showed a game over panel,
+   `health 0`, and a paused run. It is simply A's entry screen. Pressing *START A NEW RUN*
+   gave `health 100/100`, modal dismissed, unpaused, and health then fell to 52 over four
+   seconds of real monster contact. A title screen that happens to be a game over card is
+   an odd choice, not a bug.
+2. **"Website B's shooting does not register."** First pass ended `coins 0, kills 0`. The
+   mechanic was fine; the aim was bad. Sweeping the pointer in a circle while holding fire
+   moved it to `kills 2`, and the bounty text counted down from *Slay 15 more* to *Slay 13
+   more*, which is the game's own confirmation.
+3. **"Website A's run stalls at level 2."** Two samples eleven rounds apart read identically
+   and `hp` came back `null`. Nothing had stalled: A had levelled up, its modal was waiting
+   on an upgrade choice, and the upgrade had raised max health from 100 to **110**, so a
+   probe regex hunting `/100` matched nothing. The null was the probe's, not the game's.
+
+What survived, because it was measured the same careful way: A's upgrade buttons really do
+report a zero-size box, so there is nothing to aim at, and both canvases are undistorted
+(identical 1.778 aspect on backing store and CSS box, `image-rendering: pixelated` on both),
+which killed a fourth candidate finding about B being "stretched".
+
+**Rules.**
+- **Start the game before judging it.** An idle canvas is not a broken one.
+- **Prefer the game's own counters** over pixel diffs. Kills, coins, wave and bounty text are
+  the app telling you whether your input landed; `lit pixel count` barely moves and says
+  nothing.
+- **A probe regex encodes an assumption.** `/100` assumed max health is constant. When a
+  field goes `null` mid-session, suspect the pattern before the product.
+- **Aim is part of the test.** Sweep the pointer across the field before concluding a weapon
+  is inert.
