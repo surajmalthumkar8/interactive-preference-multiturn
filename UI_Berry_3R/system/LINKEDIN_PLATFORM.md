@@ -831,3 +831,42 @@ fixed `(200,300)` is a guess that happens to be right most of the time.
 
 **This is also the standing argument for `diagsub.py`.** A blind submit here would have
 looked like it worked. Reading the mutation body named the one field that was missing.
+
+---
+
+## 25. React state is the field of record, not `textarea.value`
+
+§21 and §24 established that Feather commits a reason only on a real blur, and that the blur
+point has to be chosen rather than assumed. Task 63 showed the failure that survives both: the
+fill verified, and the submit was still rejected.
+
+```
+fill3q.py:  overall  idx 4  want 730  got 730   OK
+diagsub.py: 'overall_scoring_reason' is a required property   (inside HTTP 200)
+```
+
+The DOM held the text. React did not. The blur click landed on a `LABEL`, which absorbed it
+without moving focus, so React's `onChange` never fired. Reading `textarea.value` back cannot
+detect this, because the DOM node was never the thing that was broken.
+
+**Verify through React instead.** This is now built into `tools/fill3q.py` and runs on every
+field of every task:
+
+```js
+const k = Object.keys(t).find(x => x.startsWith('__reactProps'));
+k ? String((t[k].value || '').length) : 'nokey'
+```
+
+A passing fill now prints both numbers, and disagreement is a hard failure:
+
+```
+overall        idx 4 want 619 dom 619 react 619  OK
+```
+
+`fill3q.py` also picks the blur target by hit test now, walking up from the textarea in 20px
+steps until it finds an element that is not a `TEXTAREA`, `INPUT` or `BUTTON`, rather than
+clicking a fixed `(200, 300)`. That is §24 applied to the blur point as well as the click point.
+
+**If a submit is rejected anyway**, `tools/recommit.py <uuid8> <answers.json>` re-commits the
+overall field alone with the hit-tested blur and prints the React length, which is faster than
+re-running the whole fill.

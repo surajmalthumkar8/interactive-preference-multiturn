@@ -31,6 +31,32 @@
 > `LEARNINGS.md`, entry for task #6210077.
 
 
+> ## Current state — 2026-09-20
+>
+> **Live batch: `p-1865005`** (jsd-s60-j40 vs exact 5p6), campaign `5025cc07`. The earlier
+> `p-1868003` hard-coded in `tools/nextclaim.py` is stale; navigate the LinkedIn tab to the
+> `p-1865005` URL first, then run `claim.js` against it.
+>
+> **38 tasks submitted this run**, tasks 27 to 64, every one `COMPLETED` on Feather with empty
+> `validationResults` and `POST 202` on LinkedIn.
+>
+> **Two tools changed and both matter:**
+>
+> - **`tools/survey.py <url-fragment>`** is the new first move on every candidate. One call,
+>   one settled page, everything needed to orient. It walks the page before measuring, which is
+>   the only way the geometry is real. See TOOLCHAIN.md §1b.
+> - **`tools/fill3q.py` now verifies through React**, not `textarea.value`, and picks the blur
+>   target by hit test. Task 63 filled "want 730 got 730" and was still rejected by Feather for
+>   a missing `overall_scoring_reason`, because the blur landed on a `LABEL`. A passing fill now
+>   prints `dom 619 react 619`. See LINKEDIN_PLATFORM.md §25.
+>
+> **What keeps going wrong, and it is never the sites.** Roughly a dozen false negatives nearly
+> shipped across tasks 52 to 64, every one caused by a bad probe. The countermeasures are
+> P29 to P38 in REVIEW_LESSONS.md. The short version: assert in-viewport before clicking,
+> treat `null` from `elementFromPoint` as probe failure rather than evidence, reload before
+> the reading that counts, run the same probe on the other candidate, measure the whole
+> document rather than a slice, and never report frame rate.
+
 **Written 2026-09-10, ~03:25 PDT. Updated ~05:35 PDT after task #7760 shipped.** Read this
 first, then start working. It is written to be picked up cold with no memory of the previous
 session.

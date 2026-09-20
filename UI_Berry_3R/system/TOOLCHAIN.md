@@ -127,6 +127,48 @@ no gain.
 
 ---
 
+## 1b. Probing the two sites — `survey.py` first, always
+
+The dominant failure on this project is not missing a defect, it is **inventing one**. Across
+tasks 52 to 64 every single false claim that nearly shipped came from a bad probe, never from a
+bad site. `tools/survey.py` exists so the common ones cannot happen by accident.
+
+```bash
+python survey.py <url-fragment>
+```
+
+One call returns, from a settled page: title, background, document height, canvas list **with
+the context type resolved** (`webgl2` / `webgl` / `2d`), image and svg counts, 3D transform
+counts, the heading outline, every input with its type and rendered height, any `dialog` with
+its open state, every button with its rendered width, dead in-page anchors, and body length.
+
+What it does for you, and why each one is there:
+
+| Behaviour | Rule it enforces |
+|---|---|
+| Walks the whole page top to bottom, then returns to the top, before measuring | **P37** — geometry read before a scroll reveal is fiction |
+| Reports canvas **context type** | **P34** — a WebGL canvas reads back blank and that is not a blank canvas |
+| Reports `dialog` open state alongside input heights | **P36/P37** — a form measuring zero is usually a closed dialog, not a missing form |
+| Reports rendered **width** per button, not just labels | **P29** — a zero-width control is collapsed by state, not dead |
+
+### The probe rules that survey.py cannot do for you
+
+- **Hit-test before every click.** Assert `0 < x < innerWidth` and `0 < y < innerHeight`, then
+  `elementFromPoint`. `null` means the probe failed, a different element means genuinely
+  covered. These are not the same finding (**P29**).
+- **Reload before the reading that counts.** Anything that opens, filters, navigates or submits
+  leaves the page dirty, and a covering `DIV.modal` is usually your own earlier click (**P33**).
+- **Run the identical probe on the other candidate** before a defect reaches a reason field. A
+  shared trait is not a differentiator (**P30**).
+- **Measure the whole document**, `document.body.innerText.length`, before and after an action,
+  then go looking for where the change landed. A targeted slice answers a narrower question
+  than the one being asked (**P36**).
+- **Two controls can share a label.** Scope to the container that holds the fields (**P32**).
+- **Losing a game is not evidence the game is broken.** Read the control back while driving it
+  and sweep the input range (**P35**).
+
+---
+
 ## 2. Humanizer — the only sanctioned rewriter
 
 Run the `humanizer` skill on all three reason fields before they are submitted. It is a
