@@ -394,3 +394,47 @@ heart-rate-variability reading moved 59, then 61, then 54.
 **The rule.** For anything that claims to change data, check the data, not the chrome. A
 highlight that moves proves a click handler fired, nothing more. Two candidates can both
 "respond" and only one of them can be doing the work.
+
+### P29 — `scrollIntoView` can push the target out of a clipped viewport
+
+Task 52 (`c8e9706f`, treasury dashboards). Four of Website A's controls read as dead on
+the first pass: `Help & methodology`, `View curve`, `Explore analysis` and `View all` all
+produced no change in body text, no modal, no scroll and no hash move. Four inert controls
+on one page is a strong-looking functionality defect, and it was entirely wrong.
+
+The probe did `b.scrollIntoView({block:'center'})`, read `getBoundingClientRect()`, then
+clicked the centre of that rect with `Input.dispatchMouseEvent`. On a page whose document
+is barely taller than the window, `scrollIntoView` moves very little, but the rect it
+returns can still sit below the clipped viewport the screenshot and the input system
+actually use. `document.elementFromPoint(cx, cy)` returned **`null`** — not another
+element, `null`, which means the point is outside the viewport entirely. The click went
+nowhere.
+
+Clicking the same buttons by id proved every one of them works: `View all` flips its own
+label to `Show less` and takes the observations table from 5 rows to 20 of 20, and the
+other three each open a distinct modal (`A note on the numbers`, `The fictional yield
+curve`, `The market narrative`).
+
+**The rule.** Treat `elementFromPoint` returning `null` as *probe failure*, never as
+evidence about the site. Distinguish the two null-ish outcomes before believing a negative:
+
+- `null` → the point is off-viewport. The click was never delivered. Re-probe.
+- a different element → genuinely covered. That is a real finding (and see §24).
+
+Assert the point is inside `0 < y < innerHeight` and `0 < x < innerWidth` before clicking,
+and when a control looks dead, confirm by a second route (direct `.click()` by id) before
+writing it down. This is the fourth shape of the same false negative and the first where
+the control was neither unreachable, nor slow, nor mis-observed — it was simply never hit.
+
+### P30 — a shared trait is not a differentiator
+
+Same task. Website A's sidebar anchors update `location.hash` and move the active class
+but leave `scrollY` at 0, even at a short viewport with 800px of scroll available and the
+targets well below the fold. Written up on its own that is a clean, well-evidenced defect.
+
+Website B does exactly the same thing on all six of its nav items.
+
+**The rule.** Before a defect goes in a reason field, run the identical probe against the
+other candidate. A behaviour both sites share cancels out and says nothing about which is
+better, and a comparative lens is the only thing being scored. Half a probe produces a
+finding that is true about the page and useless about the pair.
