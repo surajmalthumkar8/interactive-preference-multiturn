@@ -1181,3 +1181,33 @@ a defect in the submission**, and nothing mechanical checks it.
   wheel, report families used.
 - Read the three reason fields against each other before shipping. Every number and claim in
   one must survive the others.
+
+## P56 — a claim that silently yields no row is a daily cap, not a broken claim
+
+End of the run after task 86. `claim.js` reported `ANNOTATION onClick invoked` exactly as it
+does on a good claim, and the dashboard stayed healthy: trigger button present, 41 tasks listed,
+the previous task showing `Submitted`. Only the new row never appeared. Two attempts, same
+silent result.
+
+The claim button is not the place to look. Hooking `window.fetch` around the click showed the
+dispatcher answering plainly:
+
+```
+POST /ai-trainer/api/frontendAnnotationTaskResults?action=claim  ->  429
+{"message":"Daily task limit reached. You can claim more tasks after midnight Pacific Time","status":429}
+```
+
+A 429 is the platform working correctly, not a wedge, a challenge or a stale uuid, and the
+right response is to **stop claiming**. Retrying a rate limit is how a working account starts
+looking like a scripted one.
+
+Before stopping, audit the board: every row must read `Submitted`, with nothing left
+`Not started` or `In progress`. Ten of ten were closed here, so no task was stranded mid-flight
+by the cap.
+
+**Rules.**
+- When a claim returns no row but the page looks fine, **hook `fetch` and read the response
+  body** before touching anything else. The dispatcher usually says exactly what is wrong.
+- Treat `429` as a stop signal for the day, not an error to work around.
+- Audit for stranded rows before ending a run. A task left `In progress` past the cap is one
+  that cannot be finished until the limit resets.
