@@ -1040,3 +1040,36 @@ the selector, so the selector lost.
   ordering) across several runs, not once.
 - Re-read the live state between scripted moves. A queued click list goes stale the moment an
   animation reorders the board.
+
+## P52 — a probe written for dark pages inverts on light ones, and a tie is sometimes the answer
+
+Task 83, two blueprint-style lantern logos on white grounds.
+
+**The inverted probe.** `small.js`, written for the neon-dark logo in task 79, fills a canvas
+black and counts pixels *brighter* than a threshold. Run against a charcoal-on-white drawing it
+returned `litPct 0, maxLum 0` at 48px, 88px **and 400px** for Website A. Read literally that
+says the logo does not exist. The screenshot showed a fully drawn lantern. The probe was
+measuring the wrong polarity, and a `maxLum` of exactly 0 at a size where the mark is plainly
+visible is the tell: a real blank would still pick up the page ground.
+
+Rewritten to fill **white** and count pixels *darker* than the threshold, both candidates came
+back healthy, near 18 and 19 percent ink at avatar size. The correct move was to fix the probe,
+not to report "Website A renders nothing", which would have been a serious false claim on a
+page that was fine.
+
+**The tie.** Both pages were static SVG marks. The interactivity sweep returned the identical
+result on each, one clickable element that belongs to the Feather frame rather than the site,
+and `scripts: 0`. Both drew completely, both held up when shrunk, neither offered any export.
+There was no functional difference to find, so the functionality verdict was **BOTH_GOOD**
+rather than a coin toss dressed as a preference.
+
+`validate_reasons.py` enforces a distinct opener for that verdict:
+`^website a and website b are (tied|both)`. The A/B opener is rejected, and the field must still
+name and describe both sites.
+
+**Rules.**
+- **A probe carries the assumptions of the page it was written for.** Check polarity, background
+  and threshold before trusting a reused one, especially when a result is exactly zero.
+- An impossible reading at a large size means the instrument is wrong, not the subject.
+- When two candidates measure identically on a lens, **say so**. `BOTH_GOOD` exists, and
+  inventing a separation that the evidence does not support is worse than a tie.
