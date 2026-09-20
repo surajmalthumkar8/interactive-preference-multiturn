@@ -117,3 +117,26 @@ reviewed, and submission time is one of the first things the audit looks at. The
 this project asks for does not fit in less than that anyway: two sites, every section, every
 control exercised, then three reasons drafted and gated. If the clock says eight minutes,
 something was skipped.
+
+---
+
+## Deliberate typos are not humanisation, and they never ship
+
+The `mt-humanizer` agent sometimes inserts omission-class slips on purpose, dropping an
+apostrophe to produce `its being built`, `thats the part`, `dont`. It reports these as matching
+a corpus that carries "0 to 2 light slips per field".
+
+**Restore every one of them before filling.** This has happened on tasks 63 and 65 and was
+corrected both times.
+
+The reasoning is simple. These fields are not a chat message, they are a written judgement a
+reviewer reads next to a rubric. A missing apostrophe there does not read as a human being
+relaxed, it reads as a contributor who did not check their work, and the one thing this project
+scores is care. Genuine human variation lives in rhythm, in sentence length, in what gets
+conceded and what gets left out. It does not live in punctuation errors.
+
+**What to keep from a humanizer pass:** varied openers, uneven sentence lengths, a conceded
+point against the chosen side, plain vocabulary, and the removal of rule-of-three lists,
+aphorism closers and rubric words.
+
+**What to reverse:** any spelling or punctuation the writer would have fixed themselves.
