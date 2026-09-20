@@ -489,3 +489,32 @@ and a clean step one.
 When a probe reports a surprising count or an empty region after earlier interaction, reload
 and take the measurement again before it goes anywhere near a reason field. Cheap to do,
 and it separates what the site does from what the probing did to it.
+
+## P34 — a WebGL canvas reads back blank, and that is not a blank canvas
+
+Task 59. Both candidates were a single full-bleed canvas and nothing else. Sampling pixels
+by drawing the canvas into a scratch 2D context and calling `getImageData` returned an
+all-zero luminance grid for Website A on every sample, while Website B returned a sensible
+grid. The obvious reading was that A rendered nothing. The screenshot said otherwise: A was
+rendering a lit 3D scene.
+
+The cause is `preserveDrawingBuffer: false`, which is the default and which A set explicitly.
+Once a WebGL frame is presented, the drawing buffer is cleared, so anything that reads it
+afterwards gets zeros. B read back fine because B was a plain 2D canvas, not WebGL at all.
+The probe was not measuring the site, it was measuring the context type.
+
+**The rule.** Never judge a canvas by a pixel read-back. Check `getContext('webgl2')` /
+`getContext('webgl')` and `getContextAttributes().preserveDrawingBuffer` first. When the
+context is WebGL and the flag is false, an all-zero read is *expected* and carries no
+information, exactly like `elementFromPoint` returning `null` in P29. Use the screenshot
+path instead, which goes through the compositor and captures what is actually on screen.
+
+**The corollary that decided the task.** Motion on a canvas is proved by hashing successive
+screenshots, not by reading pixels and not by counting animation frames. A frame counter only
+proves the loop is alive. Website A's loop ticked the whole time and its rendered output never
+changed by a single byte across a reload, four foreground captures and real cursor movement.
+A live loop with a frozen image is a real defect, and it is invisible to a frame counter.
+
+**Do not report frame rate.** Both candidates measured far below their real rate here because
+of tab throttling and the capture overhead of the probe itself. Frame rate in this harness says
+more about the harness than the site, and it is an instrument number besides (HOUSE_STYLE §2).
