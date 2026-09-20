@@ -1073,3 +1073,40 @@ name and describe both sites.
 - An impossible reading at a large size means the instrument is wrong, not the subject.
 - When two candidates measure identically on a lens, **say so**. `BOTH_GOOD` exists, and
   inventing a separation that the evidence does not support is worse than a tie.
+
+## P53 — check the content against what the page claims about it
+
+Task 84, two landing pages for an AI image generator. Both ticked every box on the section
+checklist: exact hero headline, the three named features, the three named tiers, the footer
+links, a masonry gallery with working category chips. A checklist pass separated nothing.
+
+What separated them was **what was inside the gallery**. Website A showed six photographic
+scenes, a city at dusk, misty mountains, ocean water, a star field. Website B showed flat
+vector drawings, a grinning face and a spaceman, directly beneath its own sentence *"Every
+image below was generated in under a second"* on a page selling **ultra-realistic** images.
+The section contradicted the sentence above it. No probe surfaces that; it needs a screenshot
+of the section and a reading of the brief's adjectives, not just its nouns.
+
+Two probe corrections on the way there, both worth keeping:
+
+- **`<img>` count is not an imagery count.** Website B returned `imgTags: 0` because its tiles
+  are SVG. That is a legitimate technique, not an absence, and the first read nearly became a
+  false finding.
+- **A node diff can miss a real filter.** Clicking Website B's category chips changed neither
+  the visible node count nor the page text, which by P46 looks inert. Measuring the *visible
+  tiles* showed 8 to 4 to 4 to 8 with different dimensions each time: the filter works and the
+  hidden tiles simply keep their nodes. P46's diff proves a control does nothing only when the
+  thing it would change is in the diff.
+
+The second real finding came from emulation: at phone width Website A reflowed to the given
+width with a menu toggle and nothing outside the viewport, while Website B refused to render
+below a much wider measure and left more than a dozen elements overflowing, against a brief
+that asked for mobile explicitly.
+
+**Rules.**
+- Read the brief's **adjectives**, not only its section list. "Ultra-realistic", "high-quality"
+  and "hyper-realistic" are requirements, and a checklist cannot see them.
+- When a page asserts something about its own content, check the content against the assertion.
+  A section that contradicts its own caption is a real, quotable defect.
+- Choose the metric that would actually move if the feature worked. Count visible tiles for a
+  gallery filter, not DOM nodes.
