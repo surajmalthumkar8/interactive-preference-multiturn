@@ -870,3 +870,42 @@ clicking a fixed `(200, 300)`. That is §24 applied to the blur point as well as
 **If a submit is rejected anyway**, `tools/recommit.py <uuid8> <answers.json>` re-commits the
 overall field alone with the hit-tested blur and prints the React length, which is faster than
 re-running the whole fill.
+
+## 26. The claim loop needs a FRESH TAB per claim, not `location.href`
+
+Reproduced twice on 2026-09-20. Driving the dispatcher board by assigning
+`location.href` leaves the page rendering and its data loading, but kills the Ant
+portal layer: `document.body` holds only `NAV,DIV`, no `.ant-dropdown` container is
+ever appended, and **every** dropdown silently opens nothing. The batch filter, the
+work-status filter and the page-size selector all fail identically, which is the
+tell. Three dropdowns failing the same way is one broken layer, not three bugs.
+
+Downstream this reads as a *server* problem, which is the dangerous part:
+
+- `Claim task` stays `disabled:true` / `cursor:not-allowed`
+- the batch menu holds only `All batches`, which looks like "no work available"
+- `claim.js` returns `NO TRIGGER BUTTON`, because the trigger class is only added
+  to the button once a batch is selected
+
+None of that is true. Opening the same URL in a **new tab** via
+`PUT /json/new?<url>` restores everything: body gets its third `DIV` portal, the
+batch menu lists every batch, and the claim goes through.
+
+**The loop.** Per claim: close the board tabs, open one fresh, select the batch,
+then claim. `freshboard.py` + `claimnext.py` in the scratchpad do exactly this.
+
+**Two preconditions that are easy to miss.**
+
+1. **Select the batch before claiming.** The button is disabled until exactly one
+   batch is chosen, and the app says so in its own React props: `"To claim a task,
+   you must select a batch first."` Read that tooltip before concluding anything
+   about rate limits (P58).
+2. **The uuid changes when you claim.** The claim response carries the *pre-claim*
+   uuid; claiming in Feather mints a new task instance and the tab URL becomes the
+   canonical one. Take the uuid from the tab list after `claimgo.js`, and put that
+   in the Attempt URL. The work item page still shows the old uuid until you
+   overwrite it.
+3. **`Start annotation` must be pressed before `Submit` exists.** A freshly claimed
+   work item is `Not started` and renders only `Start annotation` / `Skip`;
+   `lnkclose.py` will report `NO SUBMIT`. Click Start, the item goes `In progress`
+   and `Save` / `Submit` appear, and only then does the submit return `POST ... 202`.
