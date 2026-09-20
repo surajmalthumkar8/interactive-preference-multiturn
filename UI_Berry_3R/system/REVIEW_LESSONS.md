@@ -709,3 +709,36 @@ Two rules fall out, and they generalise past search boxes:
    the view that owns it before concluding anything, which is P37 and P39 wearing another hat.
 
 The general form: before reporting that an input does nothing, prove the input received something.
+
+### P42 — count a deliverable by exercising it, not by scraping the page for tokens
+
+Task 73 was a logo brief with five numbered deliverables. Scraping the rendered text for hex codes
+produced a clean, confident, wrong comparison, and it pointed at the wrong winner.
+
+- **The scrape.** Counting `#RRGGBB` in `document.body.innerText` gave Website A nine codes and
+  Website B three. Read naively that says A supplied palette variants and B supplied one palette.
+  The functionality verdict was drafted that way.
+- **What exercising it showed.** Website B has three palette tabs. Clicking each one swaps the
+  whole set: Signature, then Midnight, then Monochrome, each with its own three codes, nine
+  distinct codes in total. B had the variants the brief asked for. They were simply never all in
+  the DOM at the same instant.
+- **And the mirror image.** Website A's three tabs are labelled Light, Dark and Mono, and they
+  returned the same nine codes on every tab, because A's variants are printed as static swatches
+  and the tabs re-render the *marks*, not the palette. The nine-versus-three gap was an artefact of
+  one page showing everything at once and the other showing one view at a time.
+
+The verdict that survived came from a different question entirely: not "how many codes are printed"
+but "what happens when the export is pressed". One press of B's raster option produced four real
+PNG blobs at rising sizes plus separate vector and guide saves. Every download control on A was
+pressed and produced only SVG, all three filenames marked as the mono version regardless of the
+selected mode, with no raster control anywhere on the page.
+
+The rule: a deliverable is a thing the page *does*, so count it by making the page do it. Text
+scraping measures what is currently rendered, which on a tabbed layout is one slice of the answer
+and on a static layout is all of it. Comparing those two numbers compares the layouts, not the work.
+
+This is P39's "probe to confirm" applied to content rather than defects, and it is also why four
+separate candidate defects on this task died: A's palette tabs, A's active-state "lag" (a CSS
+transition read too early, `mismatch: false` at a 2.5s settle), A's gradients (all 1px grid
+overlays at or below 7% alpha, zero SVG gradient defs) and B's off-palette colours (all Feather
+host chrome). Only the export gap survived being checked.
