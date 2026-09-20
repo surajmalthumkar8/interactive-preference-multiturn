@@ -943,3 +943,32 @@ number alone would have overstated the defect; the image gave the finding its co
   decides.
 - Say what actually survives. "The wordmark and ring lettering smear into nothing" is true and
   checkable; "the logo disappears" would not have been.
+
+## P49 — measure every instance of a repeated component, not the first one you see
+
+Task 80, two builds of the same local business site from prescribed copy. Website A's header
+"Get a Free Quote" sets `rgb(82,97,112)` grey on its own `rgb(45,108,223)` blue fill, a
+contrast ratio of **1.31**, which is unreadable. The tempting finding is "Website A's call to
+action fails contrast".
+
+That would have been wrong, and the probe said so because it collected **all four** instances
+rather than stopping at the first. A's other three quote buttons are white on the same blue at
+**4.86** and pass. The defect is one broken instance out of four, and the reason field had to
+say exactly that: the other three "read fine, which makes the one at the top look like
+something nobody checked". A single bad instance among correct siblings is a stronger, more
+credible observation than a sweeping claim, and it is the one that is actually true.
+
+The same run corrected a copy-fidelity finding in the other direction. A literal string check
+reported Website B "missing" the required bullet **Affordable pricing**, while Website A matched
+all ten required strings. Reading B's actual section showed it covers affordability thoroughly,
+with a pricing section and the words "Affordable", "Pricing" and "price" throughout; it simply
+paraphrases that one bullet. A paraphrase of prescribed copy is a minor fidelity point, not a
+missing feature, and it was weighted accordingly rather than reported as a gap.
+
+**Rules.**
+- When a component repeats (a CTA, a card, a row), **measure every visible instance** and report
+  the count that fails. `querySelectorAll` plus a filter, never `querySelector`.
+- A string absent from a checklist is a **prompt** to go read that section, not a finding.
+  Confirm the concept is missing, not just the wording.
+- Scope the claim to what failed. "The one at the top" beats "the buttons", and it survives
+  review because a reviewer can check it.
