@@ -574,3 +574,24 @@ buttons read as covered by a DIV, which was the modal a previous click had opene
 
 Four false negatives in one task, every one of them a probe that answered the wrong question.
 When a well built site suddenly appears to have a dead control, suspect the probe first.
+
+## P37 — on a scroll-animated page, geometry read before the reveal is fiction
+
+Task 62. Website A's booking form reported an absolute position of 624 on a 6627 pixel page,
+which put it inside the hero. Clicks aimed there were swallowed by the hero visual, focus
+stayed on BODY, and four text fields read back empty. The obvious conclusion was that the 3D
+layer sat over the form and blocked it.
+
+Wrong. The page reveals sections on scroll, so anything below the fold had not been laid out
+yet and every rectangle below the first screen was meaningless. Walking the whole page in
+steps of a few hundred pixels first, then re-measuring, put the form at 5733, where it was
+reachable and where all eight fields took input and submitted to a real confirmation.
+
+**The rule.** On any long page, scroll from top to bottom once before measuring anything, then
+re-read the geometry. `scrollIntoView` is not enough on its own, because it targets a position
+the page has not built yet and can stop short. A covering element that changes identity between
+consecutive probes, hero then trust-item then services, is the signature of this failure, not
+the signature of a real overlap.
+
+**Corollary.** A form that cannot be found on the page may be inside a `dialog` that is still
+`display: none`. Check for a closed dialog before concluding a form is missing or broken.
