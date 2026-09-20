@@ -881,3 +881,34 @@ in every mode at once, because all three panels exist in the markup simultaneous
   and page text across the action, quoted in the finding. Anything less is a guess.
 - Absence of one affordance does not condemn the build. Website B lost this one feature and
   still won the fallback views outright, and the reason fields said so.
+
+## P47 — a zero is a value, and a default range can be the reason for it
+
+Task 78, two sales dashboards. All four of Website A's KPI cards read
+`0.0% vs previous period`, identically, while Website B showed varied deltas
+(`+12.0%`, `+0.0%`, `-0.0%`). The obvious reading is that A's comparison is unwired, and
+that finding was one step from being written into a reason field.
+
+It was wrong. A's default range spans **Jan 2023 to Dec 2024**, which is the whole dataset,
+so there is no earlier period to compare against and zero is the honest answer. Moving the
+start month to Jan 2024 produced **13.8%, 15.3%, 1.3%, 13.9%** on the four cards. The
+feature works; the default hides it. Meanwhile B's `-0.0%` is the real formatting slip of
+the pair, and B was the one shipping seven unrounded floats such as `51.21036790119342%`.
+
+The same task carried a second trap in the opposite direction. B's regional map renders as a
+flattened spiky band, and the instinct was to call it a broken SVG. Measuring both showed
+**both** candidates stretch SVGs: A's line chart also carries `preserveAspectRatio="none"`.
+What separates them is degree and kind. A's map squashes by 1.4 under the default `meet`, so
+the geography survives; B's squashes by 2.37, and the shape does not. Stretching a *chart* is
+ordinary practice because only the plotted values carry meaning. Stretching a *map* destroys
+the thing being drawn.
+
+**Rules.**
+- **Before calling a computed field dead, change the input it depends on.** A constant zero
+  across every card is a hypothesis, not a finding.
+- **A defect shared by both candidates is not a differentiator.** Measure the same property on
+  both before spending it in a reason field.
+- **`preserveAspectRatio="none"` is not automatically a bug.** Ask what the graphic means: a
+  distorted line chart still reads correctly, a distorted map does not.
+- Ratio of the CSS box aspect to the viewBox aspect is the number that separates "letterboxed"
+  from "crushed". Compute it for both sides.
