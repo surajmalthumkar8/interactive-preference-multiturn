@@ -1110,3 +1110,36 @@ that asked for mobile explicitly.
   A section that contradicts its own caption is a real, quotable defect.
 - Choose the metric that would actually move if the feature worked. Count visible tiles for a
   gallery filter, not DOM nodes.
+
+## P54 — separate the broken thing from the working thing around it
+
+Task 85, a 3D cutaway of a specific Indian house. Website A's model collapsed into a tall smear
+of stretched slivers narrowing to a point, room labels floating over the wreckage. Website B
+produced a proper furnished dollhouse. The verdict is easy; reporting it honestly is not,
+because **almost everything else on Website A was good**: a calm sidebar listing all eight
+spaces with the exact dimensions from the brief, label/furniture/daylight switches, an export
+control. Its *data* matched the plan perfectly. Only the mesh failed.
+
+Three checks made the claim safe to make:
+
+1. **Reload and re-shoot.** Pixel-identical after a full reload plus a 22 second settle, so not
+   a capture-timing artifact (P39, P45).
+2. **Move the camera.** A drag-orbit changed the framebuffer, ink samples going from roughly
+   twelve thousand to forty thousand, and the picture stayed a smeared wedge. The viewer is
+   alive and redrawing; the geometry is what is wrong. Without this, "broken render" could
+   have meant "captured before first paint".
+3. **Read the framebuffer, not the DOM.** An SVG geometry sweep found nothing extreme on either
+   side, because A draws into a 2245x1047 **WebGL canvas** and B composes its house from CSS
+   `matrix3d` transforms. The column-occupancy read (ink across 71% of rows but only 38% of
+   columns) is the numeric form of the vertical spike in the screenshot.
+
+Both viewers were confirmed interactive before the functionality field was written, so the
+finding is "the shape being built is wrong", not "the controls do nothing".
+
+**Rules.**
+- **Name what works before naming what fails.** A page whose data is right and whose mesh is
+  wrong deserves that sentence, and the reason field is more credible for it.
+- For a 3D failure, **move the camera before calling it broken**. A static bad frame has three
+  possible causes and only one of them is the model.
+- Match the probe to the rendering technology. WebGL needs `readPixels`; CSS 3D needs the
+  computed `transform` matrix; neither shows up in an SVG bbox sweep.
