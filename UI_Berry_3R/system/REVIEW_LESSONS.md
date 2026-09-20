@@ -1143,3 +1143,41 @@ finding is "the shape being built is wrong", not "the controls do nothing".
   possible causes and only one of them is the model.
 - Match the probe to the rendering technology. WebGL needs `readPixels`; CSS 3D needs the
   computed `transform` matrix; neither shows up in an SVG bbox sweep.
+
+## P55 — measure a colour brief by hue coverage, and check the fields against each other
+
+Task 86, two vector line-art flowers against a brief asking for "intense rainbow spectrum
+colors" and "vivid complementary colors". Both drawings were competent, both sat on pure white
+at a `1600x900` viewBox (exactly the 16:9 requested), and both were genuinely free of gradients
+and shading. Eyeballing them, Website B looked like the better flower: closed petals, a stem,
+leaves, a complete plant.
+
+The brief was decided by converting every stroke colour to **hue** and bucketing the wheel into
+twelve 30-degree families:
+
+- Website A: **9 of 12** families, running red, orange, yellow, lime, green, cyan, blue, violet.
+- Website B: **5 of 12**, with 31 strokes in the red bucket, 20 in orange, 26 in green, 9 in
+  blue, and whole arcs of the wheel at zero.
+
+"Rainbow" is not a vibe when the brief says it; it is coverage, and coverage is countable.
+Counting distinct colours would have missed this, because B has twelve distinct colours that
+are mostly shades of two hues.
+
+Two corrections on the way, both from the existing protocol:
+
+- A suspected **gradient** on Website B's petals (orange shading into red) was a probe-free
+  assumption from the screenshot. The gradient sweep returned zero `linearGradient`,
+  `radialGradient`, filter and pattern defs on both, and neither uses a canvas. The effect is
+  overlapping strokes of different colours. Finding deleted.
+- Website A's rendered box aspect of 1.96 against a 1.78 viewBox looked like stretching until
+  `preserveAspectRatio="xMidYMid meet"` showed it letterboxes (P47).
+
+The last catch came from the humanizer, not a probe: the overall field said Website B used
+"three colours" while the aesthetics field named four. **Fields that contradict each other are
+a defect in the submission**, and nothing mechanical checks it.
+
+**Rules.**
+- For a colour brief, measure **hue coverage**, not colour count. Convert to HSL, bucket the
+  wheel, report families used.
+- Read the three reason fields against each other before shipping. Every number and claim in
+  one must survive the others.
