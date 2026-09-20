@@ -1301,3 +1301,27 @@ A status-only submit check would have reported the first, rejected attempt as a 
 **Generalises to:** any local assertion standing in for a remote one. Verifying the copy you control
 proves the copy you control. When another system owns the state that decides the outcome, only that
 system's answer counts, so read its reply before believing the write landed (P56).
+
+## P60 — "the feature is missing" usually means the probe took the wrong path
+
+Task 97 asked for a store with a UPI QR checkout. An enumeration of every `a`, `button` and
+`[role=button]` on Website A returned 25 controls and **zero** matching buy, purchase or checkout.
+The obvious reading was that Website A had no checkout and had missed the brief's central feature.
+
+It has one. The product cards are clickable `div`s, not links, so they never appeared in a control
+enumeration. Clicking a card opened a full product page carrying `Buy now — ₹1,499`, and that led
+to a complete checkout with a scannable QR, `pixelmint@upi`, an order summary and a UTR field. The
+same mistake nearly ran twice in one task: a rupee-only price regex also reported Website B as
+having **no prices**, when it prices in dollars throughout.
+
+**Why this keeps happening.** Every one of these probes answers a narrower question than the one
+being asked. "No element matches my selector" is not "the feature is absent", and "no ₹ in the
+text" is not "no prices". The gap between the two is where a wrong verdict gets written.
+
+**The rule.** Before reporting any feature as missing, reach it the way a person would: click the
+thing that looks like the product, follow the page it opens, and only then conclude. When a probe
+returns an absence on something the brief says should exist, treat the probe as the suspect first.
+Widen it once (all currencies, not one; clickable containers, not just anchors) before believing it.
+
+**Generalises to:** P1 and P58. A negative result from a narrow instrument is the cheapest wrong
+answer available, and on this run it has now produced more near-miss verdicts than any real defect.
