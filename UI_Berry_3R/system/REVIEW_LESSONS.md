@@ -972,3 +972,37 @@ missing feature, and it was weighted accordingly rather than reported as a gap.
   Confirm the concept is missing, not just the wording.
 - Scope the claim to what failed. "The one at the top" beats "the buttons", and it survives
   review because a reviewer can check it.
+
+## P50 — on an illustration brief, a word count measures captions, not the build
+
+Task 81, a post-apocalyptic vehicle spec with roughly twenty named features: bull bar,
+railroad spikes, roll cage, jerry cans, barbed wire, nailed bat, searchlight, CB antenna,
+kill tally, spiked hubcaps, chainlink, welded door, spare tire and the rest.
+
+A keyword sweep of each page's visible text scored **Website A 5 of 20** and Website B 7 of 20,
+which points at B. The screenshot said the opposite: A's drawing visibly contains the spiked
+ram bar, the roof rack with fuel cans, the wire coil, the nailed bat, the flag antenna, the
+caged windows, the tally strokes and the studded wheels. None of those were words on the page.
+They were **drawn**, and the scrape had no way to see them.
+
+Two failures in one number. The features were in the artwork rather than the copy, and A's
+per-assembly notes only load once a view is selected, so the initial scrape read one fifth of
+the available text. Clicking through A's five views produced exactly the "missing" vocabulary:
+roll cage, fuel cans, barbed wire, a nailed bat, the plated-shut driver door, the chained trunk
+and the exposed spare.
+
+The finding that did survive came from the P46 diff, applied to both sides so the comparison
+was fair. Website B's three view labels change only their own highlight: 319 visible nodes
+before and after, no words added or removed, and the vehicle pixel-identical. Website A's views
+swap real content, 359 to 361 nodes with a whole vocabulary exchanged, a new part number and
+different weight and condition figures. Website A's *lighting* pair is equally inert, measured
+the same way, and the reason field conceded it.
+
+**Rules.**
+- **Never score an illustration brief by scraping text.** Look at the image, then click through
+  whatever reveals more of it.
+- A checklist sweep on a tabbed page reads only the open tab. Open them all before counting.
+- When a scrape and a screenshot disagree on a drawing, the screenshot wins (P40), and the
+  scrape gets deleted rather than reported.
+- Run the same diff on both candidates. The concession about Website A's dead lighting pair is
+  what made the claim about Website B's dead tabs credible.
