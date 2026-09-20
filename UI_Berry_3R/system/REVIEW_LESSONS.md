@@ -353,3 +353,44 @@ tolerant of the states being looked for.
 **The rule.** When a control looks blocked, read what is covering it. When a game looks
 frozen, look for a modal, clear it, and retry before writing anything down. Three
 separate false negatives on one task, all caught at this step, is why the step exists.
+
+---
+
+### P27 — pick an indicator that actually changes, or the control looks dead
+
+Task 46 (WI 7574389). Website A's sidebar was probed by reading `h1`/`h2` after each
+click. Nothing moved, across synthetic clicks and then real mouse clicks, so the draft
+claim was "the side navigation does not work". It was wrong, and it was wrong in the
+worst direction: the finding was then mirrored onto Website B and the two were compared
+on a defect neither had been measured for properly.
+
+The headings on that page are **section titles inside the scrolling document**, so they
+are the same on every view. The breadcrumb is what carries the current view. Read that
+instead and the picture inverts: Website A tracked `Health intelligence > Trends >
+Biomarkers > Overview` across three clicks, working perfectly, while Website B stayed
+pinned on `Your workspace / Overview` through five entries and landed all five on the
+identical `scrollY` 226.
+
+**The rule.** Before reporting that a control does nothing, confirm the thing being read
+is something that *would* change if the control worked. Prefer an indicator the page
+itself uses to say where it is: a breadcrumb, a selected-state class, an `aria-pressed`,
+a URL fragment, a value that is recomputed. A heading, a page length, or a whole-body
+text hash can all stay constant through a perfectly good state change.
+
+This is the third shape of the same false negative. P21 asks whether the control was
+reachable, P23 whether the window was long enough, P25 whether the input was real, and
+P27 asks whether the *observation* was pointed at the right thing.
+
+### P28 — selected state is not proof the control did anything
+
+Same task, the other direction. Website A's 1M / 3M / 1Y range control moves its own
+highlight correctly, which on a quick look reads as working. It is not. The chart's
+x-axis stayed `MAR, APR, MAY, JUN` on all three settings and the SVG came back
+byte-identical, 64 paths and 25 circles before and after.
+
+Website B's equivalent genuinely recomputed: the axis came off the hourly scale and the
+heart-rate-variability reading moved 59, then 61, then 54.
+
+**The rule.** For anything that claims to change data, check the data, not the chrome. A
+highlight that moves proves a click handler fired, nothing more. Two candidates can both
+"respond" and only one of them can be doing the work.

@@ -754,3 +754,37 @@ The reason the task tab had to be reopened at all: opening each candidate in its
 judged) left the profile holding 60+ tabs, and the task tab was lost among them. Reopening
 is safe, but the fill script finds the task tab by `uuid[:8]`, so a stale tab set makes it
 fail with a bare `IndexError`. Close candidate tabs when the evaluation is done.
+
+---
+
+## 23. The second batch, jsd-s60-j40 vs exact 5p6, and how to claim from it
+
+Joaquin's Slack named two batches. Everything up to 2026-09-20 was claimed from
+`batchId=p-1868003` (DA0518 rkld-s40 vs opus5high multitab 3-question). The second,
+**`batchId=p-1865005`** (`jsd-s60-j40 vs exact 5p6`), is live and was claimable on the
+same day, so it is worth checking when the first one runs dry.
+
+**Claiming from a specific batch.** `nextclaim.py` hard-codes the DA0518 batch id in its
+URL, so it will never pull from the other one. To claim from `p-1865005`, navigate the
+LinkedIn tab to
+
+```
+https://www.linkedin.com/ai-trainer/tasks?projectId=1253002&batchId=p-1865005&page=1
+```
+
+first, then run `claim.js` against that tab. The batch dropdown reads from the URL, and
+the Slack instruction to "select the right batch in the dropdown before claiming" is
+satisfied by navigating rather than by touching the dropdown. Verified: the page showed
+`My tasks (0)` and "No tasks match the selected filters", the claim put one task in it,
+and the row came back tagged with the `jsd-s60-j40 vs exact 5p6` batch.
+
+**The task shape is the same.** Different batch, different task naming
+(`Aesthetics/Functionality/Overall Website Preference - 086`, container
+`jsd_s60_j40_exact_5p6_20260919`), but the Feather form is identical: six textareas with
+only indices 0, 2 and 4 real, the same three toggle groups, the same submit chain. The
+whole toolchain ran unchanged, `opentask3q.py` through `fill3q.py`, `diagsub.py`,
+`svrstatus.py` and `lnkclose.py`, and the task submitted first try.
+
+**Checking a batch's state.** Reading the rows on the batch URL gives the stage counts
+directly. On 2026-09-20 `p-1868003` showed 22 claimed tasks on page one with nine already
+at **Ready for delivery**, which is the stage that means the work passed review.
