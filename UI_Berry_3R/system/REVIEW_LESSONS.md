@@ -438,3 +438,54 @@ Website B does exactly the same thing on all six of its nav items.
 other candidate. A behaviour both sites share cancels out and says nothing about which is
 better, and a comparative lens is the only thing being scored. Half a probe produces a
 finding that is true about the page and useless about the pair.
+
+### P31 — a static panel that looks live is worse than no panel
+
+Task 57 (`3ce370a7`, NEC4 onboarding wizards). Both candidates built a working four-step
+wizard: every step advanced, typed values survived moving forward and back, milestones
+added, documents uploaded. On the surface there was nothing between them.
+
+Website A added a sidebar carrying a **Project summary** and a **Readiness** checklist.
+The summary is genuinely live: typing `CHANGED-REF` into the reference field and picking a
+different value band showed both back immediately. The readiness list below it is not. All
+four items carry a tick from the opening step, and only one of them ever holds the `ok`
+class, unchanged through all four steps and unchanged when the field a given item tracks is
+cleared.
+
+**The rule.** When a panel claims to report state, drive the state and read the panel, then
+drive it the other way and read it again. Two checks, because one reading cannot tell a
+live panel from a frozen one that happens to start in the right place. Track it across
+every step, not just the first, and clear a field as well as filling one.
+
+The sharper point for the write-up: A's summary working is what makes the frozen list
+beside it a real defect rather than a cosmetic one. A viewer who watches one panel update
+correctly has every reason to trust the one underneath it.
+
+### P32 — two buttons with the same label are not the same button
+
+Same task. Website B's Key dates step has an **Add milestone** button that opens the entry
+form, and a second **Add milestone** button inside that form that commits it. Clicking by
+label found the opener both times, so the form toggled shut and the milestone never
+appeared, which read as a broken feature across two separate attempts.
+
+Driving the form directly, by filling `milestoneName` and `milestoneDate` and then clicking
+the submit **inside the field's own container**, added the milestone and cleared the "No key
+dates added yet" message. Website A behaved identically. Neither site was broken.
+
+**The rule.** Before believing a submit did nothing, count how many controls share that
+label. Scope the lookup to the container holding the fields (`input.closest('form')` or the
+nearest common ancestor) rather than searching the whole document, and check the form is
+still open after the click. A form that closed without saving is a mis-aimed click far more
+often than it is a bug.
+
+### P33 — re-probing mutates state, so reload before the reading that counts
+
+Tasks 54 and 57. Repeated probe clicks left Website B in task 54 with six modals stacked
+open and its card grid down to a single car, and left task 57's wizard parked on step four.
+Both looked like defects in a later reading and neither was: reloading restored six cars
+and a clean step one.
+
+**The rule.** Anything that opens, filters, navigates or submits leaves the page changed.
+When a probe reports a surprising count or an empty region after earlier interaction, reload
+and take the measurement again before it goes anywhere near a reason field. Cheap to do,
+and it separates what the site does from what the probing did to it.
