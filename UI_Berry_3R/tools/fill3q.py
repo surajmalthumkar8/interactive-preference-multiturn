@@ -71,11 +71,28 @@ def main(uuid, ansfile):
             time.sleep(0.3)
         raw('Input.insertText',{'text':txt})
         time.sleep(0.9)
-        mouse.click_at(ws, 200, 300, settle=1.2)   # real blur, commits the field
+        # Section 24 + P38. A fixed blur point is not always inert: on some layouts
+        # (200,300) lands on a label that does nothing, the field never blurs, and
+        # updateTaskStatus rejects with '<field>_scoring_reason is a required property'
+        # inside an HTTP 200. Pick the blur target by hit test, just above the textarea.
+        bt = cdp.ev(ws, """(()=>{const t=document.querySelectorAll('textarea')[%d];
+          const q=t.getBoundingClientRect();
+          for(let dy=-40;dy>-260;dy-=20){const y=Math.round(q.y+dy);if(y<60)break;
+            const e=document.elementFromPoint(Math.round(q.x+q.width/2),y);
+            if(e&&e.tagName!=='TEXTAREA'&&e.tagName!=='INPUT'&&e.tagName!=='BUTTON')
+              return JSON.stringify({x:Math.round(q.x+q.width/2),y:y});}
+          return JSON.stringify({x:200,y:300});})()""" % idx, timeout=25)
+        bp = json.loads(bt)
+        mouse.click_at(ws, bp['x'], bp['y'], settle=1.3)   # real blur, commits the field
         got=cdp.ev(ws,"(()=>document.querySelectorAll('textarea')[%d].value.length)()"%idx,timeout=25)
-        ok='OK' if got==len(txt) else 'MISMATCH'
-        cdp.p('%-14s idx %d want %d got %s  %s' % (k, idx, len(txt), got, ok))
-        if got!=len(txt): raise SystemExit('fill mismatch on '+k)
+        # The DOM value can be right while React state is empty, which is exactly the
+        # case Feather rejects. Check what React itself holds.
+        rv=cdp.ev(ws,"""(()=>{const t=document.querySelectorAll('textarea')[%d];
+          const k=Object.keys(t).find(x=>x.startsWith('__reactProps'));
+          return k?String((t[k].value||'').length):'nokey';})()""" % idx, timeout=25)
+        ok='OK' if (got==len(txt) and str(rv)==str(len(txt))) else 'MISMATCH'
+        cdp.p('%-14s idx %d want %d dom %s react %s  %s' % (k, idx, len(txt), got, rv, ok))
+        if ok!='OK': raise SystemExit('fill mismatch on '+k)
 
     # verify toggles stuck
     sel=cdp.ev(ws,"""(()=>{const g=[];document.querySelectorAll('.MuiToggleButtonGroup-root').forEach(x=>{

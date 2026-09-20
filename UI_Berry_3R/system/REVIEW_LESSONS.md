@@ -595,3 +595,26 @@ the signature of a real overlap.
 
 **Corollary.** A form that cannot be found on the page may be inside a `dialog` that is still
 `display: none`. Check for a closed dialog before concluding a form is missing or broken.
+
+## P38 — the DOM value can be right while React state is empty
+
+Task 63. `fill3q.py` reported all three fields filled and verified, "want 730 got 730" on the
+overall reason, and the toggles all stuck. Feather then rejected the submit inside an HTTP 200:
+
+    'overall_scoring_reason' is a required property
+
+The textarea held the text. React did not. The section 21 chain ends by clicking a neutral
+point to force a real blur, and the fixed point it used, (200, 300), landed on a LABEL on this
+task's layout, which absorbed the click without moving focus. No blur, no commit, and the DOM
+readback still looked perfect because the DOM was never the problem.
+
+**The rule.** Verify the field through React, not through `textarea.value`:
+
+    const k = Object.keys(t).find(x => x.startsWith('__reactProps'));
+    t[k].value.length
+
+If that disagrees with the DOM length, the field is not committed no matter what the DOM says.
+Pick the blur target by hit test above the textarea rather than trusting a fixed coordinate,
+which is section 24 applied to the blur point as well as the click point.
+
+Both are now in `tools/fill3q.py`, so the check runs on every task instead of being remembered.
