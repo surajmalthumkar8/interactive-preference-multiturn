@@ -547,3 +547,30 @@ readout with no cursor affordance is a design choice, not a defect.
 eighteen seconds with the mouse. They are keyboard driven, exactly as that site's own
 instructions say, and arrow keys produced "Diving left" and a save. Read the instructions the
 site ships before concluding its controls do not respond.
+
+## P36 — read the whole page before deciding a submit did nothing
+
+Task 61. Website A's Quick transfer took a recipient and a typed amount, then its Continue
+button appeared to do nothing: the card's own text was unchanged and the form did not reset.
+"Continue does not respond" was one edit away from a reason field again.
+
+The confirmation existed. It was appended at the very end of the document body, far below the
+card that produced it, reading "$250.00 is ready to send to Mia" with a tick. The slice being
+read covered only the neighbourhood of the Quick transfer heading, so it could never have seen
+it. Measuring the length of the whole body text caught it immediately: 1167 characters before
+the click, 1194 after.
+
+**The rule.** When testing whether an action did anything, compare a whole-document measure
+before and after, such as `document.body.innerText.length` or the element count, and only then
+go looking for where the change landed. A targeted slice answers a narrower question than the
+one being asked, and a negative from it is not evidence.
+
+**The same task, three more near misses.** Website A's chart toggles looked inert because the
+probe was reading path lengths from sidebar icons rather than the chart, and the real chart
+swapped its amount, its axis labels and its geometry on every toggle. Website B's sidebar
+looked like it highlighted without routing, and it was in fact appending a whole new section
+below the grid, which the heading list showed and a heading count did not. Website B's action
+buttons read as covered by a DIV, which was the modal a previous click had opened.
+
+Four false negatives in one task, every one of them a probe that answered the wrong question.
+When a well built site suddenly appears to have a dead control, suspect the probe first.
