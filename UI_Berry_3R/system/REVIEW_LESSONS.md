@@ -307,3 +307,49 @@ cycle and the tide, but the shore foam keeps running.
 **The rule.** When a whole-canvas check says "still moving", split the canvas and find out
 what is moving before writing anything. A defect that affects one band is a different
 claim from one that affects the page, and the narrow claim is the one that survives review.
+
+---
+
+### P25 — a synthetic click proves nothing about a canvas game
+
+Task 44, Website A ("World Cricket Champions"). The first probe called
+`element.click()` on the QUICK MATCH card and the screen did not change. Written up
+from that, the claim would have been "the mode cards do not respond", and the whole
+evaluation would have collapsed on it.
+
+A real `Input.dispatchMouseEvent` at the same coordinates opened team selection
+immediately. The game listens for pointer events on a canvas; a synthetic `.click()`
+never reaches it.
+
+**The rule.** Before any negative claim about a control, the interaction has to have
+gone through the real input pipeline. `mclick.py` sends a genuine mouse press and
+release at page coordinates; `apress.py` sends real key events. A `.click()` from
+`runjs.py` is fine for *positive* evidence (if the page reacted, it reacted) but is
+worthless as evidence of a defect. This is the same principle as section 21 on the
+Feather form, where a synthetic `.focus()` left the field uncommitted.
+
+### P26 — an overlay is not a broken control, and the state text lags
+
+Task 44 produced two more near misses on the same task, both worth naming.
+
+**The replay overlay.** Website A's bowling innings appeared stuck at 0.1 overs. Six
+clicks on BOWL, several space presses, no movement, and the canvas was still animating.
+The draft claim was "the match cannot progress past the first ball". What actually held
+it was a wicket replay that had to be cleared by clicking BOWL at its hit-tested centre;
+after that the innings ran normally to 4 for 0 off four balls with a full ball-by-ball
+record. A modal that needs dismissing is not a dead control.
+
+**Website B's match brief.** The START MATCH button hit-tested as covered by an element
+with class `overlay show`, z-index 30, `pointer-events: auto`, at all six probe points
+across the button. That reads exactly like a blocking-overlay bug. It was the intended
+MATCH BRIEF panel, carrying its own TAKE THE CREASE dismiss button. Reading the
+overlay's own contents before judging it is what separated the two cases.
+
+**The state text lags the canvas.** Several probes reported a stale score because
+`document.body.innerText` had not caught up with the frame, and one regex missed a
+wicket because it only matched `\d+-\d+`. Sample more than once, and make the pattern
+tolerant of the states being looked for.
+
+**The rule.** When a control looks blocked, read what is covering it. When a game looks
+frozen, look for a modal, clear it, and retry before writing anything down. Three
+separate false negatives on one task, all caught at this step, is why the step exists.
