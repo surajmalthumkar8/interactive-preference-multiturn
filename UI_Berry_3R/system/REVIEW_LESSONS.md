@@ -912,3 +912,34 @@ the thing being drawn.
   distorted line chart still reads correctly, a distorted map does not.
 - Ratio of the CSS box aspect to the viewBox aspect is the number that separates "letterboxed"
   from "crushed". Compute it for both sides.
+
+## P48 — when a brief names the delivery size, render at that size and look
+
+Task 79, two "DARK LOOP" channel logos. At full width both are handsome and both honour the
+palette: black dominant, blue as the main accent, red as a highlight, verified by sampling
+each mark's lit pixels. Judged on the hero view alone the choice is nearly arbitrary, and
+Website A's ringed composition is arguably the richer picture.
+
+The brief settled it by naming a constraint the hero view cannot show: *"High contrast for
+visibility in small size"*, for a **YouTube profile**. So the mark was rasterised at the sizes
+it will actually be seen at, 48px and 88px, and measured:
+
+| | lit pixels at 48px | at 88px |
+|---|---|---|
+| Website A | 0.3% | 0.6% |
+| Website B | 8.1% | 7.5% |
+
+Then the 88px render was upscaled with `imageSmoothingEnabled=false`, pinned into the page and
+screenshotted, so the numbers could be checked against the picture. They agreed, but the
+picture was the more honest of the two: A's eye and red iris do survive at avatar size, more
+than "0.3% lit" implies, while its wordmark and ring micro-text dissolve completely. The
+number alone would have overstated the defect; the image gave the finding its correct scope.
+
+**Rules.**
+- **Read the brief for a delivery context** (avatar, favicon, print, thumbnail) and reproduce
+  it. A logo task is not judged at hero size just because that is what the page shows.
+- Render small with `drawImage` into a small canvas, then **upscale nearest-neighbour and
+  screenshot it**, so a human eye can confirm what the histogram claims. Per P40, the picture
+  decides.
+- Say what actually survives. "The wordmark and ring lettering smear into nothing" is true and
+  checkable; "the logo disappears" would not have been.
