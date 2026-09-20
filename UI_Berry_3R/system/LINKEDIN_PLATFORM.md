@@ -788,3 +788,46 @@ whole toolchain ran unchanged, `opentask3q.py` through `fill3q.py`, `diagsub.py`
 **Checking a batch's state.** Reading the rows on the batch URL gives the stage counts
 directly. On 2026-09-20 `p-1868003` showed 22 claimed tasks on page one with nine already
 at **Ready for delivery**, which is the stage that means the work passed review.
+
+---
+
+## 24. The §21 blur can still miss, because (200,300) is not always inert
+
+Section 21 established the five-step chain that commits a reason field, ending with a
+click on a neutral spot to force a real blur. `fill3q.py` uses `(200, 300)` for that
+click. On task 7574392 it was not neutral, and the result was the exact §21 failure
+again: `fill3q.py` reported `idx 4 want 621 got 621 OK`, all three textareas held their
+text in the DOM, and `updateTaskStatus` still came back
+
+```
+'overall_scoring_reason' is a required property
+```
+
+with the task left at `IN_PROGRESS`. Only the **overall** field failed; aesthetics and
+functionality committed normally, which is why the check that reads textarea length
+cannot catch this. The DOM value is right either way; what is missing is React's state.
+
+**Diagnosis.** Read the textarea lengths first (`tacheck.js` style). If all three hold
+their text and the mutation still rejects one of them, the blur for that field is what
+failed, not the typing.
+
+**The fix, and the general rule.** `recommit.py <uuid> <idx> <answers.json> <key>`
+re-runs the chain for a single field and, instead of trusting a fixed coordinate, asks
+the page for a blur point that is provably inert:
+
+```js
+for (const y of [120,150,90,60]) for (const x of [760,600,900]) {
+  const e = document.elementFromPoint(x,y);
+  if (!e) continue;
+  if (e.closest('textarea,input,button,a,[role=button],[contenteditable]')) continue;
+  return {x,y,tag:e.tagName};          // -> DIV at 760,90 on this task
+}
+```
+
+Blurring onto that point committed the field and the resubmit returned
+`workflowStatus: COMPLETED` with empty `validationResults`. Picking the blur target by
+hit-test rather than by constant is the durable version of the §21 fix; `fill3q.py`'s
+fixed `(200,300)` is a guess that happens to be right most of the time.
+
+**This is also the standing argument for `diagsub.py`.** A blind submit here would have
+looked like it worked. Reading the mutation body named the one field that was missing.
