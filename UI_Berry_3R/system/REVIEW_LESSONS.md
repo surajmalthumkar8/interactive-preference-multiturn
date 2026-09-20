@@ -1385,3 +1385,46 @@ Read every operand off the page first, then compute.
 
 **Generalises to:** P58, P60, P61. Four sessions running, the dominant failure mode is not missing
 a defect — it is inventing one. Budget a verification pass per negative finding.
+
+---
+
+## P63 — a 202 on the close POST is not a close, and the next claim is what tells you
+
+On task 103 the Feather side returned `COMPLETED` with `validationResults: []`, and the
+LinkedIn close POST returned **202**. Both signals were read as success. They were not.
+The board still showed the work item as `In progress`, and the next `nextup.py` claim came
+back:
+
+```
+claim HTTP 409: {"message":"Cannot claim new task results while having unfinished task results","status":409}
+```
+
+The cause was the **`ATTEMPT_URL-link-single` input**, `required:true`, sitting empty. The
+task page carries its own required field — *"After claiming the task, copy the URL link
+from the browser"* — and the form refuses to transition without it. `requestSubmit()` still
+produced a 202 because the save endpoint accepted the payload; the status transition simply
+never ran. Re-reading the page showed `[role=alert]` carrying **"Please fill out this
+field."**, which is the only place the real reason appears.
+
+Two lookalikes that cost time before the alert was read:
+
+- **"the timer is too short"** — a fresh tab restarts *Time Spent* (it read `1m 35s`), which
+  looks exactly like a dwell-time rejection. It is not; the timer does not gate Submit.
+- **"the click missed"** — hit-tested `hitSelf:true`, `disabled:false`, no dialog. The click
+  landed fine every time.
+
+**The rule.** A close is confirmed by the *board*, never by the response code. After the
+close POST, read the work item's own row or re-open the task in a fresh tab and check the
+pill. The sequence that actually closes it: fill `ATTEMPT_URL-link-single` with the canonical
+Feather task URL by keystroke → real-mouse click `Submit` → expect POST 202 **followed by a
+board reload showing `Claim task`** and the pill reading `Submitted`.
+
+**Corollary, and the cheapest detector there is:** a `409 Cannot claim new task results
+while having unfinished task results` on the next claim means a previous task did not close.
+Do not retry the claim and do not debug the claim path — audit the board, find the row still
+reading `In progress`, and finish it. The 409 is a truthful report about the *last* task,
+not a fault in the current one.
+
+Extends [[P59]] (fill3q reporting OK does not mean Feather accepted the field) to the
+LinkedIn side: every layer of this pipeline has an acknowledgement that is weaker than it
+looks, and the only trustworthy confirmation is the state the platform shows afterwards.
