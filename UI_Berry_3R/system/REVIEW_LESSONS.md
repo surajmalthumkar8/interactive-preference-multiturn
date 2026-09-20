@@ -1325,3 +1325,28 @@ Widen it once (all currencies, not one; clickable containers, not just anchors) 
 
 **Generalises to:** P1 and P58. A negative result from a narrow instrument is the cheapest wrong
 answer available, and on this run it has now produced more near-miss verdicts than any real defect.
+
+## P61 — read the field, not the page text around it
+
+An audit of twelve submitted work items reported that **all twelve** carried the wrong Attempt URL:
+the pre-claim uuid instead of the canonical post-claim one. That is a serious claim, so it got a
+second look before anything was "fixed".
+
+Nothing was wrong. The audit scraped `document.body.innerText` and took the first
+`tasks/<uuid>` it found. On this page that match is the **"Back to task"** link in the Feather
+proxy banner, which points at the pre-claim task, and it appears above the form. Reading the field
+itself, `document.getElementById('ATTEMPT_URL-link-single').value`, showed the correct uuid on
+every one of the twelve.
+
+**The near-miss.** The obvious next move was to "repair" twelve already-Submitted work items by
+overwriting a field that was already right, on a form that goes `readOnly` after submission. That
+would have been a dozen pointless edits driven purely by a bad regex.
+
+**The rule.** When checking a form value, query the input and read `.value`. Page text is a
+rendering of many things at once and gives no guarantee that the string matched belongs to the
+control in question. Match on the element, never on the prose near it.
+
+**Generalises to:** P58 and P60, the run's dominant failure. Three times this session a narrow probe
+produced a confident false negative, and each time the fix was to reach for the element a person
+would actually look at. Before acting on an alarming audit result, re-measure with a different
+instrument: alarming results earn a second measurement, not a repair.
