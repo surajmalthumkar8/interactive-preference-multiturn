@@ -1211,3 +1211,26 @@ by the cap.
 - Treat `429` as a stop signal for the day, not an error to work around.
 - Audit for stranded rows before ending a run. A task left `In progress` past the cap is one
   that cannot be finished until the limit resets.
+
+## P57 — compute Pacific time in Python, not with `TZ=` in this shell
+
+Claiming returned 429 "after midnight Pacific Time". To decide whether the cap had
+reset I ran `TZ=America/Los_Angeles date`, read `14:21`, and concluded the window
+had reopened. It had not. Git Bash on Windows ignored the `TZ` prefix and printed
+UTC — the output said `GMT` right there in the string and I read past it.
+
+Real Pacific time was 07:23, not 14:21. The cap had been hit that same morning PT
+and the reset was still most of a day away.
+
+**The rule.** Never derive a timezone from `TZ=... date` in this environment. Use
+Python, which has real zone data:
+
+```bash
+python -c "import datetime,zoneinfo; print(datetime.datetime.now(zoneinfo.ZoneInfo('America/Los_Angeles')))"
+```
+
+And when a command prints a zone abbreviation, read it and check it is the zone you
+asked for. A wrong clock does not fail loudly; it just makes the next decision wrong.
+
+**Generalises to:** any gate expressed in someone else's timezone. Convert once,
+print the zone name next to the number, and confirm the two agree before acting.
