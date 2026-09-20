@@ -645,3 +645,35 @@ the control state hints at it. It was visible instantly in the image, and `displ
 full opacity over the chart's own box confirmed it afterwards.
 
 Screenshot to find candidates. Probe to confirm them. Neither one alone is evidence.
+
+### P40 — on a WebGL task, read the framebuffer inside a frame, and do not let a metric outrank the image
+
+Task 71 paired two 3D sneaker configurators. Three separate probes gave answers that pointed the
+wrong way before the right evidence arrived.
+
+- **The blank readback.** Copying the canvas with `drawImage` into a 2D context and sampling it
+  returned `maxLum: 0` across 174k pixels on Website A. That is not an empty scene, it is the
+  ordinary `preserveDrawingBuffer: false` readback failure. Anything sampled outside a frame is
+  already cleared. The fix is `gl.readPixels` on the live context inside a double
+  `requestAnimationFrame`, which immediately returned a real image.
+- **The draw-call count said the opposite of the truth.** Instrumenting `drawArrays` and
+  `drawElements` showed Website A pushing roughly twice Website B's triangles per frame. Read
+  naively that says A has the richer model. A was in fact drawing a cloud of disconnected shards.
+  Geometry volume says nothing about whether the geometry resolves into the requested object.
+- **The clever metric that had to be thrown away.** A connected-component count over a brightness
+  mask was built to prove "A is fragmented, B is solid". It said B had *more* blobs at three of
+  four angles, because B's matte black panels fall under any brightness threshold that excludes
+  the grid. The metric did not support the claim, so it was discarded rather than reported.
+
+What actually decided it was the rendered image at four rotation angles on each side, with a real
+pointer drag between them: A showed the same scatter of shards from every angle, B showed a
+coherent shoe from every angle.
+
+The rule: on a canvas task the picture is the deliverable, so the picture is the evidence. Probes
+exist to confirm that the thing responds and to explain *why* it looks how it looks, not to
+substitute a number for looking. And when a metric built to support a claim contradicts it, the
+metric goes in the bin, not into the reason field.
+
+Corollary to P39: a screenshot is still only a pointer, so the render was checked at four angles
+rather than one, and the interaction was driven with real pointer events before anything was
+written down.
