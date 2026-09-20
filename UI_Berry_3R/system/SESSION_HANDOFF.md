@@ -37,7 +37,7 @@
 > `p-1868003` hard-coded in `tools/nextclaim.py` is stale; navigate the LinkedIn tab to the
 > `p-1865005` URL first, then run `claim.js` against it.
 >
-> **38 tasks submitted this run**, tasks 27 to 64, every one `COMPLETED` on Feather with empty
+> **40 tasks submitted this run**, tasks 27 to 66, every one `COMPLETED` on Feather with empty
 > `validationResults` and `POST 202` on LinkedIn.
 >
 > **Two tools changed and both matter:**
