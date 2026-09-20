@@ -1006,3 +1006,37 @@ the same way, and the reason field conceded it.
   scrape gets deleted rather than reported.
 - Run the same diff on both candidates. The concession about Website A's dead lighting pair is
   what made the claim about Website B's dead tabs credible.
+
+## P51 — to verify an end state, drive the app to it
+
+Task 82, two 3x3 sliding puzzles. The brief demanded a shuffle that **guarantees solvability**
+and a victory screen when the tiles reach 1 to 8. Neither claim can be settled by looking at
+the page, and both are exactly the kind of thing a candidate can fake with static markup.
+
+Both were checked by playing:
+
+**Solvability, five shuffles each.** Read the board, compute the inversion parity (for a 3x3
+with the blank, an even inversion count is solvable), repeat. Both candidates returned five
+distinct, genuinely scrambled, provably solvable boards. Neither was faked, and the finding
+that looked promising early — Website B loads at `1,2,3,4,6,7,5,8`, two tiles from solved —
+turned out to be its *initial* state only. Its shuffle works. That downgraded a suspected
+defect to a first-impression note, which is what the reason field said.
+
+**The victory screen, by winning.** A breadth-first search over the 9! state space finds the
+move sequence from the live board to `1..8,0`, and each move is a real `mouse.click_at` on the
+tile adjacent to the blank, re-reading the grid between moves. Website A solved in 22 moves,
+Website B in 8. Both then raised a genuine end card with the final move count and clock.
+A ten-line BFS is cheaper than arguing about whether a screen exists.
+
+One detector caveat worth keeping: the overlay probe reported `overlayCount: 0` for Website B
+because its card is not `position: fixed` or `absolute`. The card was plainly there in the text
+and the screenshot. **A structural selector that finds nothing has not proven absence** (P46
+wants a diff, P39 wants the picture); here the text dump and the screenshot both contradicted
+the selector, so the selector lost.
+
+**Rules.**
+- When a brief names an end state, **compute a path to it and execute the path.** Do not infer.
+- For any puzzle or generator, verify the *invariant* the brief names (solvability, uniqueness,
+  ordering) across several runs, not once.
+- Re-read the live state between scripted moves. A queued click list goes stale the moment an
+  animation reorders the board.
