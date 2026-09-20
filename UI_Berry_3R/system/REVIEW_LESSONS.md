@@ -843,3 +843,41 @@ which killed a fourth candidate finding about B being "stretched".
   field goes `null` mid-session, suspect the pattern before the product.
 - **Aim is part of the test.** Sweep the pointer across the field before concluding a weapon
   is inert.
+
+## P46 — to prove a control produces nothing, diff the whole view around the action
+
+Task 77, two data tables against a seven item checklist. The decisive finding was that
+Website B has no bulk actions bar: its row checkboxes tick, and nothing else in the page
+responds. That is a negative claim about a required feature, so P1 demands real evidence,
+and a keyword scrape cannot supply it. Absence of the word "selected" only proves the word
+is missing, not the bar.
+
+What proved it: capture the **whole visible view** before and after the action and compare.
+
+```js
+const vis=e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0;};
+// before AND after one checkbox click:
+{ txt: document.body.innerText.replace(/\s+/g,' '),
+  nodes: [...document.querySelectorAll('*')].filter(vis).length }
+```
+
+Website B: `440 -> 440` visible nodes, and the set difference of the words was **empty**.
+Nothing was added anywhere on the page, so there is no bar, no count and no toolbar hiding
+off to one side. Website A: the count text moved `0 -> 2 -> 8 customers selected` against a
+bar that was already present.
+
+That same run also corrected the opposite error. Scraping for "empty/loading/error" found all
+three words in **both** candidates' HTML, which suggested both shipped the states. Exercising
+them told a different story: only B could be switched into them, and only a *visibility*
+check separated the states (`visibleRows 0 / visibleSkeletons 21` for loading, `0/0` plus
+"No customers found" for empty). A present-in-DOM check had said all three states were live
+in every mode at once, because all three panels exist in the markup simultaneously.
+
+**Rules.**
+- A word in the HTML is not a feature. A visible element that changes when acted on is.
+- **Filter probes by `getBoundingClientRect()`**, not by `querySelector` alone, whenever the
+  page keeps several states mounted together.
+- For "this control does nothing", the evidence is a before/after diff of visible node count
+  and page text across the action, quoted in the finding. Anything less is a guess.
+- Absence of one affordance does not condemn the build. Website B lost this one feature and
+  still won the fallback views outright, and the reason fields said so.
