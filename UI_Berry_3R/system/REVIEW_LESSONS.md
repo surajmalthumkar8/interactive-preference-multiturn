@@ -677,3 +677,35 @@ metric goes in the bin, not into the reason field.
 Corollary to P39: a screenshot is still only a pointer, so the render was checked at four angles
 rather than one, and the interaction was driven with real pointer events before anything was
 written down.
+
+### P41 — a text input that measures 0x0 is off-view, and a synthetic value set is not a typed query
+
+Task 72's Website B has a search box above its stage list. Three probes ran against it and the first
+two both said "the search does not filter", which would have been a false negative in the
+functionality field.
+
+- **Probe 1, native setter.** Setting `.value` through the `HTMLInputElement` prototype setter and
+  firing `input`/`change` left all 18 stage rows visible for `deploy`, `zzzznomatch` and `seo`
+  alike. The tell that the probe was wrong, not the site: at the end of the run `s.value` read back
+  as the empty string. The component never took the value.
+- **Probe 2, real click and insertText, wrong view.** Driving it with `mouse.click_at` plus
+  `Input.insertText` still typed nothing, because the box measured `{x: 0, y: 0}`. A control at the
+  origin with no size is not rendered in the current view. The click landed on the page corner.
+- **Probe 3, correct view first.** Clicking the sidebar item that owns the workflow view, then
+  scrolling the input into view, put it at a real viewport position. The same click and insertText
+  then produced `value: "deploy"`, the list collapsed from 18 rows to the 4 phase headers, and an
+  empty-state message appeared.
+
+Only probe 3 was evidence, and it reversed the finding: the search *does* filter. The real defect it
+then exposed is narrower and true, that the filter reports nothing found for `deployment`, `lead`
+and `handover`, each of which names one of B's own stages. Four of five terms came back empty.
+
+Two rules fall out, and they generalise past search boxes:
+
+1. **Read the box's own value back before trusting what the list did.** If `value` is empty after the
+   set, the probe failed and the list never had a query to respond to. This is P25 (React state is
+   the field of record) applied to a control rather than a textarea.
+2. **A `0x0` or origin-positioned control is not a broken control, it is one on another view.** Find
+   the view that owns it before concluding anything, which is P37 and P39 wearing another hat.
+
+The general form: before reporting that an input does nothing, prove the input received something.
