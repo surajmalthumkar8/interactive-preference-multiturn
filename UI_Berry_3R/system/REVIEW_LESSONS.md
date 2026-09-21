@@ -1428,3 +1428,111 @@ not a fault in the current one.
 Extends [[P59]] (fill3q reporting OK does not mean Feather accepted the field) to the
 LinkedIn side: every layer of this pipeline has an acknowledgement that is weaker than it
 looks, and the only trustworthy confirmation is the state the platform shows afterwards.
+
+## P64 — the Attempt URL uuid is v5 before the Feather claim and v4 after it
+
+**Task 343 / WI 7569563, 2026-09-21.** The dispatcher handed out a work item whose Attempt URL
+pointed at `d9ddbc50-635a-5efb-b424-6247a9f09325`. Feather's own GraphQL answered
+`Task ... not found` with `service_exception_code: NOT_FOUND`, five times across several
+minutes. The rendered page showed `Task not found` in 157 characters. The conclusion drawn —
+and reported — was that Feather had failed to provision the task and the row was unrecoverable.
+
+**That conclusion was wrong, and the way it was reached is the lesson.**
+
+The uuid in a pre-claim Attempt URL is a **v5 (name-derived)** placeholder. The real task id is
+**v4** and *does not exist until the task is claimed on the Feather side*. Claiming minted
+`5c9d438e-3c6f-46e6-92ea-bf71fd6a6e92`, which loaded instantly with both candidate tabs. This is
+[[P44]] restated with a concrete discriminator:
+
+```python
+import uuid; uuid.UUID(u).version     # 5 = placeholder, not yet claimed.  4 = real task.
+```
+
+**The false trails, both of which produced confident wrong answers:**
+
+1. *"v5 is the placeholder marker, v4 is real"* was then over-corrected into *"v5 is just this
+   batch's id format"*, because every id in the campaign's Unclaimed list is v5. Both readings
+   were drawn from one sample each. The unclaimed list is v5 **because nothing in it is claimed
+   yet** — the format is a function of claim state, not of the batch.
+2. *"`NOT_FOUND` is how Feather reports an unclaimed task"* — disproved by a control: a
+   different unclaimed task in the same batch returned `workflowStatus: UNCLAIMED` and rendered
+   a full 2284-character page. An unclaimed task is fully readable before claiming.
+
+**What the control test actually proved.** Querying a *known-good* task alongside the failing one
+is what separated "the platform is broken" from "I skipped a step". One id, one symptom, is never
+enough to name a cause:
+
+| task | `task(id:)` | page |
+|---|---|---|
+| 343, mine, pre-claim | `NOT_FOUND` | "Task not found", 157 chars |
+| 349, same batch, unclaimed | `UNCLAIMED` | full page, 2284 chars |
+| 105, finished | `SIGNED_OFF` | n/a |
+
+**The rule.** A dead Attempt URL is the *expected* state before the Feather claim, not a fault.
+Check the uuid version first — it costs one line. Never conclude "the platform is broken" from a
+single failing id; query a neighbouring task first. And the ordering from [[P44]] is what makes
+this recoverable at all: **claim on Feather and confirm the task page renders BEFORE pressing
+`Start annotation`**, because `Start annotation` destroys `Skip` and strands the row `In progress`,
+which then 409s every later claim ([[P63]]).
+
+Extends [[P62]] from the other direction: there, the instrument was wrong. Here the instrument was
+right on the first reading and two theories were layered on top of a measurement that needed none.
+
+## P65 — Submit on the work item needs synthetic pointer events, not a real-mouse click
+
+**Same task.** `mouse.click_at` on the LinkedIn `Submit` button, hit-tested, `disabled:false`,
+coordinates verified inside the viewport, landed on the button and did **nothing**: no POST, no
+dialog, status unchanged at `In progress`. Repeating it changed nothing.
+
+What worked was dispatching the event sequence directly at the element:
+
+```js
+['pointerover','pointerenter','pointerdown'] -> PointerEvent
+'mousedown' -> MouseEvent ; el.focus()
+'pointerup' -> PointerEvent ; 'mouseup','click' -> MouseEvent
+```
+
+all with `{bubbles:true, cancelable:true, composed:true, button:0}`. See `tools/psubmit.js`.
+The status went to `Submitted` immediately. This is the same pattern `claimgo.js` already uses for
+the Feather status chip, and the same one [[P44]] records for the Radix claim control — the
+handler listens on pointer events, and a CDP mouse click does not always produce the pointer
+sequence the framework expects.
+
+**A trap while verifying this:** the two browser windows have *different viewport sizes* (the
+Feather tab reported 1536x826, the LinkedIn tab 2560x1305). An x-coordinate of 2021 looks
+off-screen against the wrong window and invites the false conclusion that the click missed. Read
+`innerWidth`/`innerHeight` from the tab you are about to click, not from the last one you measured.
+
+**Also:** the page-level `window.fetch` hook is destroyed by the navigation that Submit triggers,
+so the confirming POST cannot be read from `window.__wi` afterwards. Confirm from the board on a
+fresh load instead, exactly as [[P63]] requires.
+
+## P66 — a blank candidate iframe is loading, not broken
+
+Candidate iframes on the task page routinely render **blank for 25-40 seconds**, and re-render
+from scratch on every tab switch. A screenshot taken immediately after clicking `Website B` showed
+an empty panel; 18 seconds later the full site was there, and a further 25 seconds brought in the
+hero photograph.
+
+Two near-misses this caused, both caught only by re-measuring:
+
+- *"Website B has no hero image"* — it has one, an `<img>` at `w=2200` with `fetchpriority="high"`.
+  A's hero is a CSS `background`, which paints sooner. The difference is load order, not content.
+- *"Website B's headline has no scrim and fails contrast"* — it has a two-layer `.hero-shade`
+  gradient, arguably more considered than A's. What was photographed was the scrim rendered
+  *before* the image decoded.
+
+Per the negative-claim protocol, wait and re-shoot before recording any "missing" or "broken"
+finding about a candidate. Better still, fetch the candidate's HTML directly — both iframes are
+same-session fetchable from the task page and return the complete document:
+
+```js
+await fetch(iframe.src,{credentials:'include'})   // 200, full source
+```
+
+That reads structure, data arrays and JS behaviour in one call, with no scroll mechanics and no
+paint timing to fight. `tools/probe.js` and `tools/livecheck.js` do exactly this.
+
+**Scrolling a cross-origin candidate iframe is not worth the effort.** `contentWindow` throws,
+`mouseWheel` over the iframe does not reach its scroller, and dragging its scrollbar needs CSS
+coordinates that differ from screenshot pixels when the window is scaled. Read the source instead.

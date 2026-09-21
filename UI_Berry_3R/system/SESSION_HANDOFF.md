@@ -31,6 +31,51 @@
 > `LEARNINGS.md`, entry for task #6210077.
 
 
+> ## Current state — 2026-09-21
+>
+> **Live batch: `solnext-jsd-s40-j128 vs exact 5p6 Aesthetics/Functionality/Overall Preference
+> 2026-09-20`**, campaign `4013d9f7-2afe-4762-873d-b76fdca9c61b`, task batch
+> `solnext_jsd_s40_j128_exact_5p6_20260920`, status ACTIVE. At last check **314 tasks unclaimed**
+> out of 333 approved comparisons. Slack says to leave the similarly-named `r2` batch until this
+> one is exhausted.
+>
+> `tools/nextup.py` has this batch name pinned in `BATCH`. **Change that literal when Slack
+> announces the next batch** or the dropdown click finds nothing and the run stops.
+>
+> **Task 343 (WI 7569563) closed 2026-09-21** — all three lenses to Website A, submitted and
+> confirmed `Submitted` on a fresh load. It is also the source of P64 to P66, and worth reading
+> before the next task because the failure it records cost most of a session:
+>
+> - A pre-claim Attempt URL uuid is **v5** and returns `NOT_FOUND` from Feather. This is normal.
+>   The real **v4** id only exists after the Feather-side claim. Check `uuid.UUID(u).version`
+>   before concluding anything.
+> - `Start annotation` was pressed before the Feather claim, which destroyed `Skip` and left the
+>   row `In progress`, 409-ing every later claim. **Claim on Feather and confirm the task page
+>   renders first.**
+> - LinkedIn's `Submit` needed synthetic pointer events (`tools/psubmit.js`); a real-mouse click
+>   at verified coordinates did nothing at all, silently.
+>
+> **New in `tools/` this session**, all previously scratchpad-only and therefore lost on every
+> session reset:
+>
+> | file | what it does |
+> |---|---|
+> | `nextup.py` | the canonical claim path, LinkedIn + Feather, end to end |
+> | `claimgo.js` | the Feather-side claim via the status chip (pointer events) |
+> | `hook20.js` | `window.fetch` hook into `window.__fh2` for claim responses |
+> | `tidy3.py` | closes stale task tabs, keeps one board and one campaign tab |
+> | `allrows.js` | dumps the board's rows for the P63 audit |
+> | `psubmit.js` | synthetic pointer Submit for the work item (P65) |
+> | `getsrc.js` / `probe.js` / `livecheck.js` | read candidate HTML directly instead of scrolling iframes (P66) |
+> | `tabclick.js` | scroll a Radix tab into view and return its centre |
+> | `wheelshot.py` / `dragscroll.py` | scroll attempts kept for reference; **both fail on cross-origin candidate iframes** — prefer the source-fetch route |
+>
+> **Reading candidates: fetch the source, do not fight the iframe.** Both candidate iframes are
+> fetchable from the task page with `credentials:'include'` and return the complete document.
+> That gives structure, data arrays and JS behaviour in one call. Cross-origin blocks
+> `contentWindow`, `mouseWheel` does not reach the iframe's scroller, and scrollbar drags need CSS
+> coordinates that differ from screenshot pixels on a scaled window.
+
 > ## Current state — 2026-09-20
 >
 > **Live batch: `p-1865005`** (jsd-s60-j40 vs exact 5p6), campaign `5025cc07`. The earlier

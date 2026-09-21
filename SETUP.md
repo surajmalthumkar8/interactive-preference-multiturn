@@ -165,6 +165,67 @@ want the humanizer rule stated even louder, add one line to the top of `CLAUDE.m
 
 ---
 
+## Porting the UI Berry toolchain to a new machine
+
+Two things in `UI_Berry_3R/tools/` are machine-specific and **will fail on a different laptop
+until changed**. Neither is PII; both are absolute paths baked in for speed.
+
+**1. The `sys.path.insert` line at the top of most tools**
+
+```python
+sys.path.insert(0, r'C:\Users\Suraj\Downloads\project_interactive_linkedin\UI_Berry_3R\tools')
+```
+
+It exists so `import cdp, mouse` resolves. On a new machine either edit it to the new clone path,
+or run the tools with the working directory set to `UI_Berry_3R/tools` and drop the line. Files
+that carry it: `nextup.py`, `fill3q.py`, `shotcrop.py`, `nextclaim.py`, `wheelshot.py`,
+`dragscroll.py`, and the screenshot helpers.
+
+**2. The screenshot output directory**
+
+```python
+r'C:\Users\Suraj\.claude\playwright-output\%s.png'
+```
+
+Create the equivalent folder on the new machine or repoint it. Nothing reads these back
+programmatically, so a wrong path fails loudly rather than silently.
+
+**3. One pip dependency that the imports do not make obvious**
+
+```bash
+pip install websocket-client
+```
+
+`cdp.py` imports `websocket` (on a combined `import json, urllib.request, websocket, sys` line,
+so a naive grep for `import websocket` misses it); `mouse.py` gets it transitively via `cdp`.
+It is **not** stdlib and is **not** `websockets` (different package, incompatible API).
+Verified working here against `websocket-client 1.8.0`. Everything else the toolchain uses is stdlib: `json`,
+`urllib`, `base64`, `time`, `sys`.
+
+**4. Chrome must be started with the debugging port before any tool runs**
+
+```bash
+chrome.exe --remote-debugging-port=9222 --user-data-dir="C:\Users\<you>\.claude\playwright-profile"
+```
+
+Every tool connects to `http://127.0.0.1:9222`. If it is not listening, they fail on the first
+`urllib.request.urlopen`. Log in to LinkedIn and Feather once in that profile and the session
+persists. Do not add stealth flags, a UA override, a proxy, or `swiftshader` on top of the
+hardened profile — `system/TOOLCHAIN.md` records what each one measurably breaks.
+
+## The claim path, end to end
+
+`tools/nextup.py` is the canonical claim sequence and the single most important file to
+understand. It closes stale tabs, opens a fresh board tab, picks the batch from the dropdown,
+installs the fetch hook, fires `claim.js`, reads the `claimResults` response for the work-item
+id, then opens the Feather task and **claims it there too** via `claimgo.js` before printing the
+canonical post-claim uuid.
+
+**Edit `BATCH` at the top of `nextup.py` before each new batch.** It is pinned to a literal batch
+name that must match the dropdown entry exactly, and Slack announces the new one. `claimgo.js`
+additionally hardcodes a Radix panel id (`radix-:rf:-content-layout_node_4`) which is only used
+for a diagnostic readout — it changes between renders and a `none` there is harmless.
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
@@ -357,17 +418,25 @@ defect a submission can carry. A green validator run is not a reviewed task.
 ## Daily flow
 
 1. `git pull`.
-2. Pick the task **on the Vercel dashboard**, never from the Feather campaign list. Vercel is
-   the binding queue. It can show an empty queue while Feather shows hundreds of unclaimed
-   tasks, and a full Feather campaign is not permission to claim from Feather.
-3. Claim it, then open both candidate sites in their own full tabs.
-4. Inspect: scroll each site top to bottom and click every control to confirm it updates
+2. Pick the task **on the LinkedIn AI Trainer dashboard**, never from the Feather campaign
+   list. LinkedIn is the binding queue. It can show an empty queue while Feather shows hundreds
+   of unclaimed tasks, and a full Feather campaign is not permission to claim from Feather.
+   *(Vercel was retired 2026-09-19. Any instruction below or elsewhere naming Vercel as the
+   dispatcher is stale — see `system/SESSION_HANDOFF.md`.)*
+3. Claim on LinkedIn, then **claim the same task on Feather and confirm its page renders**,
+   and only then press `Start annotation`. This order is not optional: `Start annotation`
+   destroys `Skip`, and a task whose Feather side was never claimed has a dead Attempt URL
+   that cannot be retired cleanly. See P44 and P64 in `system/REVIEW_LESSONS.md`.
+4. Open both candidate sites in their own full tabs.
+5. Inspect: scroll each site top to bottom and click every control to confirm it updates
    content. Existence is not functionality. This is the evidence base for the functionality
-   reason and automating it does not shorten it.
-5. Draft the three options and three reasons → validate → humanize → validate again →
+   reason and automating it does not shorten it. A blank candidate iframe is almost always
+   still loading — wait 25 to 40 seconds and re-shoot before calling anything broken (P66).
+6. Draft the three options and three reasons → validate → humanize → validate again →
    inspect → fill → hard-reload to confirm the fields persisted → submit on Feather → confirm
-   Completed → submit on Vercel.
-6. Append anything learned to `UI_Berry_3R/system/LEARNINGS.md`, then commit and push.
+   Completed → **submit on LinkedIn**.
+7. Append anything learned to `UI_Berry_3R/system/LEARNINGS.md` or `REVIEW_LESSONS.md`, then
+   commit and push.
 
 Caps measured on recent batches: 25 claims and 15 submits per day on the UI-Berry batch, and
 20 submits on the older 3R batch. Plan the day around submits, not claims.
