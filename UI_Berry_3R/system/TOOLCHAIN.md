@@ -67,6 +67,93 @@ about it.
 **Output directory is outside the repo on purpose.** Session artifacts carry PII. They must
 never land in a git repository.
 
+
+
+### Repo-wide invisible-Unicode sweep (2026-09-21)
+
+The service at `~/.claude/watermarks-remover` (upstream
+[guillaumemeyer/watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover), MIT)
+was run in `/inspect` mode across every markdown file in this repository: `CLAUDE.md`,
+`README.md`, `SETUP.md`, all of `UI_Berry_3R/system/*.md`, and `UI_Berry_3R/tools/README.md`.
+
+**Result: 16 files, 0 findings.** No zero-width characters, word joiners, bidirectional marks or
+invisible-times. Nothing to strip.
+
+That is the expected outcome and it is worth understanding *why*, because it stops this check
+being re-run as if it were a fix. Invisible Unicode arrives by **pasting model output**. Prose
+that a person typed, or that was written to disk as plain ASCII, has nothing to carry. A clean
+result here means "this file was never contaminated", not "this file was cleaned".
+
+**What this check is and is not:**
+
+- It **is** worth running on any text pasted *out of* a model and into the repo, and on
+  file-based deliverables that leave the machine (the C2PA/EXIF/XMP strip).
+- It is **not** evidence of human authorship, and must never be reported as such. The upstream
+  README is explicit: *"no tool can honestly certify this fails the official check."*
+- Layer B (`/clean`, which rewrites text) is **never** run on this project. `mt-humanizer` is the
+  only sanctioned rewriter, and a second rewrite on top of it degrades the prose and destroys the
+  phrasing variation the client's own rules are looking for.
+- Optional binaries `exiftool`, `qpdf`, `c2patool`, `ghostscript` and `ffmpeg` all report `false`
+  on this machine, which reduces the PDF and some image paths. Irrelevant for plain markdown.
+
+**Git history is out of scope for this tool and deliberately so.** Commits on this repository
+carry a `Co-Authored-By` trailer recording that Claude contributed. That trailer is accurate, and
+removing it would misrepresent authorship on a project whose rules treat undisclosed AI use as a
+removal trigger. Honest attribution and the client's authorship rule point the same way here.
+
+### Evaluated and rejected: `invisible_playwright` (2026-09-21)
+
+`feder-cr/invisible_playwright` (2,942 stars, MIT, actively pushed) was evaluated as a possible
+anti-detection upgrade. **It cannot be used on this project**, and the reason is architectural
+rather than a matter of preference. Three disqualifiers, all quoted from its own README:
+
+1. **It is Firefox, not Chrome.** *"It is Firefox, patched at the C++ source level."* The project
+   is Firefox-exclusive. `Learning Hub.md` §01 requires Google Chrome, so this fails the client's
+   own browser mandate before any detection question is reached.
+
+2. **It refuses CDP.** *"A few surfaces are out of scope - tracing, HAR, CDP, the API request
+   context - and each one refuses with a sentence saying why rather than misbehaving quietly."*
+   Every tool in `UI_Berry_3R/tools/` attaches to a running Chrome over
+   `--remote-debugging-port=9222`. The README contains zero occurrences of `remote-debugging`.
+   This is not a gap to work around; the tool declines the interface the whole toolchain uses.
+
+3. **It randomizes the fingerprint per session.** *"Random fingerprint per session."* That is the
+   right design for anonymous scraping and the wrong one here. Our profile is **authenticated and
+   aged** — LinkedIn and Feather see a returning user with warm cookies and real history. Swapping
+   a stable, consistent, logged-in identity for a freshly randomized one each session is a
+   *downgrade* in trust signal for an authenticated workflow, not an upgrade.
+
+**The general finding, which is the part worth remembering.** For a profile that already passes
+cleanly, adding any stealth layer tends to make things worse, because the patch itself becomes the
+signal. Measured example from the current literature: `puppeteer-extra-stealth` improves headless
+detection from 100% to 33%, but CreepJS then flags the patch itself at 80%. `playwright-stealth`
+patches roughly 12 JS properties while modern anti-bot systems check 40 or more, and its upstream
+has not shipped a fix since 2023. The remaining 2026 signals — input physics, GPU pipeline, event
+timing, keystroke entropy — are not reachable from a JS shim at all.
+
+**Measured state of our profile, re-verified 2026-09-21 on Chrome 153:**
+
+```
+navigator.webdriver      false
+userAgent                Chrome/153.0.0.0  (no Headless token)
+userAgentData.brands     Google Chrome 153 / Not_A Brand 8 / Chromium 153
+platform                 Win32
+languages                en-US, en
+hardwareConcurrency      16          (matches the real machine)
+deviceMemory             32          (matches the real machine)
+plugins.length           5
+WebGL renderer           ANGLE (Intel UHD Graphics 0x0000A7A8, D3D11)  -- hardware, not SwiftShader
+window.chrome            object
+```
+
+Every one of those values is **true**, which is the whole point. A spoof can only help by making a
+*false* signal look true, and there is no false signal here to fix. This is the same conclusion
+§1 already reached; the 2026 literature and this evaluation both support leaving it alone.
+
+If a patched-binary approach is ever genuinely needed for Chromium, the analogues are **Patchright**
+and **nodriver** (which does drive Chrome over CDP) — a different architecture to migrate to, never
+a layer to add on top of this one. Neither is warranted while the profile measures clean.
+
 ### CDP attach mode — the operating mode for this project (2026-08-27)
 
 Suraj logs in himself, then Claude attaches to that already-running Chrome instead of
